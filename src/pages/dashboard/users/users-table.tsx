@@ -32,7 +32,7 @@ const UserTable = () => {
       authAxios
         .delete(`/users/${id}`)
         .then((res) => {
-          toast.success("user has been deleted");
+          toast.success(`${userName} has been deleted`);
           setRefresh((prev) => (prev = !prev));
         })
         .catch((e) => toast.error(setError(e)));
@@ -44,7 +44,7 @@ const UserTable = () => {
       authAxios
         .post(`/users/promote/${id}`)
         .then((res) => {
-          toast.success("user has beend promoted");
+          toast.success(`${userName} has been promoted`);
           setRefresh((prev) => (prev = !prev));
         })
         .catch((e) => toast.error(setError(e)));

@@ -131,8 +131,8 @@ section {
 }
 
 .empty-cart-image {
-  width: 300px; /* Adjust the width */
-  height: 300px; /* Adjust the height */
+  width: 350px; /* Adjust the width */
+  height: 350px; /* Adjust the height */
   object-fit: contain; /* Ensures the image retains its aspect ratio */
   margin-bottom: 20px;
 }

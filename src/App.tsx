@@ -13,6 +13,7 @@ import ProductUpdate from "./pages/dashboard/products/product-update";
 import Register from "./pages/users/register";
 import Profile from "./pages/users/profile";
 import Contact from "./pages/contact/contact";
+import About from "./pages/about/about";
 import OrdersTable from "./pages/dashboard/orders/order-table";
 import OrderDetails from "./pages/cart/order-details";
 import Products from "./pages/products";
@@ -23,6 +24,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import Loader from "./components/UI/loader";
 import ErrorFallback from "./components/UI/error-fallback";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import React from "react";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/dashboard-layout")
@@ -95,6 +97,7 @@ const App = () => {
         </Route>
 
         <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />
     </Router>

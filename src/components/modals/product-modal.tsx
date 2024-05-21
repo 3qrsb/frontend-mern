@@ -62,7 +62,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
     authAxios
       .post("/products", { ...data, image })
       .then((res) => {
-        toast.success("Product has beend created");
+        toast.success("Product has been created");
         setRefresh((prev: any) => (prev = !prev));
         handleClose();
       })
