@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../redux';
 import { reset } from '../../redux/cart/cart-slice';
 import { userLogout } from '../../redux/users/login-slice';
 import { NavLink } from 'react-router-dom';
+import React from 'react';
 
 const Sidebar = () => {
   const dispatch = useAppDispatch();
@@ -42,7 +43,7 @@ const Sidebar = () => {
           to='/'
         >
           <h2 className='logo text-white'>
-            <span className='text-danger'>Type</span> Shop
+            <span className='text-danger'></span>Home
           </h2>
         </Link>
 
@@ -50,7 +51,7 @@ const Sidebar = () => {
           <ul className='navbar-nav'>
             <li className='nav-item  '>
               <Link className='nav-link p-5' to='/dashboard'>
-                <AiFillDashboard className='me-2' size={'1.5rem'} /> Accueil
+                <AiFillDashboard className='me-2' size={'1.5rem'} /> Statistics
               </Link>
             </li>
             <li className='nav-item '>

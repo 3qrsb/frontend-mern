@@ -25,20 +25,22 @@ const UserTable = () => {
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(curPage);
 
-  const onDelete = (id: string | number) => {
-    if (window.confirm("are you sure?")) {
+  const onDelete = (id: string | number, userName: string) => {
+    if (
+      window.confirm(`Are you sure you want to delete the user ${userName}?`)
+    ) {
       authAxios
         .delete(`/users/${id}`)
         .then((res) => {
-          toast.success("user has beend deleted");
+          toast.success("user has been deleted");
           setRefresh((prev) => (prev = !prev));
         })
         .catch((e) => toast.error(setError(e)));
     }
   };
 
-  const onPromote = (id: string | number) => {
-    if (window.confirm("are you sure?")) {
+  const onPromote = (id: string | number, userName: string) => {
+    if (window.confirm(`Are you sure you want to promote ${userName}?`)) {
       authAxios
         .post(`/users/promote/${id}`)
         .then((res) => {
@@ -80,7 +82,7 @@ const UserTable = () => {
                   {" "}
                   {!user?.isAdmin && (
                     <Button
-                      onClick={() => onPromote(user._id)}
+                      onClick={() => onPromote(user._id, user.name)}
                       variant="success"
                       size="sm"
                       className="me-3"
@@ -91,7 +93,7 @@ const UserTable = () => {
                 </td>
                 <td>
                   <Button
-                    onClick={() => onDelete(user._id)}
+                    onClick={() => onDelete(user._id, user.name)}
                     variant="danger"
                     size="sm"
                   >

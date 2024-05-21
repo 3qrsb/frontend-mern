@@ -68,7 +68,7 @@ const Profile = () => {
   };
 
   const onDelete = (id: string | number) => {
-    if (window.confirm('are you sure?')) {
+    if (window.confirm('It will delete this order from your account!')) {
       authAxios
         .delete(`/orders/${id}`)
         .then((res) => {

@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Button, Image, Row } from 'react-bootstrap';
-import toast from 'react-hot-toast';
-import { FaEdit, FaTrash } from 'react-icons/fa';
-import { Link, useParams } from 'react-router-dom';
-import ProductModal from '../../../components/modals/product-modal';
-import Loader from '../../../components/UI/loader';
-import Paginate from '../../../components/UI/paginate';
-import TableContainer from '../../../components/UI/table-contrainer';
-import { useAppDispatch, useAppSelector } from '../../../redux';
-import { getFilterProducts } from '../../../redux/products/search-list';
-import authAxios from '../../../utils/auth-axios';
-import { setError } from '../../../utils/error';
-import { formatCurrencry, getDate } from '../../../utils/helper';
-import React from 'react';
+import { useEffect, useState } from "react";
+import { Button, Image, Row } from "react-bootstrap";
+import toast from "react-hot-toast";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { Link, useParams } from "react-router-dom";
+import ProductModal from "../../../components/modals/product-modal";
+import Loader from "../../../components/UI/loader";
+import Paginate from "../../../components/UI/paginate";
+import TableContainer from "../../../components/UI/table-contrainer";
+import { useAppDispatch, useAppSelector } from "../../../redux";
+import { getFilterProducts } from "../../../redux/products/search-list";
+import authAxios from "../../../utils/auth-axios";
+import { setError } from "../../../utils/error";
+import { formatCurrencry, getDate } from "../../../utils/helper";
+import React from "react";
+import { ReviewTypes } from "../../../utils/interfaces";
 
 // Then, use it in a component.
 function ProductTable() {
@@ -29,29 +30,34 @@ function ProductTable() {
   const onClose = () => setShow(false);
 
   const cols = [
-    'image',
-    'name',
-    'brand',
-    'category',
-    'price',
-    'created At',
-    'options',
+    "image",
+    "name",
+    "brand",
+    "category",
+    "price",
+    "created At",
+    "options",
   ];
 
-  const onDelete = (id: string | number) => {
-    if (window.confirm('are you sure?')) {
+  const onDelete = (id: string | number, productName: string) => {
+    if (window.confirm(`Are you sure you want to delete ${productName}?`)) {
       authAxios
         .delete(`/products/${id}`)
         .then((res) => {
-          toast.success('Product has beend deleted');
+          toast.success("Product has been deleted");
           setRefresh((prev) => (prev = !prev));
         })
         .catch((e) => toast.error(setError(e)));
     }
   };
 
+  const handleDelete = (product: { _id: any; name: any; price?: number; image?: string; category?: string; brand?: string; description?: string; qty?: number; createdAt?: Date; reviews?: ReviewTypes[]; }) => {
+    const productName = product.name;
+    onDelete(product._id, productName);
+  };
+
   useEffect(() => {
-    dispatch(getFilterProducts({ n: pageNumber, b: '', c: '', q: '' }));
+    dispatch(getFilterProducts({ n: pageNumber, b: "", c: "", q: "" }));
   }, [dispatch, pageNumber, refresh]);
 
   return (
@@ -59,14 +65,14 @@ function ProductTable() {
       {loading ? (
         <Loader />
       ) : (
-        <Row className='py-3'>
-          <h3 className='d-flex justify-content-between align-items-center'>
+        <Row className="py-3">
+          <h3 className="d-flex justify-content-between align-items-center">
             <span>Product List</span>
             <Button
-              style={{ backgroundColor: '#e03a3c', color: '#fff' }}
-              variant='outline-none'
+              style={{ backgroundColor: "#e03a3c", color: "#fff" }}
+              variant="outline-none"
               onClick={onOpen}
-              size='sm'
+              size="sm"
             >
               Add Product
             </Button>
@@ -75,7 +81,7 @@ function ProductTable() {
             {products.map((product) => (
               <tr key={product._id}>
                 <td>
-                  <Image className='avatar' roundedCircle src={product.image} />
+                  <Image className="avatar" roundedCircle src={product.image} />
                 </td>
                 <td>{product.name}</td>
                 <td>{product.brand}</td>
@@ -84,15 +90,15 @@ function ProductTable() {
                 <td>{getDate(product?.createdAt)}</td>
                 <td>
                   <Link
-                    className='btn btn-sm btn-primary me-2'
+                    className="btn btn-sm btn-primary me-2"
                     to={`/dashboard/product-edit/${product._id}`}
                   >
                     <FaEdit />
                   </Link>
                   <Button
-                    onClick={() => onDelete(product._id)}
-                    variant='danger'
-                    size='sm'
+                    onClick={() => handleDelete(product)}
+                    variant="danger"
+                    size="sm"
                   >
                     <FaTrash />
                   </Button>
@@ -103,7 +109,7 @@ function ProductTable() {
           </TableContainer>
         </Row>
       )}
-      <Paginate pages={pages} page={page} isAdmin={true} keyword={''} />
+      <Paginate pages={pages} page={page} isAdmin={true} keyword={""} />
       <ProductModal setRefresh={setRefresh} show={show} handleClose={onClose} />
     </>
   );
