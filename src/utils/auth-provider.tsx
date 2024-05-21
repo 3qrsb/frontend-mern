@@ -1,6 +1,7 @@
-import { Fragment, ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAppSelector } from '../redux';
+import { Fragment, ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useAppSelector } from "../redux";
+import React from "react";
 
 type Props = {
   children: ReactNode;
@@ -12,7 +13,7 @@ const AuthProvider = ({ children }: Props) => {
   if (!userInfo) {
     return (
       <Fragment>
-        <Navigate to={'/login'} replace />
+        <Navigate to={"/login"} replace />
       </Fragment>
     );
   } else {

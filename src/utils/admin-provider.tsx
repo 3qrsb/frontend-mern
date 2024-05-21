@@ -1,6 +1,7 @@
-import { Fragment, ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAppSelector } from '../redux';
+import { Fragment, ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useAppSelector } from "../redux";
+import React from "react";
 
 type Props = {
   children: ReactNode;
@@ -14,7 +15,7 @@ const AdminProvider = ({ children }: Props) => {
   } else {
     return (
       <Fragment>
-        <Navigate to={'/'} replace />
+        <Navigate to={"/"} replace />
       </Fragment>
     );
   }
