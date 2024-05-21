@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { formatCurrencry } from "../utils/helper";
 import { ReviewTypes } from "../utils/interfaces";
 import ImageLazy from "./UI/lazy-image";
+import React from "react";
 
 export type Product = {
   _id: number | string;

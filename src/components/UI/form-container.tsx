@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Container, Row, Col, Card, Image } from "react-bootstrap";
 import DefaultLayout from "../layouts/default-layout";
 import ImageLazy from "./lazy-image";
+import React from "react";
 
 type FormTypes = {
   children: ReactNode;

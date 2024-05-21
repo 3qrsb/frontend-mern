@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Carousel } from "react-bootstrap";
 import ImageLazy from "./UI/lazy-image";
+import React from "react";
 
 const Carousels = () => {
   const [index, setIndex] = useState(0);

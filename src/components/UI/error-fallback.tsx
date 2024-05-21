@@ -1,3 +1,5 @@
+import React from "react";
+
 type Props = {
   error: any | unknown;
   resetErrorBoundary: any;

@@ -6,6 +6,7 @@ import DownFooter from '../footer/down-footer';
 import Footer from '../footer/footer';
 import Header from '../header';
 import Meta from '../UI/meta';
+import React from 'react';
 
 type LayoutProvider = {
   children: ReactNode;

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Helmet } from 'react-helmet';
+import React from "react";
+import { Helmet } from "react-helmet";
 
 type Props = {
   title?: string;
@@ -8,15 +8,15 @@ type Props = {
 };
 
 const Meta = ({
-  title = 'Welcome To Type-shop',
-  description = 'the best online store :)',
+  title = "Welcome!",
+  description = "The best online store :)",
   keywords,
 }: Props) => {
   return (
     <Helmet>
       <title>{title}</title>
-      <meta name='description' content={description} />
-      <meta name='keyword' content={keywords} />
+      <meta name="description" content={description} />
+      <meta name="keyword" content={keywords} />
     </Helmet>
   );
 };
