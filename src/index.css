@@ -104,3 +104,35 @@ section {
   font-size: 0.5em !important;
   color: #000 !important;
 }
+
+.cart-badge {
+  background-color: #e03a3c;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  transform: translate(-50%, -50%);
+  width: 20px; /* Adjust width */
+  height: 20px; /* Adjust height */
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 12px; /* Adjust font size */
+  color: white;
+}
+
+.empty-cart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px; /* Adjust as needed */
+}
+
+.empty-cart-image {
+  width: 300px; /* Adjust the width */
+  height: 300px; /* Adjust the height */
+  object-fit: contain; /* Ensures the image retains its aspect ratio */
+  margin-bottom: 20px;
+}

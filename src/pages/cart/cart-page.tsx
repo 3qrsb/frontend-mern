@@ -28,12 +28,17 @@ const CartPage = () => {
     <DefaultLayout title="Ecommerce">
       <Container>
         {cartItems.length === 0 ? (
-          <Message>
-            Your cart is empty
-            <Link to="/home" className="mx-3">
-              Go Back
+          <div className="empty-cart-container text-center">
+            <img
+              src="public\images\empty_cart-removebg-preview.png"
+              alt="Empty Cart"
+              className="empty-cart-image"
+            />
+            <h3>Your cart is empty</h3>
+            <Link to="/home" className="btn btn-primary mt-3">
+              Continue Shopping
             </Link>
-          </Message>
+          </div>
         ) : (
           <Row>
             <Col md={8}>

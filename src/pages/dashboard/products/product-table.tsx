@@ -12,6 +12,7 @@ import { getFilterProducts } from '../../../redux/products/search-list';
 import authAxios from '../../../utils/auth-axios';
 import { setError } from '../../../utils/error';
 import { formatCurrencry, getDate } from '../../../utils/helper';
+import React from 'react';
 
 // Then, use it in a component.
 function ProductTable() {

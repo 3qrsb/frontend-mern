@@ -17,6 +17,11 @@ const Header = () => {
     navigate("/login");
   };
 
+  const totalCartQuantity = cartItems.reduce(
+    (total, item) => total + item.qty,
+    0
+  );
+
   return (
     <>
       <Navbar
@@ -50,11 +55,14 @@ const Header = () => {
                 <span>Home</span>
               </Nav.Item>
               <Nav.Item as={NavLink} className=" nav-link" to="/home">
-                <span>Product</span>
+                <span>Products</span>
               </Nav.Item>
 
               <Nav.Item as={NavLink} className=" nav-link" to="/contact">
                 <span>Contact</span>
+              </Nav.Item>
+              <Nav.Item as={NavLink} className=" nav-link" to="/about">
+                <span>About Us</span>
               </Nav.Item>
             </div>
             {/* Right navigation */}
@@ -68,13 +76,10 @@ const Header = () => {
                   className="nav-icon position-relative text-decoration-none"
                   to="/cart"
                 >
-                  <i className="fa fa-fw fa-cart-arrow-down text-dark me-2 "></i>
-                  <span
-                    style={{ backgroundColor: "#e03a3c" }}
-                    className="position-absolute top-0 left-100 translate-middle badge rounded-pill  text-white"
-                  >
-                    {cartItems.length}
-                  </span>
+                  <i className="fa fa-fw fa-cart-arrow-down text-dark me-2"></i>
+                  {totalCartQuantity > 0 && (
+                    <span className="cart-badge">{totalCartQuantity}</span>
+                  )}
                 </Link>
               </div>
               {!userInfo ? (

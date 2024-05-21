@@ -36,7 +36,7 @@ const Checkout = () => {
     authAxios
       .post("/orders", order)
       .then((res) => {
-        toast.success("your order has been created");
+        toast.success("Your order has been created!");
         dispatch(reset());
         navigate(`/orders/${res.data._id}`);
       })

@@ -3,6 +3,7 @@ import { Row, Col, Card } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrdersList } from "../../redux/orders/slice-list";
 import { formatCurrencry } from "../../utils/helper";
+import React from "react";
 
 const DashboardPage = () => {
   const { total } = useAppSelector((state) => state.productFilter);

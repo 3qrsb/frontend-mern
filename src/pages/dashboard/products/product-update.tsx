@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import authAxios from '../../../utils/auth-axios';
 import toast from 'react-hot-toast';
 import { setError } from '../../../utils/error';
+import React from 'react';
 
 type FormValues = {
   name: string;

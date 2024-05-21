@@ -16,6 +16,7 @@ import Paginate from "../components/UI/paginate";
 import { useAppDispatch, useAppSelector } from "../redux";
 import { getFilterProducts } from "../redux/products/search-list";
 import { trackWindowScroll } from "react-lazy-load-image-component";
+import React from "react";
 
 const Products = () => {
   const params = useParams();

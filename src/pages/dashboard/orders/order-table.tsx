@@ -9,6 +9,7 @@ import { getOrdersList } from '../../../redux/orders/slice-list';
 import authAxios from '../../../utils/auth-axios';
 import { setError } from '../../../utils/error';
 import { formatCurrencry, getDate } from '../../../utils/helper';
+import React from 'react';
 
 function OrdersTable() {
   const dispatch = useAppDispatch();

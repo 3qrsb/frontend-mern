@@ -9,6 +9,7 @@ import { getUsersList } from "../../../redux/users/user-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
 import { getDate } from "../../../utils/helper";
+import React from "react";
 
 const UserTable = () => {
   const dispatch = useAppDispatch();
