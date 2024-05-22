@@ -11,7 +11,7 @@ import { formatCurrencry } from "../../utils/helper";
 import ImageLazy from "../../components/UI/lazy-image";
 import React from "react";
 
-const Checkout = () => {
+const PlaceOrder = () => {
   const { shippingAddress, cartItems } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
 
@@ -44,7 +44,7 @@ const Checkout = () => {
   };
 
   return (
-    <DefaultLayout title="checkout">
+    <DefaultLayout title="place-order">
       <Container>
         <Row>
           <Col md={8} className="mb-2">
@@ -133,4 +133,4 @@ const Checkout = () => {
   );
 };
 
-export default Checkout;
+export default PlaceOrder;

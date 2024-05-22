@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import CartPage from "./pages/cart/cart-page";
-import Checkout from "./pages/cart/checkout";
 import ShippingAddress from "./pages/cart/shipping-address";
 import HomePage from "./pages/home";
 import ProductDetails from "./pages/product-details";
@@ -25,6 +24,7 @@ import Loader from "./components/UI/loader";
 import ErrorFallback from "./components/UI/error-fallback";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import React from "react";
+import PlaceOrder from "./pages/cart/place-order";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/dashboard-layout")
@@ -49,10 +49,10 @@ const App = () => {
           }
         />
         <Route
-          path="/checkout"
+          path="/place-order"
           element={
             <AuthProvider>
-              <Checkout />
+              <PlaceOrder />
             </AuthProvider>
           }
         />

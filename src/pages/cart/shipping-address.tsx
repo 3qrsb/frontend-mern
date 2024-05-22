@@ -35,11 +35,11 @@ const ShippingAddress = () => {
         country: formData.country,
       })
     );
-    navigate("/checkout");
+    navigate("/place-order");
   };
 
   useEffect(() => {
-    if (shippingAddress) return navigate("/checkout");
+    if (shippingAddress) return navigate("/place-order");
   }, [shippingAddress]);
 
   return (

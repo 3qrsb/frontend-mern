@@ -106,7 +106,7 @@ const CartPage = () => {
                         className="w-1/2 text-white me-2"
                         variant="outline-none"
                       >
-                        Checkout
+                        Place Order
                       </Button>
                       <Button
                         style={{ backgroundColor: "#e03a3c" }}
