@@ -25,6 +25,8 @@ import ErrorFallback from "./components/UI/error-fallback";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import React from "react";
 import PlaceOrder from "./pages/cart/place-order";
+import Cancel from "./pages/cancel";
+import Success from "./pages/success";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/dashboard-layout")
@@ -39,6 +41,8 @@ const App = () => {
         <Route path="/search/:keyword" element={<Products />} />
         <Route path="/page/:pageNumber" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancel" element={<Cancel />} />
         <Route path="/cart" element={<CartPage />} />
         <Route
           path="/shipping-address"
