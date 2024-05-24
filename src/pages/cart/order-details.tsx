@@ -39,6 +39,7 @@ const OrderDetails = () => {
         "http://localhost:4000/api/stripe/create-checkout-session",
         {
           items: order?.cartItems,
+          orderId: order?._id,
         }
       );
 
