@@ -21,7 +21,7 @@ const PlaceOrder = () => {
     0
   );
 
-  const taxPrice = itemsPrice * 0.1;
+  const taxPrice = 0;
 
   const shippingPrice = itemsPrice >= 200 ? 0 : 30;
 

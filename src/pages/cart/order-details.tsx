@@ -27,7 +27,7 @@ const OrderDetails = () => {
     0
   );
 
-  const taxPrice = itemsPrice ? itemsPrice * 0.1 : 0;
+  const taxPrice = 0;
   const shippingPrice = itemsPrice ? (itemsPrice >= 200 ? 0 : 30) : 0;
   const totalPrice = itemsPrice && itemsPrice + taxPrice + shippingPrice;
 
