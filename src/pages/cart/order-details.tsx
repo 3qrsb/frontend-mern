@@ -29,7 +29,9 @@ const OrderDetails = () => {
 
   const taxPrice = 0;
   const shippingPrice = itemsPrice ? (itemsPrice >= 200 ? 0 : 30) : 0;
-  const totalPrice = itemsPrice && itemsPrice + taxPrice + shippingPrice;
+  const discountAmount = order?.discountAmount || 0;
+  const totalPrice =
+    itemsPrice && itemsPrice + taxPrice + shippingPrice - discountAmount;
 
   const handlePayment = async () => {
     setLoadingPayment(true);
@@ -147,6 +149,12 @@ const OrderDetails = () => {
                       <span>Shipping Price</span>
                       <span>{formatCurrencry(shippingPrice)}</span>
                     </ListGroup.Item>
+                    {order?.isPaid && order.discountAmount > 0 && (
+                      <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                        <span>Discount</span>
+                        <span>-{formatCurrencry(order.discountAmount)}</span>
+                      </ListGroup.Item>
+                    )}
                     <ListGroup.Item>
                       <h5 className="d-flex justify-content-between align-items-center">
                         <span>Total Price</span>

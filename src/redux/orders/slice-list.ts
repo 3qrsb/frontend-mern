@@ -20,6 +20,7 @@ type Ordertypes = {
     country: string;
   };
   cartItems: Product[];
+  discountAmount: number;
   totalPrice: number;
   isPaid: boolean;
   createdAt: Date;
