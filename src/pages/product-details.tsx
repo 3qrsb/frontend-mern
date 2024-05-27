@@ -38,7 +38,6 @@ const ProductDetails = () => {
 
   const onAdd = () => {
     dispatch(addToCart(product as Product));
-    navigate("/cart");
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -179,12 +178,7 @@ const ProductDetails = () => {
                       </Button>
                     </Form>
                   ) : (
-                    <Message>
-                      You must login first to feedback{" "}
-                      <Link to="/login" className="ms-2">
-                        Login Now
-                      </Link>
-                    </Message>
+                    <Message>You must login to leave a review </Message>
                   )}
                 </ListGroup.Item>
               </ListGroup>

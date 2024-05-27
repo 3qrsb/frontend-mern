@@ -121,6 +121,9 @@ const Header = () => {
                   >
                     Profile
                   </NavDropdown.Item>
+                  <NavDropdown.Item as={NavLink} to={`/wishlist/`}>
+                    Wishlist
+                  </NavDropdown.Item>
                   <NavDropdown.Divider />
                   <NavDropdown.Item onClick={onLogout}>Logout</NavDropdown.Item>
                 </NavDropdown>
