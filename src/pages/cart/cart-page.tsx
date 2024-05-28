@@ -30,11 +30,15 @@ const CartPage = () => {
         {cartItems.length === 0 ? (
           <div className="empty-cart-container text-center">
             <img
-              src="public\images\empty_cart-removebg-preview.png"
+              src="public/images/empty-cart.png"
               alt="Empty Cart"
-              className="empty-cart-image"
+              style={{
+                maxWidth: "30%",
+                marginBottom: "20px",
+                marginTop: "70px",
+              }}
             />
-            <h3>Your cart is empty</h3>
+            <p>Your cart is empty</p>
             <Link to="/home" className="btn btn-primary mt-3">
               Continue Shopping
             </Link>
