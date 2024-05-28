@@ -8,10 +8,21 @@ const Cancel = () => {
 
   return (
     <DefaultLayout title="Payment Cancelled">
-      <Container className="text-center my-5">
-        <h1>Payment Cancelled</h1>
-        <p>Your payment was not successful. Please try again.</p>
-        <Button onClick={() => navigate("/cart")} variant="danger">
+      <Container className="text-center my-5 cancel-container">
+        <img
+          src="../public/images/c.webp"
+          alt="Payment Cancelled"
+          className="cancel-image"
+        />
+        <h1 className="cancel-heading">Payment Cancelled</h1>
+        <p className="cancel-text">
+          Your payment was not successful. Please try again.
+        </p>
+        <Button
+          onClick={() => navigate("/cart")}
+          variant="danger"
+          className="cancel-button"
+        >
           Go to Cart
         </Button>
       </Container>

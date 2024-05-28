@@ -8,12 +8,21 @@ const Success = () => {
 
   return (
     <DefaultLayout title="Payment Successful">
-      <Container className="text-center my-5">
-        <h1>Payment Successful!</h1>
-        <p>
+      <Container className="text-center my-5 success-container">
+        <img
+          src="../public/images/1.png"
+          alt="Payment Successful"
+          className="success-image"
+        />
+        <h1 className="success-heading">Payment Successful!</h1>
+        <p className="success-text">
           Thank you for your purchase. Your order has been placed successfully.
         </p>
-        <Button onClick={() => navigate("/")} variant="primary">
+        <Button
+          onClick={() => navigate("/")}
+          variant="primary"
+          className="success-button"
+        >
           Go to Home
         </Button>
       </Container>
