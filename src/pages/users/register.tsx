@@ -46,10 +46,10 @@ const Register = () => {
       .post("/users/register", data)
       .then((res) => {
         if (res.data.success) {
+          toast.error("Registration failed. Please try again.");
+        } else {
           toast.success("You have been registered. Please log in.");
           navigate("/login");
-        } else {
-          toast.error("Registration failed. Please try again.");
         }
       })
       .catch((err) => {

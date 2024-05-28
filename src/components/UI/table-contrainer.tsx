@@ -1,6 +1,6 @@
-import React from 'react';
-import { ReactNode } from 'react';
-import { Card, Table } from 'react-bootstrap';
+import React from "react";
+import { ReactNode } from "react";
+import { Card, Table } from "react-bootstrap";
 
 type Props = {
   children: ReactNode;
@@ -9,15 +9,15 @@ type Props = {
 
 const TableContainer = ({ children, cols }: Props) => {
   return (
-    <Card className=' shadow border-0 mt-5 '>
-      <Table responsive hover className='table-nowrap'>
+    <Card className=" shadow border-0 mt-5 ">
+      <Table responsive hover className="table-nowrap">
         <thead
-          style={{ backgroundColor: '#e03a3c' }}
-          className='thead-light text-white'
+          style={{ backgroundColor: "#e03a3c" }}
+          className="thead-light text-white"
         >
           <tr>
             {cols.map((col: any) => (
-              <th key={col} scope='col'>
+              <th key={col} scope="col">
                 {col}
               </th>
             ))}

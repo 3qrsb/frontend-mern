@@ -16,7 +16,7 @@ const Carousels = () => {
         <ImageLazy
           className="lazy-carousel"
           style={{ width: "1600px" }}
-          imageUrl="https://cdn.shopify.com/s/files/1/2301/4381/files/MSI_BANNER_1080x.jpg?v=1641895460"
+          imageUrl="/images/2.jpg"
         />
       </Carousel.Item>
       <Carousel.Item className="carsouel__item">
@@ -30,7 +30,7 @@ const Carousels = () => {
         <ImageLazy
           style={{ width: "1600px" }}
           className="lazy-carousel"
-          imageUrl="https://www.sammobile.com/wp-content/uploads/2020/01/galaxy-s20-wallpaper-note-10.jpg"
+          imageUrl="/images/4.jpg"
         />
       </Carousel.Item>
     </Carousel>

@@ -124,7 +124,9 @@ const Header = () => {
                   <NavDropdown.Item as={NavLink} to={`/wishlist/`}>
                     Wishlist
                   </NavDropdown.Item>
-                  <NavDropdown.Divider />
+                  <NavDropdown.Divider
+                    style={{ backgroundColor: "#ddd", height: "1px" }}
+                  />
                   <NavDropdown.Item onClick={onLogout}>Logout</NavDropdown.Item>
                 </NavDropdown>
               )}

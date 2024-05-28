@@ -26,7 +26,13 @@ const CartPage = () => {
 
   return (
     <DefaultLayout title="Ecommerce">
-      <Container>
+      <Container
+        style={{
+          backgroundColor: "#f8f9fa",
+          padding: "20px",
+          borderRadius: "8px",
+        }}
+      >
         {cartItems.length === 0 ? (
           <div className="empty-cart-container text-center">
             <img
