@@ -1,13 +1,15 @@
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
-import { faHeart as fasHeart } from "@fortawesome/free-solid-svg-icons";
 import { formatCurrencry } from "../utils/helper";
 import { ReviewTypes } from "../utils/interfaces";
 import ImageLazy from "./UI/lazy-image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart as fasHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
+import { useWishlist } from "../context/WishlistContext";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { useAppDispatch, useAppSelector } from "../redux";
 
 export type Product = {
   _id: number | string;
@@ -27,9 +29,23 @@ type Props = {
 };
 
 const ProductCard = ({ product }: Props) => {
+  const { userInfo } = useAppSelector((state) => state.login);
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [isLiked, setIsLiked] = useState(false);
 
+  useEffect(() => {
+    const isProductInWishlist = wishlist.some(
+      (item) => item._id === product._id
+    );
+    setIsLiked(isProductInWishlist);
+  }, [wishlist, product._id]);
+
   const handleLike = () => {
+    if (isLiked) {
+      removeFromWishlist(product._id);
+    } else {
+      addToWishlist(product);
+    }
     setIsLiked(!isLiked);
   };
 
@@ -64,11 +80,13 @@ const ProductCard = ({ product }: Props) => {
             </Card.Title>
           </Card.Body>
         </Link>
-        <FontAwesomeIcon
-          icon={isLiked ? (fasHeart as IconProp) : (farHeart as IconProp)}
-          className={`heart-icon ${isLiked ? "liked" : ""}`}
-          onClick={handleLike}
-        />
+        {userInfo && (
+          <FontAwesomeIcon
+            icon={isLiked ? (fasHeart as IconProp) : (farHeart as IconProp)}
+            className={`heart-icon ${isLiked ? "liked" : ""}`}
+            onClick={handleLike}
+          />
+        )}
       </Card>
     </div>
   );
