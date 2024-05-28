@@ -13,10 +13,6 @@ const Contact = () => {
         <Container data-aos="fade-up">
           <div className="section-title">
             <h2 className="text-center">Contact</h2>
-            <p style={{ textAlign: "center" }}>
-              We're here to help! If you have any questions or need assistance,
-              please don't hesitate to reach out to our customer support team.
-            </p>
           </div>
           <Row data-aos="fade-up" data-aos-delay={100}>
             <Col lg={6}>
