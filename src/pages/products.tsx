@@ -48,7 +48,7 @@ const Products = () => {
       <Container>
         <Row>
           <Col lg={3}>
-            <h2 className="py-4 pb-4">Filter</h2>
+            <h2 className="py-2 pb-4">Filter</h2>
             <Card className="shadow p-3">
               <ListGroup variant="flush">
                 <ListGroup.Item>
@@ -99,7 +99,7 @@ const Products = () => {
 
           <Col lg={9}>
             <Row>
-              <div className="col-md-6 pb-0 py-2">
+              <div className="col-md-6 pb-0 py-0">
                 <div className="d-flex">
                   <Form.Control
                     onChange={(e: any) => setSearch(e.target.value)}
