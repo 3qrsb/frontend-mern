@@ -49,12 +49,20 @@ const Products = () => {
     setSortOrder(event.target.value as string);
   };
 
+  const handleCategoryChange = (event: SelectChangeEvent) => {
+    setCategory(event.target.value as string);
+  };
+
+  const handleBrandChange = (event: SelectChangeEvent) => {
+    setBrand(event.target.value as string);
+  };
+
   useEffect(() => {
     dispatch(
       getFilterProducts({
         n: pageNumber,
-        b: brand,
-        c: category,
+        b: brand !== "All" ? brand : "",
+        c: category !== "All" ? category : "",
         q: search,
         sortOrder: sortOrder,
       })
@@ -66,50 +74,46 @@ const Products = () => {
       <Container>
         <Row>
           <Col lg={3}>
-            <h2 className="py-2 pb-4">Filter</h2>
+            <h2 className="py-4 pb-4">Filter</h2>
             <Card className="shadow p-3">
               <ListGroup variant="flush">
                 <ListGroup.Item>
-                  <h4 className="mb-2">Category</h4>
-                  <FormSelect
-                    defaultValue={"All"}
-                    onChange={(e: any) => {
-                      if (e.target.value === "All") {
-                        reset();
-                      } else {
-                        setCategory(e.target.value);
-                      }
-                    }}
-                  >
-                    <option value="All">All</option>
-                    All
-                    {categories.map((categorie: any) => (
-                      <option value={categorie} key={categorie}>
-                        {categorie}
-                      </option>
-                    ))}
-                  </FormSelect>
+                  <FormControl fullWidth>
+                    <InputLabel id="category-label">Category</InputLabel>
+                    <Select
+                      labelId="category-label"
+                      id="category-select"
+                      value={category}
+                      onChange={handleCategoryChange}
+                      label="Category"
+                    >
+                      <MenuItem value="All">All</MenuItem>
+                      {categories.map((category: string) => (
+                        <MenuItem value={category} key={category}>
+                          {category}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </ListGroup.Item>
                 <ListGroup.Item>
-                  <h4 className="mb-2">Brand</h4>
-                  <FormSelect
-                    defaultValue={"All"}
-                    onChange={(e: any) => {
-                      if (e.target.value === "All") {
-                        reset();
-                      } else {
-                        setBrand(e.target.value);
-                      }
-                    }}
-                  >
-                    <option value="All">All</option>
-                    All
-                    {brands.map((brand: any) => (
-                      <option value={brand} key={brand}>
-                        {brand}
-                      </option>
-                    ))}
-                  </FormSelect>
+                  <FormControl fullWidth>
+                    <InputLabel id="brand-label">Brand</InputLabel>
+                    <Select
+                      labelId="brand-label"
+                      id="brand-select"
+                      value={brand}
+                      onChange={handleBrandChange}
+                      label="Brand"
+                    >
+                      <MenuItem value="All">All</MenuItem>
+                      {brands.map((brand: string) => (
+                        <MenuItem value={brand} key={brand}>
+                          {brand}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </ListGroup.Item>
               </ListGroup>
             </Card>
@@ -117,29 +121,29 @@ const Products = () => {
 
           <Col lg={9}>
             <Row>
-              <div className="col-md-6 pb-0 py-0">
-                <div className="d-flex">
-                  <Form.Control
-                    onChange={(e: any) => setSearch(e.target.value)}
-                    className="me-2"
-                    placeholder="Search..."
-                    value={search}
-                  />
-                  <FormControl fullWidth>
-                    <InputLabel id="sort-order-label">Sort Order</InputLabel>
-                    <Select
-                      labelId="sort-order-label"
-                      id="sort-order"
-                      value={sortOrder}
-                      onChange={handleChange}
-                      label="Sort Order"
-                    >
-                      <MenuItem value="">None</MenuItem>
-                      <MenuItem value="low">Price Low to High</MenuItem>
-                      <MenuItem value="high">Price High to Low</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
+              <div className="d-flex">
+                <Form.Control
+                  onChange={(e: any) => setSearch(e.target.value)}
+                  className="me-2"
+                  placeholder="Search..."
+                  value={search}
+                  style={{ width: "95%" }}
+                />
+                <FormControl fullWidth style={{ margin: "0 10px" }}>
+                  <InputLabel id="sort-order-label">Sort Order</InputLabel>
+                  <Select
+                    labelId="sort-order-label"
+                    id="sort-order"
+                    value={sortOrder}
+                    onChange={handleChange}
+                    label="Sort Order"
+                    style={{ width: "45%" }}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    <MenuItem value="low">Price Low to High</MenuItem>
+                    <MenuItem value="high">Price High to Low</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
             </Row>
             <Row style={{ minHeight: "80vh" }}>
