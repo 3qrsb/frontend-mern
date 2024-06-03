@@ -9,7 +9,9 @@ import { faHeart as fasHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as farHeart } from "@fortawesome/free-regular-svg-icons";
 import { useWishlist } from "../context/WishlistContext";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { useAppDispatch, useAppSelector } from "../redux";
+import { useAppSelector } from "../redux";
+import Badge, { BadgeProps } from "@mui/material/Badge";
+import { styled } from "@mui/material/styles";
 
 export type Product = {
   _id: number | string;
@@ -28,17 +30,49 @@ type Props = {
   product: Product;
 };
 
+interface StyledBadgeProps extends BadgeProps {
+  rating: number;
+}
+
+const StyledBadge = styled(Badge)<StyledBadgeProps>(({ theme, rating }) => ({
+  "& .MuiBadge-badge": {
+    right: 127,
+    top: 7,
+    padding: "0 7px",
+    fontSize: "0.8rem",
+    fontWeight: "bold",
+    borderRadius: "6px",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+    backgroundColor:
+      rating < 2 ? "#FF8080" : rating < 4 ? "#FFBE73" : "#C1FB94",
+    color: rating < 2 ? "#910B04" : rating < 4 ? "#915004" : "#0E4D12",
+  },
+}));
+
 const ProductCard = ({ product }: Props) => {
   const { userInfo } = useAppSelector((state) => state.login);
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [isLiked, setIsLiked] = useState(false);
+  const [averageRating, setAverageRating] = useState<number>(0);
 
   useEffect(() => {
     const isProductInWishlist = wishlist.some(
       (item) => item._id === product._id
     );
     setIsLiked(isProductInWishlist);
-  }, [wishlist, product._id]);
+
+    // Calculate average rating
+    if (product.reviews.length > 0) {
+      const totalRating = product.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      const avgRating = totalRating / product.reviews.length;
+      setAverageRating(avgRating);
+    } else {
+      setAverageRating(0);
+    }
+  }, [wishlist, product._id, product.reviews]);
 
   const handleLike = () => {
     if (isLiked) {
@@ -58,8 +92,17 @@ const ProductCard = ({ product }: Props) => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          position: "relative",
         }}
       >
+        {averageRating > 0 && (
+          <StyledBadge
+            badgeContent={averageRating.toFixed(1)}
+            color="default"
+            rating={averageRating}
+            overlap="rectangular"
+          />
+        )}
         <Link to={`/products/${product._id}`}>
           <ImageLazy
             imageUrl={product.image}
