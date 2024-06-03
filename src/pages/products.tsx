@@ -8,6 +8,7 @@ import {
   Form,
   ListGroup,
   FormSelect,
+  Button,
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import DefaultLayout from "../components/layouts/default-layout";
@@ -17,6 +18,11 @@ import { useAppDispatch, useAppSelector } from "../redux";
 import { getFilterProducts } from "../redux/products/search-list";
 import { trackWindowScroll } from "react-lazy-load-image-component";
 import React from "react";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import { SelectChangeEvent } from "@mui/material/Select";
 
 const Products = () => {
   const params = useParams();
@@ -37,11 +43,23 @@ const Products = () => {
     setSearch("");
   };
 
+  const [sortOrder, setSortOrder] = useState<string>(""); // 'asc' for ascending, 'desc' for descending
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setSortOrder(event.target.value as string);
+  };
+
   useEffect(() => {
     dispatch(
-      getFilterProducts({ n: pageNumber, b: brand, c: category, q: search })
+      getFilterProducts({
+        n: pageNumber,
+        b: brand,
+        c: category,
+        q: search,
+        sortOrder: sortOrder,
+      })
     );
-  }, [dispatch, pageNumber, brand, search, category]);
+  }, [dispatch, pageNumber, brand, search, category, sortOrder]);
 
   return (
     <DefaultLayout>
@@ -107,6 +125,20 @@ const Products = () => {
                     placeholder="Search..."
                     value={search}
                   />
+                  <FormControl fullWidth>
+                    <InputLabel id="sort-order-label">Sort Order</InputLabel>
+                    <Select
+                      labelId="sort-order-label"
+                      id="sort-order"
+                      value={sortOrder}
+                      onChange={handleChange}
+                      label="Sort Order"
+                    >
+                      <MenuItem value="">None</MenuItem>
+                      <MenuItem value="low">Price Low to High</MenuItem>
+                      <MenuItem value="high">Price High to Low</MenuItem>
+                    </Select>
+                  </FormControl>
                 </div>
               </div>
             </Row>
