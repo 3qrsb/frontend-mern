@@ -6,7 +6,7 @@ const Footer = () => {
     <div className="container d-md-flex py-4">
       <div className="me-md-auto text-center text-md-start">
         <div className="credits">
-          Designed by <a href="#">AITU students</a>
+          Designed by <a href="/about">AITU students</a>
         </div>
       </div>
       <div className="social-links text-center text-md-end pt-3 pt-md-0">

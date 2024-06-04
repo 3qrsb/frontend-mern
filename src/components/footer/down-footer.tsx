@@ -19,7 +19,7 @@ const DownFooter = () => {
                 Kazakhstan
                 <br />
                 <br />
-                <strong>Phone:</strong> 8 777 777 77 77
+                <strong>Phone:</strong> +7 777 777 77 77
                 <br />
                 <strong>Email:</strong> support@gmail.com
                 <br />

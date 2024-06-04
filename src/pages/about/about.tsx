@@ -14,13 +14,13 @@ const teamMembers = [
     name: "Nurbol",
     position: "Frontend Developer",
     image: "public/images/us.jpg",
-    github: "https://github.com/3qrsb",
+    github: "https://github.com/NBL01",
   },
   {
     name: "Askar",
     position: "Backend Developer",
     image: "public/images/us.jpg",
-    github: "https://github.com/3qrsb",
+    github: "https://github.com/Askar-A-A",
   },
 ];
 
