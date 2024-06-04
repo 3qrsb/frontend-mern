@@ -23,6 +23,10 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { SelectChangeEvent } from "@mui/material/Select";
+import Slider from "@mui/material/Slider";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
 
 const Products = () => {
   const params = useParams();
@@ -33,6 +37,7 @@ const Products = () => {
   const [brand, setBrand] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [search, setSearch] = useState<string>("");
+  const [priceRange, setPriceRange] = useState<number[]>([0, 1000]);
   const keyword = params.keyword;
 
   const pageNumber = params.pageNumber || 1;
@@ -41,6 +46,7 @@ const Products = () => {
     setBrand("");
     setCategory("");
     setSearch("");
+    setPriceRange([0, 1000]);
   };
 
   const [sortOrder, setSortOrder] = useState<string>(""); // 'asc' for ascending, 'desc' for descending
@@ -57,6 +63,20 @@ const Products = () => {
     setBrand(event.target.value as string);
   };
 
+  const handlePriceChange = (event: Event, newValue: number | number[]) => {
+    setPriceRange(newValue as number[]);
+  };
+
+  const handleMinPriceInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.max(0, Number(event.target.value)); // Prevent negative values
+    setPriceRange([value, priceRange[1]]);
+  };
+
+  const handleMaxPriceInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.max(0, Number(event.target.value)); // Prevent negative values
+    setPriceRange([priceRange[0], value]);
+  };
+
   useEffect(() => {
     dispatch(
       getFilterProducts({
@@ -65,9 +85,11 @@ const Products = () => {
         c: category !== "All" ? category : "",
         q: search,
         sortOrder: sortOrder,
+        minPrice: priceRange[0],
+        maxPrice: priceRange[1],
       })
     );
-  }, [dispatch, pageNumber, brand, search, category, sortOrder]);
+  }, [dispatch, pageNumber, brand, search, category, sortOrder, priceRange]);
 
   return (
     <DefaultLayout>
@@ -115,6 +137,51 @@ const Products = () => {
                     </Select>
                   </FormControl>
                 </ListGroup.Item>
+                <ListGroup.Item>
+                  <Typography gutterBottom>Price Range ($)</Typography>
+                  <div className="d-flex mb-2">
+                    <TextField
+                      label="Min"
+                      variant="outlined"
+                      type="number"
+                      value={priceRange[0] === 0 ? "" : priceRange[0]} // Prevent leading zero
+                      onChange={handleMinPriceInput}
+                      onBlur={() => {
+                        if (priceRange[0] === 0)
+                          setPriceRange([0, priceRange[1]]);
+                      }}
+                      style={{ marginRight: "10px" }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">$</InputAdornment>
+                        ), // Changed to startAdornment
+                      }}
+                    />
+                    <TextField
+                      label="Max"
+                      variant="outlined"
+                      type="number"
+                      value={priceRange[1] === 0 ? "" : priceRange[1]} // Prevent leading zero
+                      onChange={handleMaxPriceInput}
+                      onBlur={() => {
+                        if (priceRange[1] === 0)
+                          setPriceRange([priceRange[0], 0]);
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">$</InputAdornment>
+                        ), // Changed to startAdornment
+                      }}
+                    />
+                  </div>
+                  <Slider
+                    value={priceRange}
+                    onChange={handlePriceChange}
+                    valueLabelDisplay="auto"
+                    max={1000}
+                    style={{ width: "100%" }}
+                  />
+                </ListGroup.Item>
               </ListGroup>
             </Card>
           </Col>
@@ -139,8 +206,8 @@ const Products = () => {
                     label="Sort Order"
                     style={{ width: "45%" }}
                   >
-                    <MenuItem value="oldest">Oldest</MenuItem>
-                    <MenuItem value="latest">Latest</MenuItem>
+                    <MenuItem value="oldest">Date added: Oldest</MenuItem>
+                    <MenuItem value="latest">Date added: Latest</MenuItem>
                     <MenuItem value="low">Price: Low to High</MenuItem>
                     <MenuItem value="high">Price: High to Low</MenuItem>
                     <MenuItem value="rating">Average Rating</MenuItem>

@@ -33,7 +33,7 @@ export const getFilterProducts = createAsyncThunk(
   async (u: any) => {
     try {
       const { data } = await publicAxios.get(
-        `/products/search?page=${u.n}&brand=${u.b}&category=${u.c}&query=${u.q}&sortOrder=${u.sortOrder}`
+        `/products/search?page=${u.n}&brand=${u.b}&category=${u.c}&query=${u.q}&sortOrder=${u.sortOrder}&minPrice=${u.minPrice}&maxPrice=${u.maxPrice}`
       );
       return data;
     } catch (error: any) {
