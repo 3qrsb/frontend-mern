@@ -130,7 +130,7 @@ const Products = () => {
                   style={{ width: "95%" }}
                 />
                 <FormControl fullWidth style={{ margin: "0 10px" }}>
-                  <InputLabel id="sort-order-label">Sort Order</InputLabel>
+                  <InputLabel id="sort-order-label">Sort By</InputLabel>
                   <Select
                     labelId="sort-order-label"
                     id="sort-order"
@@ -139,9 +139,11 @@ const Products = () => {
                     label="Sort Order"
                     style={{ width: "45%" }}
                   >
-                    <MenuItem value="">None</MenuItem>
-                    <MenuItem value="low">Price Low to High</MenuItem>
-                    <MenuItem value="high">Price High to Low</MenuItem>
+                    <MenuItem value="oldest">Oldest</MenuItem>
+                    <MenuItem value="latest">Latest</MenuItem>
+                    <MenuItem value="low">Price: Low to High</MenuItem>
+                    <MenuItem value="high">Price: High to Low</MenuItem>
+                    <MenuItem value="rating">Average Rating</MenuItem>
                   </Select>
                 </FormControl>
               </div>
