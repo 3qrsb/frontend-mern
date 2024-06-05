@@ -8,6 +8,8 @@ import * as Yup from "yup";
 import publicAxios from "../../utils/public-axios";
 import toast from "react-hot-toast";
 import { setError } from "../../utils/error";
+import { GoogleLogin } from '@react-oauth/google';
+
 
 type FormValues = {
   name: string;
@@ -52,10 +54,29 @@ const Register = () => {
           navigate("/login");
         }
       })
-      .catch((err) => {
+      .catch((err: any) => {
         console.error(err); // Log the error for debugging purposes
         toast.error("An error occurred. Please try again later.");
       });
+  };
+
+  const onSuccess = (credentialResponse: any) => {
+    console.log('Login successful:', credentialResponse);
+    publicAxios
+      .post("/users/google-login", credentialResponse)
+      .then((res: any) => {
+        if (res.data.success) {
+          toast.error("Registration failed. Please try again.");
+        } else {
+          toast.success("You have been registered. Please log in.");
+          navigate("/login");
+        }
+      })
+      .catch((err: any) => {
+        console.error(err); // Log the error for debugging purposes
+        toast.error("An error occurred. Please try again later.");
+      });
+
   };
 
   return (
@@ -111,6 +132,17 @@ const Register = () => {
           </Link>
         </Form.Group>
 
+
+
+        <div
+          className="mt-8 w-full">
+          <GoogleLogin
+            onSuccess={onSuccess}
+            onError={() => console.error('Login Failed:')}
+            text={"signin_with"}
+
+          />
+        </div>
         <Button
           style={{ backgroundColor: "#e03a3c", color: "#fff" }}
           variant="outline-none"
@@ -119,7 +151,11 @@ const Register = () => {
         >
           Register
         </Button>
+
+
       </Form>
+
+
     </FormContainer>
   );
 };
