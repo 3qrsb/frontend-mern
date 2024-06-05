@@ -7,20 +7,20 @@ const teamMembers = [
   {
     name: "Yersultan",
     position: "Fullstack Developer",
-    image: "public/images/user.jpg",
+    image: "public/images/us.jpg",
     github: "https://github.com/3qrsb",
   },
   {
     name: "Nurbol",
     position: "Frontend Developer",
-    image: "public/images/user.jpg",
-    github: "https://github.com/3qrsb",
+    image: "public/images/us.jpg",
+    github: "https://github.com/NBL01",
   },
   {
     name: "Askar",
     position: "Backend Developer",
-    image: "public/images/user.jpg",
-    github: "https://github.com/3qrsb",
+    image: "public/images/us.jpg",
+    github: "https://github.com/Askar-A-A",
   },
 ];
 

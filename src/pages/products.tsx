@@ -8,6 +8,7 @@ import {
   Form,
   ListGroup,
   FormSelect,
+  Button,
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import DefaultLayout from "../components/layouts/default-layout";
@@ -17,6 +18,15 @@ import { useAppDispatch, useAppSelector } from "../redux";
 import { getFilterProducts } from "../redux/products/search-list";
 import { trackWindowScroll } from "react-lazy-load-image-component";
 import React from "react";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import { SelectChangeEvent } from "@mui/material/Select";
+import Slider from "@mui/material/Slider";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
 
 const Products = () => {
   const params = useParams();
@@ -27,6 +37,7 @@ const Products = () => {
   const [brand, setBrand] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [search, setSearch] = useState<string>("");
+  const [priceRange, setPriceRange] = useState<number[]>([0, 1000]);
   const keyword = params.keyword;
 
   const pageNumber = params.pageNumber || 1;
@@ -35,13 +46,50 @@ const Products = () => {
     setBrand("");
     setCategory("");
     setSearch("");
+    setPriceRange([0, 1000]);
+  };
+
+  const [sortOrder, setSortOrder] = useState<string>(""); // 'asc' for ascending, 'desc' for descending
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setSortOrder(event.target.value as string);
+  };
+
+  const handleCategoryChange = (event: SelectChangeEvent) => {
+    setCategory(event.target.value as string);
+  };
+
+  const handleBrandChange = (event: SelectChangeEvent) => {
+    setBrand(event.target.value as string);
+  };
+
+  const handlePriceChange = (event: Event, newValue: number | number[]) => {
+    setPriceRange(newValue as number[]);
+  };
+
+  const handleMinPriceInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.max(0, Number(event.target.value)); // Prevent negative values
+    setPriceRange([value, priceRange[1]]);
+  };
+
+  const handleMaxPriceInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.max(0, Number(event.target.value)); // Prevent negative values
+    setPriceRange([priceRange[0], value]);
   };
 
   useEffect(() => {
     dispatch(
-      getFilterProducts({ n: pageNumber, b: brand, c: category, q: search })
+      getFilterProducts({
+        n: pageNumber,
+        b: brand !== "All" ? brand : "",
+        c: category !== "All" ? category : "",
+        q: search,
+        sortOrder: sortOrder,
+        minPrice: priceRange[0],
+        maxPrice: priceRange[1],
+      })
     );
-  }, [dispatch, pageNumber, brand, search, category]);
+  }, [dispatch, pageNumber, brand, search, category, sortOrder, priceRange]);
 
   return (
     <DefaultLayout>
@@ -52,46 +100,87 @@ const Products = () => {
             <Card className="shadow p-3">
               <ListGroup variant="flush">
                 <ListGroup.Item>
-                  <h4 className="mb-2">Category</h4>
-                  <FormSelect
-                    defaultValue={"All"}
-                    onChange={(e: any) => {
-                      if (e.target.value === "All") {
-                        reset();
-                      } else {
-                        setCategory(e.target.value);
-                      }
-                    }}
-                  >
-                    <option value="All">All</option>
-                    All
-                    {categories.map((categorie: any) => (
-                      <option value={categorie} key={categorie}>
-                        {categorie}
-                      </option>
-                    ))}
-                  </FormSelect>
+                  <FormControl fullWidth>
+                    <InputLabel id="category-label">Category</InputLabel>
+                    <Select
+                      labelId="category-label"
+                      id="category-select"
+                      value={category}
+                      onChange={handleCategoryChange}
+                      label="Category"
+                    >
+                      <MenuItem value="All">All</MenuItem>
+                      {categories.map((category: string) => (
+                        <MenuItem value={category} key={category}>
+                          {category}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </ListGroup.Item>
                 <ListGroup.Item>
-                  <h4 className="mb-2">Brand</h4>
-                  <FormSelect
-                    defaultValue={"All"}
-                    onChange={(e: any) => {
-                      if (e.target.value === "All") {
-                        reset();
-                      } else {
-                        setBrand(e.target.value);
-                      }
-                    }}
-                  >
-                    <option value="All">All</option>
-                    All
-                    {brands.map((brand: any) => (
-                      <option value={brand} key={brand}>
-                        {brand}
-                      </option>
-                    ))}
-                  </FormSelect>
+                  <FormControl fullWidth>
+                    <InputLabel id="brand-label">Brand</InputLabel>
+                    <Select
+                      labelId="brand-label"
+                      id="brand-select"
+                      value={brand}
+                      onChange={handleBrandChange}
+                      label="Brand"
+                    >
+                      <MenuItem value="All">All</MenuItem>
+                      {brands.map((brand: string) => (
+                        <MenuItem value={brand} key={brand}>
+                          {brand}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <Typography gutterBottom>Price Range ($)</Typography>
+                  <div className="d-flex mb-2">
+                    <TextField
+                      label="Min"
+                      variant="outlined"
+                      type="number"
+                      value={priceRange[0] === 0 ? "" : priceRange[0]} // Prevent leading zero
+                      onChange={handleMinPriceInput}
+                      onBlur={() => {
+                        if (priceRange[0] === 0)
+                          setPriceRange([0, priceRange[1]]);
+                      }}
+                      style={{ marginRight: "10px" }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">$</InputAdornment>
+                        ), // Changed to startAdornment
+                      }}
+                    />
+                    <TextField
+                      label="Max"
+                      variant="outlined"
+                      type="number"
+                      value={priceRange[1] === 0 ? "" : priceRange[1]} // Prevent leading zero
+                      onChange={handleMaxPriceInput}
+                      onBlur={() => {
+                        if (priceRange[1] === 0)
+                          setPriceRange([priceRange[0], 0]);
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">$</InputAdornment>
+                        ), // Changed to startAdornment
+                      }}
+                    />
+                  </div>
+                  <Slider
+                    value={priceRange}
+                    onChange={handlePriceChange}
+                    valueLabelDisplay="auto"
+                    max={1000}
+                    style={{ width: "100%" }}
+                  />
                 </ListGroup.Item>
               </ListGroup>
             </Card>
@@ -99,15 +188,31 @@ const Products = () => {
 
           <Col lg={9}>
             <Row>
-              <div className="col-md-6 pb-0 py-2">
-                <div className="d-flex">
-                  <Form.Control
-                    onChange={(e: any) => setSearch(e.target.value)}
-                    className="me-2"
-                    placeholder="Search..."
-                    value={search}
-                  />
-                </div>
+              <div className="d-flex">
+                <Form.Control
+                  onChange={(e: any) => setSearch(e.target.value)}
+                  className="me-2"
+                  placeholder="Search..."
+                  value={search}
+                  style={{ width: "95%" }}
+                />
+                <FormControl fullWidth style={{ margin: "0 10px" }}>
+                  <InputLabel id="sort-order-label">Sort By</InputLabel>
+                  <Select
+                    labelId="sort-order-label"
+                    id="sort-order"
+                    value={sortOrder}
+                    onChange={handleChange}
+                    label="Sort Order"
+                    style={{ width: "45%" }}
+                  >
+                    <MenuItem value="oldest">Date added: Oldest</MenuItem>
+                    <MenuItem value="latest">Date added: Latest</MenuItem>
+                    <MenuItem value="low">Price: Low to High</MenuItem>
+                    <MenuItem value="high">Price: High to Low</MenuItem>
+                    <MenuItem value="rating">Average Rating</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
             </Row>
             <Row style={{ minHeight: "80vh" }}>

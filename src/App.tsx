@@ -28,6 +28,7 @@ import Cancel from "./pages/cancel";
 import Success from "./pages/success";
 import Wishlist from "./pages/wishlist";
 import { WishlistProvider } from "./context/WishlistContext";
+import EmailVerificationPage from "./pages/EmailVerificationPage";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/dashboard-layout")
@@ -46,6 +47,7 @@ const App = () => {
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route
             path="/shipping-address"
             element={

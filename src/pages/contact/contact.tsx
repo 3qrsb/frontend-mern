@@ -18,14 +18,20 @@ const Contact = () => {
             <Col lg={6}>
               <Row>
                 <Col md={12}>
-                  <div className="info-box bg-white">
+                  <div
+                    className="info-box bg-white"
+                    style={{ paddingTop: "20px" }}
+                  >
                     <i className="bx bx-map" />
                     <h3>Our Address</h3>
                     <p>Prospekt Mangilik Yel., Astana 020000</p>
                   </div>
                 </Col>
                 <Col md={6}>
-                  <div className="info-box mt-4 bg-white">
+                  <div
+                    className="info-box mt-4 bg-white"
+                    style={{ paddingTop: "20px" }}
+                  >
                     <i className="bx bx-envelope" />
                     <h3>Email Us</h3>
                     <p>
@@ -36,7 +42,10 @@ const Contact = () => {
                   </div>
                 </Col>
                 <Col md={6}>
-                  <div className="info-box mt-4 bg-white">
+                  <div
+                    className="info-box mt-4 bg-white"
+                    style={{ paddingTop: "20px" }}
+                  >
                     <i className="bx bx-phone-call" />
                     <h3>Call Us</h3>
                     <p>
