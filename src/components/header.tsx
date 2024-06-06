@@ -22,12 +22,6 @@ const Header = () => {
     0
   );
 
-  const handleGoogleSignIn = () => {
-    // URL of your microservice endpoint that initiates Google OAuth
-    const googleAuthUrl = "http://localhost:8000/login";
-    window.location.href = googleAuthUrl;  // Redirect the user to the microservice
-  };
-
   return (
     <>
       <Navbar
@@ -110,14 +104,6 @@ const Header = () => {
                       Register
                     </Nav.Link>
                   </div>
-                  <div className="d-flex align-items-lg-center mt-3 mt-lg-0">
-                    <button
-                      onClick={handleGoogleSignIn}
-                      className="btn btn-danger btn-sm text-white ms-3"
-                    >
-                      Sign in with Google
-                    </button>
-                  </div>
                 </>
               ) : (
                 <NavDropdown
@@ -153,4 +139,3 @@ const Header = () => {
 };
 
 export default Header;
-
