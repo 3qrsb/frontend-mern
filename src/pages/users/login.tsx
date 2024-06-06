@@ -115,6 +115,7 @@ const Login = () => {
             >
               Don't have an Account? Register
             </Link>
+            <Link href="/forgot-password">Forgot Password?</Link>
             <Button
               fullWidth
               variant="contained"

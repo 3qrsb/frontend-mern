@@ -29,6 +29,8 @@ import Success from "./pages/success";
 import Wishlist from "./pages/wishlist";
 import { WishlistProvider } from "./context/WishlistContext";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
+import ResetPassword from "./pages/helpers/resetPassword";
+import ForgotPassword from "./pages/helpers/forgotPassword";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/dashboard-layout")
@@ -48,6 +50,8 @@ const App = () => {
           <Route path="/cancel" element={<Cancel />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route
             path="/shipping-address"
             element={
