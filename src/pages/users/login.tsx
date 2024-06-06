@@ -1,13 +1,20 @@
-import { useEffect } from "react";
-import FormContainer from "../../components/UI/form-container";
-import { Button, Form } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  Button,
+  TextField,
+  Box,
+  Typography,
+  Link,
+  InputAdornment,
+} from "@mui/material";
+import { Email, Lock } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { userLogin } from "../../redux/users/login-slice";
-import React from "react";
+import DefaultLayout from "../../components/layouts/default-layout";
 
 type FormValues = {
   email: string;
@@ -18,6 +25,7 @@ const Login = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { userInfo } = useAppSelector((state) => state.login);
+
   const validationSchema = Yup.object().shape({
     email: Yup.string().required("Email is required").email("Email is invalid"),
     password: Yup.string()
@@ -42,51 +50,84 @@ const Login = () => {
     if (userInfo) {
       navigate("/");
     }
-  }, [userInfo]);
+  }, [userInfo, navigate]);
 
   return (
-    <FormContainer
-      meta="Login your account"
-      image="https://blog.hubspot.com/hubfs/ecommerce-1.png"
-      title="Login Your Account"
-    >
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <Form.Group controlId="email">
-          <Form.Label>Email</Form.Label>
-
-          <Form.Control
-            type="email"
-            placeholder="Enter email"
-            {...register("email")}
-            className={errors.email?.message && "is-invalid"}
-          />
-          <p className="invalid-feedback">{errors.email?.message}</p>
-        </Form.Group>
-
-        <Form.Group controlId="password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="*******"
-            {...register("password")}
-            className={errors.password?.message && "is-invalid"}
-          />
-          <p className="invalid-feedback">{errors.password?.message}</p>
-          <Link to="/register" className="float-end me-2 mt-1">
-            Dont have an Account ? Register
-          </Link>
-        </Form.Group>
-
-        <Button
-          type="submit"
-          className="mt-4 w-full"
-          style={{ backgroundColor: "#e03a3c", color: "#fff" }}
-          variant="outline-none"
+    <DefaultLayout>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ minHeight: "100vh", p: 2, backgroundColor: "#f5f5f5" }} // Background color for the entire page
+      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 500, // Increase max width
+            p: 4, // Increase padding
+            bgcolor: "white", // Background color for the form
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
         >
-          Submit
-        </Button>
-      </Form>
-    </FormContainer>
+          <Typography variant="h4" component="h1" gutterBottom align="center">
+            Login
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Email"
+              type="email"
+              {...register("email")}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Password"
+              type="password"
+              {...register("password")}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Link
+              href="/register"
+              variant="body2"
+              display="block"
+              sx={{ mt: 2, textAlign: "right" }}
+            >
+              Don't have an Account? Register
+            </Link>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              type="submit"
+              sx={{ mt: 3 }}
+            >
+              Login
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    </DefaultLayout>
   );
 };
 

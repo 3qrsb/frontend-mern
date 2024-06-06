@@ -1,15 +1,22 @@
 import React from "react";
-import FormContainer from "../../components/UI/form-container";
-import { Button, Form } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Button,
+  TextField,
+  Box,
+  Typography,
+  Link,
+  InputAdornment,
+  Divider,
+} from "@mui/material";
+import { AccountCircle, Email, Lock } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import publicAxios from "../../utils/public-axios";
 import toast from "react-hot-toast";
-import { setError } from "../../utils/error";
-import { GoogleLogin } from '@react-oauth/google';
-
+import { GoogleLogin } from "@react-oauth/google";
+import DefaultLayout from "../../components/layouts/default-layout";
 
 type FormValues = {
   name: string;
@@ -23,7 +30,7 @@ const Register = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string()
       .required("Username is required")
-      .min(6, "Username must be at least 6 characters")
+      .min(5, "Username must be at least 5 characters")
       .max(20, "Username must not exceed 20 characters"),
     email: Yup.string().required("Email is required").email("Email is invalid"),
     password: Yup.string()
@@ -50,113 +57,163 @@ const Register = () => {
         if (res.data.success) {
           toast.error("Registration failed. Please try again.");
         } else {
-          toast.success("You have been registered. Please log in.");
+          toast.success(
+            "Registration successful! Please check your email to confirm your account."
+          );
           navigate("/login");
         }
       })
       .catch((err: any) => {
         console.error(err); // Log the error for debugging purposes
-        toast.error("An error occurred. Please try again later.");
+        if (err.response && err.response.data && err.response.data.message) {
+          toast.error(err.response.data.message);
+        } else {
+          toast.error("An error occurred. Please try again later.");
+        }
       });
   };
 
   const onSuccess = (credentialResponse: any) => {
-    console.log('Login successful:', credentialResponse);
+    console.log("Login successful:", credentialResponse);
     publicAxios
       .post("/users/google-login", credentialResponse)
       .then((res: any) => {
-        if (res.data.success) {
+        if (res.data.message === "Email already in use.") {
+          toast.error("Email is already in use. Please use a different email.");
+        } else if (res.data.success) {
           toast.error("Registration failed. Please try again.");
         } else {
-          toast.success("You have been registered. Please log in.");
+          toast.success(
+            "Registration successful! Please check your email to confirm your account."
+          );
           navigate("/login");
         }
       })
       .catch((err: any) => {
         console.error(err); // Log the error for debugging purposes
-        toast.error("An error occurred. Please try again later.");
+        if (err.response && err.response.data && err.response.data.message) {
+          toast.error(err.response.data.message);
+        } else {
+          toast.error("An error occurred. Please try again later.");
+        }
       });
-
   };
 
   return (
-    <FormContainer
-      meta="register for free"
-      image="https://blog.hubspot.com/hubfs/ecommerce-1.png"
-      title="Register For Free"
-    >
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <Form.Group controlId="name">
-          <Form.Label>Username</Form.Label>
-          <Form.Control
-            placeholder="Enter name"
-            {...register("name")}
-            className={errors.name?.message && "is-invalid"}
-          />
-          <p className="invalid-feedback">{errors.name?.message}</p>
-        </Form.Group>
-        <Form.Group controlId="email">
-          <Form.Label>Email</Form.Label>
-
-          <Form.Control
-            type="email"
-            placeholder="Enter email"
-            {...register("email")}
-            className={errors.email?.message && "is-invalid"}
-          />
-          <p className="invalid-feedback">{errors.email?.message}</p>
-        </Form.Group>
-        <Form.Group controlId="password">
-          <Form.Label>Password</Form.Label>
-
-          <Form.Control
-            type="password"
-            placeholder="*******"
-            {...register("password")}
-            className={errors.password?.message && "is-invalid"}
-          />
-          <p className="invalid-feedback">{errors.password?.message}</p>
-        </Form.Group>
-        <Form.Group controlId="confirmPassword">
-          <Form.Label>Confirm Password </Form.Label>
-
-          <Form.Control
-            type="password"
-            placeholder="*******"
-            {...register("confirmPassword")}
-            className={errors.confirmPassword?.message && "is-invalid"}
-          />
-          <p className="invalid-feedback">{errors.confirmPassword?.message}</p>
-          <Link to="/login" className="float-end me-2 mt-1">
-            Already have an Account ? Login
-          </Link>
-        </Form.Group>
-
-
-
-        <div
-          className="mt-8 w-full">
-          <GoogleLogin
-            onSuccess={onSuccess}
-            onError={() => console.error('Login Failed:')}
-            text={"signin_with"}
-
-          />
-        </div>
-        <Button
-          style={{ backgroundColor: "#e03a3c", color: "#fff" }}
-          variant="outline-none"
-          type="submit"
-          className="mt-4 w-full"
+    <DefaultLayout>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ minHeight: "100vh", p: 2, backgroundColor: "#f5f5f5" }} // Background color for the entire page
+      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 500, // Increase max width
+            p: 4, // Increase padding
+            bgcolor: "white", // Background color for the form
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
         >
-          Register
-        </Button>
-
-
-      </Form>
-
-
-    </FormContainer>
+          <Typography variant="h4" component="h1" gutterBottom align="center">
+            Register
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Username"
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AccountCircle />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Email"
+              type="email"
+              {...register("email")}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Password"
+              type="password"
+              {...register("password")}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Confirm Password"
+              type="password"
+              {...register("confirmPassword")}
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword?.message}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Link
+              href="/login"
+              variant="body2"
+              display="block"
+              sx={{ mt: 2, textAlign: "right" }}
+            >
+              Already have an Account? Login
+            </Link>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              type="submit"
+              sx={{ mt: 3 }}
+            >
+              Register
+            </Button>
+          </Box>
+          <Divider sx={{ my: 3 }}>or</Divider>
+          <Box mt={2}>
+            <GoogleLogin
+              onSuccess={onSuccess}
+              onError={() => console.error("Login Failed")}
+              text={"signin_with"}
+            />
+          </Box>
+        </Box>
+      </Box>
+    </DefaultLayout>
   );
 };
 
