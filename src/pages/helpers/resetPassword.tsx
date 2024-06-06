@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, Box, Container } from "@mui/material";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const ResetPassword: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -15,6 +15,10 @@ const ResetPassword: React.FC = () => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
       return;
     }
     try {
@@ -36,11 +40,29 @@ const ResetPassword: React.FC = () => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
-        <Typography component="h1" variant="h5">
-          Reset Password
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} mt={3}>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            width: "100%",
+            marginTop: 1,
+            bgcolor: "background.paper",
+            boxShadow: 3,
+            p: 3,
+            borderRadius: 2,
+          }}
+        >
+          <Typography component="h1" variant="h5" align="center">
+            Reset Password
+          </Typography>
           <TextField
             variant="outlined"
             margin="normal"
@@ -49,7 +71,6 @@ const ResetPassword: React.FC = () => {
             id="password"
             label="New Password"
             type="password"
-            name="password"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -62,21 +83,26 @@ const ResetPassword: React.FC = () => {
             id="confirmPassword"
             label="Confirm Password"
             type="password"
-            name="confirmPassword"
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <Button type="submit" fullWidth variant="contained" color="primary">
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3 }}
+          >
             Submit
           </Button>
           {message && (
-            <Typography color="primary" mt={2}>
+            <Typography color="primary" sx={{ mt: 2 }}>
               {message}
             </Typography>
           )}
           {error && (
-            <Typography color="error" mt={2}>
+            <Typography color="error" sx={{ mt: 2 }}>
               {error}
             </Typography>
           )}

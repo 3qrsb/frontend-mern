@@ -59,7 +59,11 @@ const Login = () => {
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
-        sx={{ minHeight: "100vh", p: 2, backgroundColor: "#f5f5f5" }} // Background color for the entire page
+        sx={{
+          minHeight: "calc(100vh - 64px - 64px)",
+          p: 2,
+          backgroundColor: "#f5f5f5",
+        }} // Adjusted height based on navbar and footer height
       >
         <Box
           sx={{
@@ -107,15 +111,14 @@ const Login = () => {
                 ),
               }}
             />
-            <Link
-              href="/register"
-              variant="body2"
-              display="block"
-              sx={{ mt: 2, textAlign: "right" }}
-            >
-              Don't have an Account? Register
-            </Link>
-            <Link href="/forgot-password">Forgot Password?</Link>
+            <Box display="flex" justifyContent="space-between" sx={{ mt: 2 }}>
+              <Link href="/register" variant="body2">
+                Don't have an Account? Register
+              </Link>
+              <Link href="/forgot-password" variant="body2">
+                Forgot Password?
+              </Link>
+            </Box>
             <Button
               fullWidth
               variant="contained"

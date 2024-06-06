@@ -24,11 +24,29 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
-        <Typography component="h1" variant="h5">
-          Forgot Password
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} mt={3}>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            width: "100%",
+            marginTop: 1,
+            bgcolor: "background.paper",
+            boxShadow: 3,
+            p: 3,
+            borderRadius: 2,
+          }}
+        >
+          <Typography component="h1" variant="h5" align="center">
+            Forgot Password
+          </Typography>
           <TextField
             variant="outlined"
             margin="normal"
@@ -42,16 +60,22 @@ const ForgotPassword: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button type="submit" fullWidth variant="contained" color="primary">
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3 }}
+          >
             Submit
           </Button>
           {message && (
-            <Typography color="primary" mt={2}>
+            <Typography color="primary" sx={{ mt: 2 }}>
               {message}
             </Typography>
           )}
           {error && (
-            <Typography color="error" mt={2}>
+            <Typography color="error" sx={{ mt: 2 }}>
               {error}
             </Typography>
           )}
