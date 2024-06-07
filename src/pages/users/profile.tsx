@@ -1,9 +1,25 @@
-import { useEffect, useState } from "react";
-import { Container, Row, Col, Button, Form, Card } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Grid,
+  Button,
+  TextField,
+  Card,
+  Typography,
+  IconButton,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  CardContent,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import { Link, useParams } from "react-router-dom";
 import DefaultLayout from "../../components/layouts/default-layout";
 import Loader from "../../components/UI/loader";
-import TableContainer from "../../components/UI/table-contrainer";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getUserBydId } from "../../redux/users/user-details";
 import { useForm } from "react-hook-form";
@@ -16,7 +32,6 @@ import { getUserOrder } from "../../redux/orders/user-orders";
 import { formatCurrencry, getDate } from "../../utils/helper";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import { GrView } from "react-icons/gr";
-import React from "react";
 
 type FormValues = {
   email: string;
@@ -31,9 +46,9 @@ const Profile = () => {
   const { orders, loading: orderLoading } = useAppSelector(
     (state) => state.userOrder
   );
-
   const { id } = useParams();
   const [refresh, setRefresh] = useState<boolean>(false);
+
   const validationSchema = Yup.object().shape({
     name: Yup.string().required(),
     email: Yup.string().required("Email is required").email("Email is invalid"),
@@ -88,117 +103,149 @@ const Profile = () => {
 
   return (
     <DefaultLayout title={`${user?.name} profile`}>
-      <Container className="py-0">
+      <Container>
         {loading || !user || orderLoading || !orders ? (
           <Loader />
         ) : (
-          <Row>
-            <Col lg={4} md={5} xs={12} className="py-5">
-              <Card>
-                <Card.Body>
-                  <Form onSubmit={handleSubmit(onSubmit)}>
-                    <Form.Group controlId="name">
-                      <Form.Label>Username</Form.Label>
-                      <Form.Control
-                        {...register("name", {
-                          value: user?.name,
-                        })}
-                        placeholder="Enter name"
-                        className={errors.name?.message && "is-invalid"}
-                      />
-                      <p className="invalid-feedback">{errors.name?.message}</p>
-                    </Form.Group>
-
-                    <Form.Group controlId="email">
-                      <Form.Label>Email Address</Form.Label>
-                      <Form.Control
-                        {...register("email", {
-                          value: user?.email,
-                        })}
-                        placeholder="Enter email"
-                        className={errors.email?.message && "is-invalid"}
-                      />
-                      <p className="invalid-feedback">
-                        {errors.email?.message}
-                      </p>
-                    </Form.Group>
-
-                    <Form.Group controlId="password">
-                      <Form.Label>Password</Form.Label>
-                      <Form.Control
-                        {...register("password")}
-                        type="password"
-                        placeholder="********"
-                        className={errors.password?.message && "is-invalid"}
-                      />
-                      <p className="invalid-feedback">
-                        {errors.password?.message}
-                      </p>
-                    </Form.Group>
-
-                    <Form.Group controlId="confirmPassword">
-                      <Form.Label>Confirm Password</Form.Label>
-                      <Form.Control
-                        {...register("confirmPassword")}
-                        type="password"
-                        placeholder="********"
-                        className={
-                          errors.confirmPassword?.message && "is-invalid"
-                        }
-                      />
-                      <p className="invalid-feedback">
-                        {errors.confirmPassword?.message}
-                      </p>
-                    </Form.Group>
-
-                    <Button
-                      style={{ backgroundColor: "#e03a3c", color: "#fff" }}
-                      variant="outline-none"
-                      type="submit"
-                      className="mt-3 w-full"
-                    >
-                      Update
-                    </Button>
-                  </Form>
-                </Card.Body>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4} className="mt-5 mb-5">
+              <Card sx={{ p: 3 }}>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Typography variant="h6" gutterBottom>
+                    Profile Details
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Username"
+                    {...register("name", { value: user?.name })}
+                    margin="normal"
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Email Address"
+                    {...register("email", { value: user?.email })}
+                    margin="normal"
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    type="password"
+                    {...register("password")}
+                    margin="normal"
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Confirm Password"
+                    type="password"
+                    {...register("confirmPassword")}
+                    margin="normal"
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
+                  />
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 3 }}
+                  >
+                    Update
+                  </Button>
+                </form>
               </Card>
-            </Col>
-            <Col md={7} lg={8} className="py-0">
-              <TableContainer cols={cols}>
-                {orders.map((order) => (
-                  <tr key={order._id}>
-                    <td>{order._id}</td>
-
-                    <td>{formatCurrencry(order?.totalPrice)}</td>
-                    <td>{order?.shippingAddress?.address}</td>
-                    <td>
-                      {order.isPaid ? (
-                        <FaCheck color="green" />
-                      ) : (
-                        <FaTimes color="red" />
-                      )}
-                    </td>
-                    <td>{getDate(order?.createdAt)}</td>
-                    <td>
-                      <Link
-                        to={`/orders/${order._id}`}
-                        className="btn btn-sm btn-secondary  me-2"
-                      >
-                        <GrView />
-                      </Link>
-                      <Button
-                        onClick={() => onDelete(order._id)}
-                        variant="danger"
-                        size="sm"
-                      >
-                        <FaTrash />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </TableContainer>
-            </Col>
-          </Row>
+            </Grid>
+            <Grid item xs={12} md={8} className="mt-5 mb-5">
+              <Card>
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead sx={{ backgroundColor: "#c62828" }}>
+                      <TableRow>
+                        {cols.map((col: any) => (
+                          <TableCell
+                            key={col}
+                            sx={{
+                              color: "white",
+                              textTransform: "uppercase",
+                              fontWeight: "normal",
+                              fontSize: "0.875rem",
+                              py: 1,
+                              px: 2,
+                            }}
+                          >
+                            {col}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {orders.map((order) => (
+                        <TableRow key={order._id}>
+                          <TableCell sx={{ color: "gray" }}>
+                            {order._id}
+                          </TableCell>
+                          <TableCell sx={{ color: "gray" }}>
+                            {formatCurrencry(order?.totalPrice)}
+                          </TableCell>
+                          <TableCell sx={{ color: "gray" }}>
+                            {order?.shippingAddress?.address}
+                          </TableCell>
+                          <TableCell sx={{ color: "gray" }}>
+                            {order.isPaid ? (
+                              <FaCheck color="green" />
+                            ) : (
+                              <FaTimes color="red" />
+                            )}
+                          </TableCell>
+                          <TableCell sx={{ color: "gray" }}>
+                            {getDate(order?.createdAt)}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              component={Link}
+                              to={`/orders/${order._id}`}
+                              size="small"
+                              sx={{
+                                backgroundColor: "#bdbdbd",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "#757575",
+                                },
+                                mr: 1,
+                                borderRadius: 2,
+                              }}
+                            >
+                              <GrView />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => onDelete(order._id)}
+                              size="small"
+                              sx={{
+                                backgroundColor: "#ef5350",
+                                color: "white",
+                                "&:hover": {
+                                  backgroundColor: "#c62828",
+                                },
+                                ml: 1,
+                                borderRadius: 2,
+                              }}
+                            >
+                              <FaTrash />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Card>
+            </Grid>
+          </Grid>
         )}
       </Container>
     </DefaultLayout>

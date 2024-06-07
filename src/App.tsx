@@ -24,11 +24,11 @@ import Loader from "./components/UI/loader";
 import ErrorFallback from "./components/UI/error-fallback";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import PlaceOrder from "./pages/cart/place-order";
-import Cancel from "./pages/cancel";
-import Success from "./pages/success";
-import Wishlist from "./pages/wishlist";
+import Cancel from "./pages/helpers/cancel";
+import Success from "./pages/helpers/success";
+import Wishlist from "./pages/users/wishlist";
 import { WishlistProvider } from "./context/WishlistContext";
-import EmailVerificationPage from "./pages/EmailVerificationPage";
+import EmailVerificationPage from "./pages/helpers/EmailVerificationPage";
 import ResetPassword from "./pages/helpers/resetPassword";
 import ForgotPassword from "./pages/helpers/forgotPassword";
 

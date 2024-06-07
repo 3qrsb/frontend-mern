@@ -21,7 +21,13 @@ const DashboardPage = () => {
     return total;
   };
 
+  const getAverageOrderValue = () => {
+    if (!orders || orders.length === 0) return 0;
+    return getTotalCost() / orders.length;
+  };
+
   const totalPrice = getTotalCost();
+  const averageOrderValue = getAverageOrderValue();
 
   useEffect(() => {
     dispatch(getOrdersList());
@@ -35,7 +41,7 @@ const DashboardPage = () => {
             <Row>
               <Col>
                 <span className="h6 font-semibold text-muted text-sm d-block mb-2">
-                  Price
+                  Revenue
                 </span>
                 <span className="h3 font-bold mb-0">
                   {formatCurrencry(totalPrice)}
@@ -109,6 +115,66 @@ const DashboardPage = () => {
               <span className="badge badge-pill bg-soft-danger text-danger me-2">
                 <i className="bi bi-arrow-down me-1" />
                 -5%
+              </span>
+              <span className="text-nowrap text-xs text-muted">
+                Since last month
+              </span>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col md={4}>
+        <Card className=" shadow border-0">
+          <Card.Body>
+            <Row>
+              <Col>
+                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
+                  Orders
+                </span>
+                <span className="h3 font-bold mb-0">
+                  {orders?.length && orders?.length}
+                </span>
+              </Col>
+              <div className="col-auto">
+                <div className="icon icon-shape bg-success text-white text-lg rounded-circle">
+                  <i className="bi bi-cart" />
+                </div>
+              </div>
+            </Row>
+            <div className="mt-2 mb-0 text-sm">
+              <span className="badge badge-pill bg-soft-success text-success me-2">
+                <i className="bi bi-arrow-up me-1" />
+                20%
+              </span>
+              <span className="text-nowrap text-xs text-muted">
+                Since last month
+              </span>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col md={4}>
+        <Card className=" shadow border-0">
+          <Card.Body>
+            <Row>
+              <Col>
+                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
+                  Average Order Value
+                </span>
+                <span className="h3 font-bold mb-0">
+                  {formatCurrencry(averageOrderValue)}
+                </span>
+              </Col>
+              <div className="col-auto">
+                <div className="icon icon-shape bg-warning text-white text-lg rounded-circle">
+                  <i className="bi bi-graph-up" />
+                </div>
+              </div>
+            </Row>
+            <div className="mt-2 mb-0 text-sm">
+              <span className="badge badge-pill bg-soft-success text-success me-2">
+                <i className="bi bi-arrow-up me-1" />
+                10%
               </span>
               <span className="text-nowrap text-xs text-muted">
                 Since last month

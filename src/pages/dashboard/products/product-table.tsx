@@ -1,21 +1,30 @@
-import { useEffect, useState } from "react";
-import { Button, Image, Row } from "react-bootstrap";
-import toast from "react-hot-toast";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { Link, useParams } from "react-router-dom";
-import ProductModal from "../../../components/modals/product-modal";
-import Loader from "../../../components/UI/loader";
-import Paginate from "../../../components/UI/paginate";
-import TableContainer from "../../../components/UI/table-contrainer";
 import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getFilterProducts } from "../../../redux/products/search-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
 import { formatCurrencry, getDate } from "../../../utils/helper";
-import React from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import Loader from "../../../components/UI/loader";
+import Paginate from "../../../components/UI/paginate";
+import toast from "react-hot-toast";
+import ProductModal from "../../../components/modals/product-modal";
 import { ReviewTypes } from "../../../utils/interfaces";
 
-// Then, use it in a component.
 function ProductTable() {
   const dispatch = useAppDispatch();
   const { products, page, pages, loading } = useAppSelector(
@@ -29,16 +38,6 @@ function ProductTable() {
   const onOpen = () => setShow(true);
   const onClose = () => setShow(false);
 
-  const cols = [
-    "image",
-    "name",
-    "brand",
-    "category",
-    "price",
-    "created At",
-    "options",
-  ];
-
   const onDelete = (id: string | number, productName: string) => {
     if (window.confirm(`Are you sure you want to delete ${productName}?`)) {
       authAxios
@@ -51,7 +50,18 @@ function ProductTable() {
     }
   };
 
-  const handleDelete = (product: { _id: any; name: any; price?: number; image?: string; category?: string; brand?: string; description?: string; qty?: number; createdAt?: Date; reviews?: ReviewTypes[]; }) => {
+  const handleDelete = (product: {
+    _id: any;
+    name: any;
+    price?: number;
+    image?: string;
+    category?: string;
+    brand?: string;
+    description?: string;
+    qty?: number;
+    createdAt?: Date;
+    reviews?: ReviewTypes[];
+  }) => {
     const productName = product.name;
     onDelete(product._id, productName);
   };
@@ -60,56 +70,117 @@ function ProductTable() {
     dispatch(getFilterProducts({ n: pageNumber, b: "", c: "", q: "" }));
   }, [dispatch, pageNumber, refresh]);
 
+  const cols = [
+    "Image",
+    "Name",
+    "Brand",
+    "Category",
+    "Price",
+    "Created At",
+    "Options",
+  ];
+
   return (
     <>
       {loading ? (
         <Loader />
       ) : (
-        <Row className="py-3">
-          <h3 className="d-flex justify-content-between align-items-center">
-            <span>Product List</span>
-            <Button
-              style={{ backgroundColor: "#e03a3c", color: "#fff" }}
-              variant="outline-none"
-              onClick={onOpen}
-              size="sm"
-            >
-              Add Product
-            </Button>
-          </h3>
-          <TableContainer cols={cols}>
-            {products.map((product) => (
-              <tr key={product._id}>
-                <td>
-                  <Image className="avatar" roundedCircle src={product.image} />
-                </td>
-                <td>{product.name}</td>
-                <td>{product.brand}</td>
-                <td>{product.category}</td>
-                <td>{formatCurrencry(product.price)}</td>
-                <td>{getDate(product?.createdAt)}</td>
-                <td>
-                  <Link
-                    className="btn btn-sm btn-primary me-2"
-                    to={`/dashboard/product-edit/${product._id}`}
-                  >
-                    <FaEdit />
-                  </Link>
-                  <Button
-                    onClick={() => handleDelete(product)}
-                    variant="danger"
-                    size="sm"
-                  >
-                    <FaTrash />
-                  </Button>
-                </td>
-                {/* <td>{product?.created_at}</td> */}
-              </tr>
-            ))}
+        <Card className="mt-5 mb-5">
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead sx={{ backgroundColor: "#c62828" }}>
+                <TableRow>
+                  {cols.map((col: any) => (
+                    <TableCell
+                      key={col}
+                      sx={{
+                        color: "white",
+                        textTransform: "uppercase",
+                        fontWeight: "normal",
+                        fontSize: "0.875rem",
+                        py: 1,
+                        px: 2,
+                      }}
+                    >
+                      {col}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {products.map((product) => (
+                  <TableRow key={product._id}>
+                    <TableCell>
+                      <img
+                        src={product.image}
+                        alt="Product"
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ color: "gray" }}>{product.name}</TableCell>
+                    <TableCell sx={{ color: "gray" }}>
+                      {product.brand}
+                    </TableCell>
+                    <TableCell sx={{ color: "gray" }}>
+                      {product.category}
+                    </TableCell>
+                    <TableCell sx={{ color: "gray" }}>
+                      {formatCurrencry(product.price)}
+                    </TableCell>
+                    <TableCell sx={{ color: "gray" }}>
+                      {getDate(product.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        component={Link}
+                        to={`/dashboard/product-edit/${product._id}`}
+                        size="small"
+                        sx={{
+                          borderRadius: 2,
+                          backgroundColor: "#1976d2",
+                          color: "white",
+                          "&:hover": {
+                            backgroundColor: "#1565c0",
+                            color: "white",
+                          },
+                        }}
+                      >
+                        <FaEdit />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleDelete(product)}
+                        size="small"
+                        sx={{
+                          backgroundColor: "#ef5350",
+                          color: "white",
+                          "&:hover": { backgroundColor: "#c62828" },
+                          ml: 1,
+                          borderRadius: 2,
+                        }}
+                      >
+                        <FaTrash />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </TableContainer>
-        </Row>
+        </Card>
       )}
-      <Paginate pages={pages} page={page} isAdmin={true} keyword={""} />
+      <div style={{ margin: "20px 0" }}>
+        <Paginate
+          pages={pages}
+          page={page}
+          isAdmin={true}
+          keyword={""}
+          urlPrefix="/dashboard/product-list"
+        />
+      </div>
       <ProductModal setRefresh={setRefresh} show={show} handleClose={onClose} />
     </>
   );

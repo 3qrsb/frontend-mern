@@ -1,15 +1,27 @@
+import {
+  Button,
+  Card,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
-import { Button, Pagination, Row } from "react-bootstrap";
-import toast from "react-hot-toast";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import Loader from "../../../components/UI/loader";
-import TableContainer from "../../../components/UI/table-contrainer";
 import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getUsersList } from "../../../redux/users/user-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
 import { getDate } from "../../../utils/helper";
+import toast from "react-hot-toast";
 import React from "react";
+import { Pagination } from "react-bootstrap";
 
 const UserTable = () => {
   const dispatch = useAppDispatch();
@@ -20,7 +32,7 @@ const UserTable = () => {
     pages,
   } = useAppSelector((state) => state.userList);
 
-  const cols = ["name", "email", "created At", "admin", "promote", "delete"];
+  const cols = ["Name", "Email", "Created At", "Admin", "Promote", "Delete"];
   const [refresh, setRefresh] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(curPage);
@@ -60,61 +72,86 @@ const UserTable = () => {
       {loading ? (
         <Loader />
       ) : (
-        <Row className="py-3">
-          <h3 className="d-flex justify-content-between align-items-center">
-            <span>User List</span>
-            {/* <Button size='sm'>Add User</Button> */}
-          </h3>
-          <TableContainer cols={cols}>
-            {users?.map((user) => (
-              <tr key={user._id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{getDate(user.createdAt)}</td>
-                <td>
-                  {user.isAdmin ? (
-                    <FaCheck color="green" />
-                  ) : (
-                    <FaTimes color="red" />
-                  )}
-                </td>
-                <td>
-                  {" "}
-                  {!user?.isAdmin && (
-                    <Button
-                      onClick={() => onPromote(user._id, user.name)}
-                      variant="success"
-                      size="sm"
-                      className="me-3"
+        <Card className="mt-5">
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead sx={{ backgroundColor: "#c62828" }}>
+                <TableRow>
+                  {cols.map((col: any) => (
+                    <TableCell
+                      key={col}
+                      sx={{
+                        color: "white",
+                        textTransform: "uppercase",
+                        fontWeight: "normal",
+                        fontSize: "0.875rem",
+                        py: 1,
+                        px: 2,
+                      }}
                     >
-                      Promote
-                    </Button>
-                  )}
-                </td>
-                <td>
-                  <Button
-                    onClick={() => onDelete(user._id, user.name)}
-                    variant="danger"
-                    size="sm"
-                  >
-                    <FaTrash />
-                  </Button>
-                </td>
-              </tr>
-            ))}
+                      {col}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users?.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell sx={{ color: "gray" }}>{user.name}</TableCell>
+                    <TableCell sx={{ color: "gray" }}>{user.email}</TableCell>
+                    <TableCell sx={{ color: "gray" }}>
+                      {getDate(user.createdAt)}
+                    </TableCell>
+                    <TableCell sx={{ color: "gray" }}>
+                      {user.isAdmin ? (
+                        <FaCheck color="green" />
+                      ) : (
+                        <FaTimes color="red" />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {!user?.isAdmin && (
+                        <Button
+                          onClick={() => onPromote(user._id, user.name)}
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          sx={{
+                            borderRadius: 2,
+                            backgroundColor: "#81c784",
+                            color: "white",
+                            "&:hover": {
+                              backgroundColor: "#4caf50",
+                            },
+                          }}
+                        >
+                          Promote
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => onDelete(user._id, user.name)}
+                        variant="contained"
+                        size="large"
+                        sx={{
+                          backgroundColor: "#ef5350",
+                          color: "white",
+                          "&:hover": {
+                            backgroundColor: "#c62828",
+                          },
+                          borderRadius: 2,
+                        }}
+                      >
+                        <FaTrash />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </TableContainer>
-          <Pagination className="overflow-auto mt-5">
-            {[...Array(pages).keys()].map((x) => (
-              <Pagination.Item
-                key={x + 1}
-                active={x + 1 === page}
-                onClick={() => setPage(x + 1)}
-              >
-                {x + 1}
-              </Pagination.Item>
-            ))}
-          </Pagination>
-        </Row>
+        </Card>
       )}
     </>
   );
