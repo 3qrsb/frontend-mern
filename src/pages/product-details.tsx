@@ -65,7 +65,7 @@ const ProductDetails = () => {
       {loading || !product ? (
         <Loader />
       ) : (
-        <Container>
+        <Container className="py-3">
           <Row>
             <Col md={7}>
               <Card className="shadow">

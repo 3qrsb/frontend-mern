@@ -43,7 +43,7 @@ const ShippingAddress = () => {
   }, [shippingAddress]);
 
   return (
-    <FormContainer meta="shipping address" title="Shipping Address">
+    <FormContainer meta="Shipping Address" title="Shipping Address">
       <Form onSubmit={onSubmit}>
         <Form.Group controlId="address">
           <Form.Label>Address</Form.Label>

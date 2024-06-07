@@ -88,13 +88,12 @@ const Profile = () => {
 
   return (
     <DefaultLayout title={`${user?.name} profile`}>
-      <Container>
+      <Container className="py-0">
         {loading || !user || orderLoading || !orders ? (
           <Loader />
         ) : (
           <Row>
-            <Col lg={4} md={5} xs={12}>
-              <h2>User Profile</h2>
+            <Col lg={4} md={5} xs={12} className="py-5">
               <Card>
                 <Card.Body>
                   <Form onSubmit={handleSubmit(onSubmit)}>
@@ -164,7 +163,7 @@ const Profile = () => {
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={7} lg={8}>
+            <Col md={7} lg={8} className="py-0">
               <TableContainer cols={cols}>
                 {orders.map((order) => (
                   <tr key={order._id}>

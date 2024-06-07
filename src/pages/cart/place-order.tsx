@@ -44,8 +44,8 @@ const PlaceOrder = () => {
   };
 
   return (
-    <DefaultLayout title="place-order">
-      <Container>
+    <DefaultLayout title="Place Order">
+      <Container className="py-3">
         <Row>
           <Col md={8} className="mb-2">
             <Card>

@@ -25,14 +25,8 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   return (
-    <DefaultLayout title="Ecommerce">
-      <Container
-        style={{
-          backgroundColor: "#f8f9fa",
-          padding: "20px",
-          borderRadius: "8px",
-        }}
-      >
+    <DefaultLayout title="Cart">
+      <Container className="py-3">
         {cartItems.length === 0 ? (
           <div className="empty-cart-container text-center">
             <img

@@ -82,9 +82,8 @@ const OrderDetails = () => {
   }, [dispatch, id]);
 
   return (
-    <DefaultLayout title="Order Payment">
-      <Container>
-        <h2 className="mb-5">Payment</h2>
+    <DefaultLayout title="Order Details">
+      <Container className="py-3">
 
         {loading ? (
           <Loader />

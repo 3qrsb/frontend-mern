@@ -8,7 +8,7 @@ import React from "react";
 const Contact = () => {
   const navigate = useNavigate();
   return (
-    <DefaultLayout>
+    <DefaultLayout title="Contact">
       <section id="contact" className="contact">
         <Container data-aos="fade-up">
           <div className="section-title">

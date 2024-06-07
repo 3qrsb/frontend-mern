@@ -27,7 +27,7 @@ const teamMembers = [
 const About = () => {
   const navigate = useNavigate();
   return (
-    <DefaultLayout>
+    <DefaultLayout title="About Us">
       <section id="about" className="about">
         <div className="section-title">
           <h2 className="text-center">About Us</h2>

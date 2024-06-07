@@ -60,17 +60,17 @@ const Login = () => {
         alignItems="center"
         justifyContent="center"
         sx={{
-          minHeight: "calc(100vh - 64px - 64px)",
+          minHeight: "80vh",
           p: 2,
           backgroundColor: "#f5f5f5",
-        }} // Adjusted height based on navbar and footer height
+        }}
       >
         <Box
           sx={{
             width: "100%",
-            maxWidth: 500, // Increase max width
-            p: 4, // Increase padding
-            bgcolor: "white", // Background color for the form
+            maxWidth: 500,
+            p: 4,
+            bgcolor: "white",
             borderRadius: 2,
             boxShadow: 3,
           }}
@@ -112,11 +112,11 @@ const Login = () => {
               }}
             />
             <Box display="flex" justifyContent="space-between" sx={{ mt: 2 }}>
-              <Link href="/register" variant="body2">
-                Don't have an Account? Register
-              </Link>
               <Link href="/forgot-password" variant="body2">
                 Forgot Password?
+              </Link>
+              <Link href="/register" variant="body2">
+                Don't have an Account? Register
               </Link>
             </Box>
             <Button

@@ -9,14 +9,8 @@ const Wishlist = () => {
   const { wishlist } = useWishlist();
 
   return (
-    <DefaultLayout>
-      <Container
-        style={{
-          backgroundColor: "#f8f9fa",
-          padding: "20px",
-          borderRadius: "8px",
-        }}
-      >
+    <DefaultLayout title="Wishlist">
+      <Container className="py-3">
         {wishlist.length > 0 ? (
           <Row>
             <h2

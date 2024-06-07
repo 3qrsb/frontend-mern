@@ -92,8 +92,8 @@ const Products = () => {
   }, [dispatch, pageNumber, brand, search, category, sortOrder, priceRange]);
 
   return (
-    <DefaultLayout>
-      <Container>
+    <DefaultLayout title="Products">
+      <Container className="py-3">
         <Row>
           <Col lg={3}>
             <h2 className="py-4 pb-4">Filter</h2>
