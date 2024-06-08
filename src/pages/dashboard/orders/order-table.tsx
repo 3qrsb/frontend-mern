@@ -55,6 +55,7 @@ function OrdersTable() {
 
   const cols = [
     "Order ID",
+    "User Email",
     "Total Price",
     "Address",
     "Status",
@@ -90,14 +91,17 @@ function OrdersTable() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {orders.map((order) => (
+                {orders.map((order: any) => (
                   <TableRow key={order._id}>
                     <TableCell sx={{ color: "gray" }}>{order._id}</TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {formatCurrencry(order?.totalPrice)}
+                      {order.user.email}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {order?.shippingAddress?.address}
+                      {formatCurrencry(order.totalPrice)}
+                    </TableCell>
+                    <TableCell sx={{ color: "gray" }}>
+                      {order.shippingAddress.address}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
                       {order.isPaid ? (
@@ -107,7 +111,7 @@ function OrdersTable() {
                       )}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {getDate(order?.createdAt)}
+                      {getDate(order.createdAt)}
                     </TableCell>
                     <TableCell>
                       <IconButton

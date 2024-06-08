@@ -229,6 +229,7 @@ const Products = () => {
           page={page}
           keyword={keyword ? keyword : ""}
           isAdmin={false}
+          urlPrefix={""}
         />
       </Container>
     </DefaultLayout>

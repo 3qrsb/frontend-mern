@@ -15,7 +15,6 @@ import DefaultLayout from "../components/layouts/default-layout";
 import { Product } from "../components/product-card";
 import Loader from "../components/UI/loader";
 import Message from "../components/UI/message";
-import Rating from "../components/UI/rating";
 import RedButton from "../components/UI/red-button";
 import { useAppDispatch, useAppSelector } from "../redux";
 import { addToCart } from "../redux/cart/cart-slice";
@@ -24,6 +23,8 @@ import authAxios from "../utils/auth-axios";
 import { setError } from "../utils/error";
 import { formatCurrencry, getDate } from "../utils/helper";
 import ImageLazy from "../components/UI/lazy-image";
+import Rating from "@mui/material/Rating"; // Import MUI Rating component
+import Box from "@mui/material/Box"; // Import MUI Box component for layout
 
 const ProductDetails = () => {
   const dispatch = useAppDispatch();
@@ -32,7 +33,7 @@ const ProductDetails = () => {
   const params = useParams();
   const { id } = params;
   const navigate = useNavigate();
-  const [rating, setRating] = useState<number>(0);
+  const [rating, setRating] = useState<number | null>(1); // Default value set to 1
   const [comment, setComment] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
 
@@ -49,7 +50,7 @@ const ProductDetails = () => {
     authAxios
       .post(`/products/${product?._id}/reviews`, review)
       .then((res) => {
-        toast.success("thank you for the comment 🙂");
+        toast.success("Thank you for the comment 🙂");
         setRefresh((prev) => (prev = !prev));
       })
       .catch((err) => toast.error(setError(err)));
@@ -129,7 +130,11 @@ const ProductDetails = () => {
                       <ListGroup.Item key={review._id}>
                         <div className="d-flex">
                           <strong>{review.name}</strong>
-                          <Rating value={review.rating} />
+                          <Rating
+                            value={review.rating}
+                            readOnly
+                            precision={0.5}
+                          />
                           <p>{getDate(review.createdAt)}</p>
                         </div>
                         <p>{review.comment}</p>
@@ -147,17 +152,21 @@ const ProductDetails = () => {
                     <Form onSubmit={onSubmit}>
                       <Form.Group controlId="rating">
                         <Form.Label>Rating</Form.Label>
-                        <Form.Control
-                          required
-                          onChange={(e: any) => setRating(e.target.value)}
-                          as="select"
+                        <Box
+                          component="fieldset"
+                          mb={3}
+                          borderColor="transparent"
                         >
-                          <option value={1}>⭐</option>
-                          <option value={2}>⭐⭐</option>
-                          <option value={3}>⭐⭐⭐</option>
-                          <option value={4}>⭐⭐⭐⭐</option>
-                          <option value={5}>⭐⭐⭐⭐⭐</option>
-                        </Form.Control>
+                          <Rating
+                            name="rating"
+                            value={rating}
+                            onChange={(event, newValue) => {
+                              if (newValue !== null) {
+                                setRating(newValue);
+                              }
+                            }}
+                          />
+                        </Box>
                       </Form.Group>
                       <Form.Group controlId="comment">
                         <Form.Label>Comment</Form.Label>
