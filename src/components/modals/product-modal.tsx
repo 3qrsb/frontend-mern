@@ -146,12 +146,12 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
 
   useEffect(() => {
     if (!show) {
-      reset();
+      //reset(); Causing infinite loop
       resetImage();
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      setImageError(""); // Clear image error when dialog is closed
+      setImageError("");
     }
   }, [show, reset, resetImage]);
 

@@ -42,8 +42,16 @@ const initialState: OrderSliceState = {
 
 export const getOrdersList = createAsyncThunk('orders/list', async () => {
   try {
-    const { data } = await authAxios.get('/orders');
-    return data;
+    const { data: orders } = await authAxios.get('/orders');
+    const userPromises = orders.map((order: any) =>
+      authAxios.get(`/users/${order.user}`)
+    );
+    const users = await Promise.all(userPromises);
+    const ordersWithUserDetails = orders.map((order: any, index: any) => ({
+      ...order,
+      user: users[index].data,
+    }));
+    return ordersWithUserDetails;
   } catch (error: any) {
     const message = setError(error);
     toast.error(message);
@@ -61,7 +69,6 @@ export const orderListSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(getOrdersList.pending, (state) => {
-      // Add user to the state array
       state.loading = true;
     });
     builder.addCase(getOrdersList.fulfilled, (state, action) => {

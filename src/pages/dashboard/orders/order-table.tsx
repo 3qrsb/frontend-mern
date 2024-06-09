@@ -95,7 +95,7 @@ function OrdersTable() {
                   <TableRow key={order._id}>
                     <TableCell sx={{ color: "gray" }}>{order._id}</TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {order.user.email}
+                      {order.user && order.user.email}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
                       {formatCurrencry(order.totalPrice)}
