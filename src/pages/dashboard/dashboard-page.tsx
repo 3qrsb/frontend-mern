@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrdersList } from "../../redux/orders/slice-list";
-import { formatCurrencry } from "../../utils/helper";
+import { formatCurrencry, getDate } from "../../utils/helper";
 import React from "react";
+import SalesTrends from "./salesTrends";
+import TopSellingProducts from "./TopSellingProducts";
 
 const DashboardPage = () => {
   const { total } = useAppSelector((state) => state.productFilter);
@@ -182,6 +184,36 @@ const DashboardPage = () => {
             </div>
           </Card.Body>
         </Card>
+      </Col>
+      <Col md={12} className="mt-4">
+        <Card className=" shadow border-0">
+          <Card.Body>
+            <h4 className="text-muted">Recent Orders</h4>
+            <ul className="list-unstyled">
+              {orders.slice(0, 5).map((order: any) => (
+                <li key={order._id}>
+                  <div className="d-flex justify-content-between">
+                    <span>{order._id}</span>
+                    <span>{order.user.email}</span>
+                    <span>{formatCurrencry(order.totalPrice)}</span>
+                    <span>{getDate(order.createdAt)}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col md={12} className="mt-4">
+        <Card className=" shadow border-0">
+          <Card.Body>
+            <h4 className="text-muted">Sales Trends</h4>
+            <SalesTrends />
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col md={12} className="mt-4">
+        <TopSellingProducts />
       </Col>
     </Row>
   );

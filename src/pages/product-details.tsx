@@ -51,7 +51,7 @@ const ProductDetails = () => {
       .post(`/products/${product?._id}/reviews`, review)
       .then((res) => {
         toast.success("Thank you for the comment 🙂");
-        setRefresh((prev) => (prev = !prev));
+        setRefresh((prev) => !prev);
       })
       .catch((err) => toast.error(setError(err)));
   };
@@ -126,20 +126,24 @@ const ProductDetails = () => {
                 <Card.Body>
                   <h3 style={{ color: "#e03a3c" }}>Reviews</h3>
                   <ListGroup variant="flush">
-                    {product.reviews.map((review) => (
-                      <ListGroup.Item key={review._id}>
-                        <div className="d-flex">
-                          <strong>{review.name}</strong>
-                          <Rating
-                            value={review.rating}
-                            readOnly
-                            precision={0.5}
-                          />
-                          <p>{getDate(review.createdAt)}</p>
-                        </div>
-                        <p>{review.comment}</p>
-                      </ListGroup.Item>
-                    ))}
+                    {product.reviews?.length > 0 ? (
+                      product.reviews.map((review) => (
+                        <ListGroup.Item key={review._id}>
+                          <div className="d-flex">
+                            <strong>{review.name}</strong>
+                            <Rating
+                              value={review.rating}
+                              readOnly
+                              precision={0.5}
+                            />
+                            <p>{getDate(review.createdAt)}</p>
+                          </div>
+                          <p>{review.comment}</p>
+                        </ListGroup.Item>
+                      ))
+                    ) : (
+                      <ListGroup.Item>No reviews yet</ListGroup.Item>
+                    )}
                   </ListGroup>
                 </Card.Body>
               </Card>
