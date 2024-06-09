@@ -1,22 +1,26 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   TextField,
   Typography,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { useAppSelector } from "../../../redux";
-import { useNavigate, useParams } from "react-router-dom";
 import authAxios from "../../../utils/auth-axios";
 import toast from "react-hot-toast";
 import { setError } from "../../../utils/error";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 type FormValues = {
   name: string;
@@ -42,26 +46,26 @@ type ProductUpdateProps = {
 
 const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
-    image: Yup.string().required("Image URL is required"),
-    category: Yup.string().required("Category is required"),
-    brand: Yup.string().required("Brand is required"),
+    name: Yup.string().trim().required("Name is required"),
+    category: Yup.string().trim().required("Category is required"),
+    brand: Yup.string().trim().required("Brand is required"),
     price: Yup.number()
       .positive("Price must be a positive number")
       .required("Price is required"),
-    description: Yup.string().required("Description is required"),
+    description: Yup.string().trim().required("Description is required"),
   });
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    setValue,
+    watch,
+    formState: { errors, isDirty },
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
       name: product.name,
-      image: product.image,
       category: product.category,
       brand: product.brand,
       price: product.price,
@@ -69,25 +73,100 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
     },
   });
 
+  const [fileName, setFileName] = useState(product.image);
+  const [uploading, setUploading] = useState(false);
+  const baseUrl = "http://localhost:4000";
+
   useEffect(() => {
     reset({
       name: product.name,
-      image: product.image,
       category: product.category,
       brand: product.brand,
       price: product.price,
       description: product.description,
     });
+    const formattedImage = product.image.startsWith("http")
+      ? product.image
+      : `${baseUrl}/${product.image}`;
+    setFileName(formattedImage.replace(/\\/g, "/")); // Replace backslashes with forward slashes
   }, [product, reset]);
 
-  const onSubmit = (data: FormValues) => {
-    authAxios
-      .put(`/products/${product._id}`, data)
-      .then((res) => {
-        toast.success("Product has been updated");
-        onClose();
-      })
-      .catch((err) => toast.error(setError(err)));
+  const onSubmit = async (data: FormValues) => {
+    if (!fileName) {
+      toast.error("Please upload an image");
+      return;
+    }
+    const updatedData = { ...data, image: fileName };
+    try {
+      await authAxios.put(`/products/${product._id}`, updatedData);
+      toast.success("Product has been updated");
+      onClose();
+    } catch (err: any) {
+      toast.error(setError(err));
+    }
+  };
+
+  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+
+      // Validate the file type and size
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload a valid image file");
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+
+      setUploading(true);
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        const { data } = await authAxios.post("/uploads/image", formData);
+        const fullImageUrl = `${baseUrl}${data}`.replace(/\\/g, "/"); // Ensure correct URL format
+        setFileName(fullImageUrl);
+        setValue("image", fullImageUrl);
+        toast.success("Image uploaded successfully");
+      } catch (err: any) {
+        toast.error(setError(err));
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  const removeFile = () => {
+    setFileName("");
+    setValue("image", "");
+  };
+
+  const isFormDirty = () => {
+    const currentValues = watch();
+    return (
+      isDirty ||
+      currentValues.name.trim() !== product.name.trim() ||
+      currentValues.category.trim() !== product.category.trim() ||
+      currentValues.brand.trim() !== product.brand.trim() ||
+      currentValues.price !== product.price ||
+      currentValues.description.trim() !== product.description.trim() ||
+      fileName !== product.image
+    );
+  };
+
+  const hasMeaningfulChanges = () => {
+    const currentValues = watch();
+    return (
+      currentValues.name.trim() !== product.name ||
+      currentValues.category.trim() !== product.category ||
+      currentValues.brand.trim() !== product.brand ||
+      currentValues.price !== product.price ||
+      currentValues.description.trim() !== product.description ||
+      fileName !== product.image
+    );
   };
 
   return (
@@ -110,14 +189,62 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             error={!!errors.name}
             helperText={errors.name?.message}
           />
-          <TextField
-            label="Image URL"
-            fullWidth
-            margin="normal"
-            {...register("image")}
-            error={!!errors.image}
-            helperText={errors.image?.message}
-          />
+          <FormControl fullWidth margin="normal">
+            <Button
+              variant="contained"
+              component="label"
+              startIcon={<CloudUploadIcon />}
+              style={{
+                backgroundColor: "#1976d2",
+                color: "#fff",
+                marginTop: "0",
+                width: "150px",
+              }}
+              disabled={uploading}
+            >
+              {uploading ? <CircularProgress size={24} /> : "Upload"}
+              <input
+                type="file"
+                hidden
+                onChange={onChange}
+                aria-label="Upload Image"
+              />
+            </Button>
+            {fileName && (
+              <Box mt={2} display="flex" alignItems="center">
+                <Tooltip
+                  title={
+                    <img src={fileName} alt="Preview" style={{ width: 200 }} />
+                  }
+                >
+                  <Typography
+                    variant="body2"
+                    style={{ cursor: "pointer", marginRight: 8 }}
+                  >
+                    {fileName}
+                  </Typography>
+                </Tooltip>
+                <IconButton
+                  onClick={removeFile}
+                  size="small"
+                  color="secondary"
+                  aria-label="Remove Image"
+                >
+                  <DeleteIcon style={{ color: "#f44336" }} />
+                </IconButton>
+              </Box>
+            )}
+            {!fileName && (
+              <Typography
+                variant="body2"
+                color="error"
+                mt={2}
+                aria-live="polite"
+              >
+                Please upload an image
+              </Typography>
+            )}
+          </FormControl>
           <TextField
             label="Brand"
             fullWidth
@@ -154,7 +281,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             error={!!errors.description}
             helperText={errors.description?.message}
           />
-          <DialogActions>
+          <DialogActions style={{ marginTop: "10px" }}>
             <Button onClick={onClose} color="primary" aria-label="Cancel">
               Cancel
             </Button>
@@ -163,6 +290,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
               style={{ backgroundColor: "#1976d2", color: "#fff" }}
               variant="contained"
               aria-label="Update Product"
+              disabled={!hasMeaningfulChanges()}
             >
               Update
             </Button>
