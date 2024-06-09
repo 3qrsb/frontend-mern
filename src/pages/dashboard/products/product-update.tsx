@@ -1,4 +1,13 @@
-import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -7,7 +16,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import authAxios from "../../../utils/auth-axios";
 import toast from "react-hot-toast";
 import { setError } from "../../../utils/error";
-import React from "react";
+import React, { useEffect } from "react";
 
 type FormValues = {
   name: string;
@@ -17,131 +26,150 @@ type FormValues = {
   price: number;
   description: string;
 };
-const ProductUpdate = () => {
-  const { products } = useAppSelector((state) => state.productFilter);
 
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const product = products.find((p) => p._id === id);
+type ProductUpdateProps = {
+  product: {
+    _id: string;
+    name: string;
+    image: string;
+    category: string;
+    brand: string;
+    price: number;
+    description: string;
+  };
+  onClose: () => void;
+};
+
+const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required(),
-    image: Yup.string().required(),
-    category: Yup.string().required(),
-    brand: Yup.string().required(),
-    price: Yup.number().required(),
-    description: Yup.string().required(),
+    name: Yup.string().required("Name is required"),
+    image: Yup.string().required("Image URL is required"),
+    category: Yup.string().required("Category is required"),
+    brand: Yup.string().required("Brand is required"),
+    price: Yup.number()
+      .positive("Price must be a positive number")
+      .required("Price is required"),
+    description: Yup.string().required("Description is required"),
   });
-  console.log(product);
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema),
+    defaultValues: {
+      name: product.name,
+      image: product.image,
+      category: product.category,
+      brand: product.brand,
+      price: product.price,
+      description: product.description,
+    },
   });
+
+  useEffect(() => {
+    reset({
+      name: product.name,
+      image: product.image,
+      category: product.category,
+      brand: product.brand,
+      price: product.price,
+      description: product.description,
+    });
+  }, [product, reset]);
 
   const onSubmit = (data: FormValues) => {
     authAxios
-      .put(`/products/${product?._id}`, data)
+      .put(`/products/${product._id}`, data)
       .then((res) => {
         toast.success("Product has been updated");
-        navigate("/dashboard/product-list");
+        onClose();
       })
       .catch((err) => toast.error(setError(err)));
   };
 
   return (
-    <>
-      <Row className=" justify-content-center py-6">
-        <Col lg={5} md={6}>
-          <Card>
-            <h1 className="text-center text-primary my-3">Update Product</h1>
-            <Card.Body>
-              <Form onSubmit={handleSubmit(onSubmit)}>
-                <Form.Group>
-                  <Form.Label>Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="product name"
-                    {...register("name", {
-                      value: product?.name,
-                    })}
-                    className={errors.name?.message && "is-invalid"}
-                  />
-                  <p className="invalid-feedback">{errors.name?.message}</p>
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Image</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="image url"
-                    {...register("image", {
-                      value: product?.image,
-                    })}
-                    className={errors.image?.message && "is-invalid"}
-                  />
-                  <p className="invalid-feedback">{errors.image?.message}</p>
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Brand</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="doe"
-                    {...register("brand", {
-                      value: product?.brand,
-                    })}
-                    className={errors.brand?.message && "is-invalid"}
-                  />
-                  <p className="invalid-feedback">{errors.brand?.message}</p>
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Category</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="doe"
-                    {...register("category", {
-                      value: product?.category,
-                    })}
-                    className={errors.category?.message && "is-invalid"}
-                  />
-                  <p className="invalid-feedback">{errors.category?.message}</p>
-                </Form.Group>
-
-                <Form.Group>
-                  <Form.Label>Price</Form.Label>
-                  <Form.Control
-                    placeholder="200"
-                    {...register("price", {
-                      value: product?.price,
-                    })}
-                    className={errors.price?.message && "is-invalid"}
-                  />
-                  <p className="invalid-feedback">{errors.price?.message}</p>
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Description</Form.Label>
-                  <Form.Control
-                    as={"textarea"}
-                    rows={3}
-                    placeholder="description"
-                    {...register("description", {
-                      value: product?.description,
-                    })}
-                    className={errors.description?.message && "is-invalid"}
-                  />
-                  <p className="invalid-feedback">
-                    {errors.description?.message}
-                  </p>
-                </Form.Group>
-                <Button type="submit" className="mt-3 w-full text-white">
-                  Update
-                </Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </>
+    <Dialog open={Boolean(product)} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle style={{ textAlign: "center", color: "#1976d2" }}>
+        Update Product
+      </DialogTitle>
+      <DialogContent>
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          sx={{ mt: 1 }}
+        >
+          <TextField
+            label="Name"
+            fullWidth
+            margin="normal"
+            {...register("name")}
+            error={!!errors.name}
+            helperText={errors.name?.message}
+          />
+          <TextField
+            label="Image URL"
+            fullWidth
+            margin="normal"
+            {...register("image")}
+            error={!!errors.image}
+            helperText={errors.image?.message}
+          />
+          <TextField
+            label="Brand"
+            fullWidth
+            margin="normal"
+            {...register("brand")}
+            error={!!errors.brand}
+            helperText={errors.brand?.message}
+          />
+          <TextField
+            label="Category"
+            fullWidth
+            margin="normal"
+            {...register("category")}
+            error={!!errors.category}
+            helperText={errors.category?.message}
+          />
+          <TextField
+            label="Price"
+            type="number"
+            fullWidth
+            margin="normal"
+            {...register("price")}
+            error={!!errors.price}
+            helperText={errors.price?.message}
+            InputProps={{ inputProps: { min: 0, step: 0.01 } }}
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            margin="normal"
+            multiline
+            rows={3}
+            {...register("description")}
+            error={!!errors.description}
+            helperText={errors.description?.message}
+          />
+          <DialogActions>
+            <Button onClick={onClose} color="primary" aria-label="Cancel">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              style={{ backgroundColor: "#1976d2", color: "#fff" }}
+              variant="contained"
+              aria-label="Update Product"
+            >
+              Update
+            </Button>
+          </DialogActions>
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
 };
 

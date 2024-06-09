@@ -105,7 +105,6 @@ const App = () => {
             <Route path="product-list/:pageNumber" element={<ProductTable />} />
             <Route path="user-list" element={<UserTable />} />
             <Route path="orders-list" element={<OrdersTable />} />
-            <Route path="product-edit/:id" element={<ProductUpdate />} />
           </Route>
 
           <Route path="/contact" element={<Contact />} />

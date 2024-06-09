@@ -24,14 +24,17 @@ import Paginate from "../../../components/UI/paginate";
 import toast from "react-hot-toast";
 import ProductModal from "../../../components/modals/product-modal";
 import { ReviewTypes } from "../../../utils/interfaces";
+import ProductUpdate from "./product-update";
 
-function ProductTable() {
+const ProductTable = () => {
   const dispatch = useAppDispatch();
   const { products, page, pages, loading } = useAppSelector(
     (state) => state.productFilter
   );
   const [refresh, setRefresh] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const params = useParams();
   const pageNumber = params.pageNumber || 1;
 
@@ -64,6 +67,14 @@ function ProductTable() {
   }) => {
     const productName = product.name;
     onDelete(product._id, productName);
+  };
+
+  const handleEditClick = (product: any) => {
+    setSelectedProduct(product);
+  };
+
+  const handleUpdateClose = () => {
+    setSelectedProduct(null);
   };
 
   useEffect(() => {
@@ -136,8 +147,7 @@ function ProductTable() {
                     </TableCell>
                     <TableCell>
                       <IconButton
-                        component={Link}
-                        to={`/dashboard/product-edit/${product._id}`}
+                        onClick={() => handleEditClick(product)}
                         size="small"
                         sx={{
                           borderRadius: 2,
@@ -182,8 +192,11 @@ function ProductTable() {
         />
       </div>
       <ProductModal setRefresh={setRefresh} show={show} handleClose={onClose} />
+      {selectedProduct && (
+        <ProductUpdate product={selectedProduct} onClose={handleUpdateClose} />
+      )}
     </>
   );
-}
+};
 
 export default ProductTable;
