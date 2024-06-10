@@ -31,6 +31,7 @@ const ProductTable = () => {
   const { products, page, pages, loading } = useAppSelector(
     (state) => state.productFilter
   );
+  const { userInfo } = useAppSelector((state) => state.login);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -47,7 +48,7 @@ const ProductTable = () => {
         .delete(`/products/${id}`)
         .then((res) => {
           toast.success("Product has been deleted");
-          setRefresh((prev) => (prev = !prev));
+          setRefresh((prev) => !prev);
         })
         .catch((e) => toast.error(setError(e)));
     }
@@ -64,6 +65,7 @@ const ProductTable = () => {
     qty?: number;
     createdAt?: Date;
     reviews?: ReviewTypes[];
+    user: string;
   }) => {
     const productName = product.name;
     onDelete(product._id, productName);
@@ -151,10 +153,21 @@ const ProductTable = () => {
                         size="small"
                         sx={{
                           borderRadius: 2,
-                          backgroundColor: "#1976d2",
+                          backgroundColor:
+                            userInfo?._id === product.user || userInfo?.isAdmin
+                              ? "#1976d2"
+                              : "grey",
                           color: "white",
+                          pointerEvents:
+                            userInfo?._id === product.user || userInfo?.isAdmin
+                              ? "auto"
+                              : "none",
                           "&:hover": {
-                            backgroundColor: "#1565c0",
+                            backgroundColor:
+                              userInfo?._id === product.user ||
+                              userInfo?.isAdmin
+                                ? "#1565c0"
+                                : "grey",
                             color: "white",
                           },
                         }}
@@ -165,9 +178,23 @@ const ProductTable = () => {
                         onClick={() => handleDelete(product)}
                         size="small"
                         sx={{
-                          backgroundColor: "#ef5350",
+                          backgroundColor:
+                            userInfo?._id === product.user || userInfo?.isAdmin
+                              ? "#ef5350"
+                              : "grey",
                           color: "white",
-                          "&:hover": { backgroundColor: "#c62828" },
+                          pointerEvents:
+                            userInfo?._id === product.user || userInfo?.isAdmin
+                              ? "auto"
+                              : "none",
+                          "&:hover": {
+                            backgroundColor:
+                              userInfo?._id === product.user ||
+                              userInfo?.isAdmin
+                                ? "#c62828"
+                                : "grey",
+                            color: "white",
+                          },
                           ml: 1,
                           borderRadius: 2,
                         }}

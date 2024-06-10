@@ -12,7 +12,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!userInfo || !userInfo.isAdmin) {
+    if (!userInfo || (!userInfo.isAdmin && !userInfo.isSeller)) {
       navigate("/");
     }
   }, [userInfo, navigate]);

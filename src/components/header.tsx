@@ -110,8 +110,15 @@ const Header = () => {
                   title={<i className="fa fa-fw fa-user text-dark mr-3"></i>}
                   id="basic-nav-dropdown"
                 >
-                  {userInfo.isAdmin && (
-                    <NavDropdown.Item as={NavLink} to="/dashboard">
+                  {userInfo && (userInfo.isAdmin || userInfo.isSeller) && (
+                    <NavDropdown.Item
+                      as={NavLink}
+                      to={
+                        userInfo.isAdmin
+                          ? "/dashboard"
+                          : "/dashboard/product-list"
+                      }
+                    >
                       Dashboard
                     </NavDropdown.Item>
                   )}

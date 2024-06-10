@@ -13,6 +13,7 @@ type UserInfo = {
   email: string;
   name: string;
   isAdmin: Boolean;
+  isSeller: Boolean;
   createdAt: Date;
 };
 

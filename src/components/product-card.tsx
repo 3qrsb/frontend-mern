@@ -25,6 +25,7 @@ export type Product = {
   createdAt: Date;
   reviews: ReviewTypes[];
   totalSales: number;
+  user: string;
 };
 
 type Props = {

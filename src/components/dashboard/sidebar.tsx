@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Navbar, Container, Button, Nav } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import GrainOutlinedIcon from "@mui/icons-material/GrainOutlined";
+import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { useAppDispatch, useAppSelector } from "../../redux";
@@ -29,20 +29,36 @@ const Sidebar = () => {
   const onOpen = () => setShow(true);
   const onClose = () => setShow(false);
 
-  const navItems = [
-    { text: "Statistics", icon: <BarChartOutlinedIcon />, link: "/dashboard" },
-    {
-      text: "Products",
-      icon: <GrainOutlinedIcon />,
-      link: "/dashboard/product-list",
-    },
-    { text: "Users", icon: <PeopleAltIcon />, link: "/dashboard/user-list" },
-    {
-      text: "Orders",
-      icon: <AssignmentOutlinedIcon />,
-      link: "/dashboard/orders-list",
-    },
-  ];
+  const navItems = userInfo?.isSeller
+    ? [
+        {
+          text: "Products",
+          icon: <GrainOutlinedIcon />,
+          link: "/dashboard/product-list",
+        },
+      ]
+    : [
+        {
+          text: "Statistics",
+          icon: <BarChartOutlinedIcon />,
+          link: "/dashboard",
+        },
+        {
+          text: "Products",
+          icon: <GrainOutlinedIcon />,
+          link: "/dashboard/product-list",
+        },
+        {
+          text: "Users",
+          icon: <PeopleAltIcon />,
+          link: "/dashboard/user-list",
+        },
+        {
+          text: "Orders",
+          icon: <AssignmentOutlinedIcon />,
+          link: "/dashboard/orders-list",
+        },
+      ];
 
   return (
     <Navbar
