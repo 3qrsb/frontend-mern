@@ -8,8 +8,13 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListItemAvatar,
+  Avatar,
   Divider,
+  Box,
 } from "@mui/material";
+import { TrendingUp as TrendingUpIcon } from "@mui/icons-material";
+import { formatCurrencry } from "../../utils/helper";
 
 const TopSellingProducts = () => {
   const dispatch = useAppDispatch();
@@ -22,8 +27,14 @@ const TopSellingProducts = () => {
   }, [dispatch]);
 
   return (
-    <Card>
+    <Card className="shadow border-0 mt-3" sx={{ borderRadius: "15px" }}>
       <CardContent>
+        <Box display="flex" alignItems="center" mb={2}>
+          <TrendingUpIcon style={{ color: "#1976d2", marginRight: "10px" }} />
+          <Typography variant="h5" color="primary">
+            Top Selling Products
+          </Typography>
+        </Box>
         {loading ? (
           <Typography variant="body2" color="textSecondary">
             Loading...
@@ -32,13 +43,39 @@ const TopSellingProducts = () => {
           <List>
             {topSellingProducts.map((product) => (
               <React.Fragment key={product._id}>
-                <ListItem>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar style={{ marginRight: "10px" }}>
+                    <Avatar
+                      alt={product.name}
+                      src={product.image}
+                      variant="circular"
+                      style={{ width: 60, height: 60 }}
+                    />
+                  </ListItemAvatar>
                   <ListItemText
                     primary={product.name}
-                    secondary={`${product.totalSales} sales`}
+                    secondary={
+                      <>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="textPrimary"
+                        >
+                          {`${product.totalSales} sales`}
+                        </Typography>
+                        <br />
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="textSecondary"
+                        >
+                          {`Price: ${formatCurrencry(product.price)}`}
+                        </Typography>
+                      </>
+                    }
                   />
                 </ListItem>
-                <Divider />
+                <Divider variant="inset" component="li" />
               </React.Fragment>
             ))}
           </List>

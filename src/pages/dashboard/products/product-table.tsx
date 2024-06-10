@@ -96,7 +96,7 @@ const ProductTable = () => {
       {loading ? (
         <Loader />
       ) : (
-        <Card className="mt-5 mb-5">
+        <Card className="mt-6 mb-6">
           <TableContainer component={Paper}>
             <Table>
               <TableHead sx={{ backgroundColor: "#c62828" }}>
@@ -182,7 +182,7 @@ const ProductTable = () => {
           </TableContainer>
         </Card>
       )}
-      <div style={{ margin: "20px 0" }}>
+      <div style={{ margin: "25px 0" }}>
         <Paginate
           pages={pages}
           page={page}

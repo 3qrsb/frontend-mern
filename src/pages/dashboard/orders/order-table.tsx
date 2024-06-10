@@ -68,7 +68,7 @@ function OrdersTable() {
       {loading ? (
         <Loader />
       ) : (
-        <Card className="mt-5">
+        <Card className="mt-6">
           <TableContainer component={Paper}>
             <Table>
               <TableHead sx={{ backgroundColor: "#c62828" }}>

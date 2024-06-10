@@ -10,6 +10,7 @@ interface ProductSliceState {
   error: null | object;
   pages: number;
   page: number;
+  newCustomers: number;
 }
 
 const initialState: ProductSliceState = {
@@ -18,6 +19,7 @@ const initialState: ProductSliceState = {
   page: 1,
   loading: false,
   error: null,
+  newCustomers: 0,
 };
 
 export const getUsersList = createAsyncThunk(
@@ -30,6 +32,19 @@ export const getUsersList = createAsyncThunk(
       if (res.data) {
         return res.data;
       }
+    } catch (error: any) {
+      const message = setError(error);
+      toast.error(message);
+    }
+  }
+);
+
+export const getNewCustomersThisMonth = createAsyncThunk(
+  'users/getNewCustomersThisMonth',
+  async () => {
+    try {
+      const { data } = await authAxios.get('/users/new-customers');
+      return data.count;
     } catch (error: any) {
       const message = setError(error);
       toast.error(message);
@@ -52,6 +67,16 @@ export const userListSlice = createSlice({
       state.pages = action.payload.pages;
     });
     builder.addCase(getUsersList.rejected, (state) => {
+      state.loading = false;
+    });
+    builder.addCase(getNewCustomersThisMonth.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(getNewCustomersThisMonth.fulfilled, (state, action: PayloadAction<number>) => {
+      state.loading = false;
+      state.newCustomers = action.payload;
+    });
+    builder.addCase(getNewCustomersThisMonth.rejected, (state) => {
       state.loading = false;
     });
   },

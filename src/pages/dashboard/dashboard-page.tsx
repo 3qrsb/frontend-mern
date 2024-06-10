@@ -2,15 +2,30 @@ import { useEffect } from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrdersList } from "../../redux/orders/slice-list";
+import { getNewCustomersThisMonth } from "../../redux/users/user-list";
 import { formatCurrencry, getDate } from "../../utils/helper";
 import React from "react";
 import SalesTrends from "./salesTrends";
 import TopSellingProducts from "./TopSellingProducts";
+import {
+  TrendingUp as TrendingUpIcon,
+  Receipt as ReceiptIcon,
+  ShowChart as ShowChartIcon,
+} from "@mui/icons-material";
+import {
+  Box,
+  Divider,
+  Icon,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 
 const DashboardPage = () => {
   const { total } = useAppSelector((state) => state.productFilter);
   const { orders } = useAppSelector((state) => state.orders);
-  const { users } = useAppSelector((state) => state.userList);
+  const { users, newCustomers } = useAppSelector((state) => state.userList);
   const dispatch = useAppDispatch();
 
   const getTotalCost = () => {
@@ -33,10 +48,11 @@ const DashboardPage = () => {
 
   useEffect(() => {
     dispatch(getOrdersList());
+    dispatch(getNewCustomersThisMonth());
   }, [dispatch]);
 
   return (
-    <Row className="g-6 my-6">
+    <Row className="g-3 my-6 mt-3">
       <Col md={4}>
         <Card className=" shadow border-0">
           <Card.Body>
@@ -185,29 +201,114 @@ const DashboardPage = () => {
           </Card.Body>
         </Card>
       </Col>
-      <Col md={12} className="mt-4">
-        <Card className=" shadow border-0">
+      <Col md={4}>
+        <Card className="shadow border-0">
           <Card.Body>
-            <h4 className="text-muted">Recent Orders</h4>
-            <ul className="list-unstyled">
-              {orders.slice(0, 5).map((order: any) => (
-                <li key={order._id}>
-                  <div className="d-flex justify-content-between">
-                    <span>{order._id}</span>
-                    <span>{order.user.email}</span>
-                    <span>{formatCurrencry(order.totalPrice)}</span>
-                    <span>{getDate(order.createdAt)}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <Row>
+              <Col>
+                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
+                  New Customers This Month
+                </span>
+                <span className="h3 font-bold mb-0">{newCustomers}</span>
+              </Col>
+              <div className="col-auto">
+                <div className="icon icon-shape bg-info text-white text-lg rounded-circle">
+                  <i className="bi bi-person-plus" />
+                </div>
+              </div>
+            </Row>
+            <div className="mt-2 mb-0 text-sm">
+              <span className="badge badge-pill bg-soft-success text-success me-2">
+                <i className="bi bi-arrow-up me-1" />
+                10%
+              </span>
+              <span className="text-nowrap text-xs text-muted">
+                Since last month
+              </span>
+            </div>
           </Card.Body>
         </Card>
       </Col>
-      <Col md={12} className="mt-4">
-        <Card className=" shadow border-0">
+      <Col md={12} className="mt-7">
+        <Card className="shadow border-0">
           <Card.Body>
-            <h4 className="text-muted">Sales Trends</h4>
+            <Box display="flex" alignItems="center" mb={2}>
+              <ReceiptIcon style={{ color: "#1976d2", marginRight: "10px" }} />
+              <Typography variant="h5" color="primary">
+                Recent Orders
+              </Typography>
+            </Box>
+            <List>
+              {orders.slice(0, 5).map((order: any) => (
+                <React.Fragment key={order._id}>
+                  <ListItem alignItems="flex-start">
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" color="textPrimary">
+                          Order ID: {order._id}
+                        </Typography>
+                      }
+                      secondary={
+                        <>
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            color="textPrimary"
+                          >
+                            Email: {order.user.email}
+                          </Typography>
+                          <br />
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            color="textPrimary"
+                          >
+                            Total: {formatCurrencry(order.totalPrice)}
+                          </Typography>
+                          <br />
+                          {order.discountAmount && (
+                            <>
+                              <Typography
+                                component="span"
+                                variant="body2"
+                                color="textPrimary"
+                              >
+                                Discount Amount:{" "}
+                                {formatCurrencry(order.discountAmount)}
+                              </Typography>
+                              <br />
+                            </>
+                          )}
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            color="textSecondary"
+                          >
+                            Date: {getDate(order.createdAt)}
+                          </Typography>
+                          <br />
+                        </>
+                      }
+                    />
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              ))}
+            </List>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col md={12} className="mt-7">
+        <Card className="shadow border-0">
+          <Card.Body>
+            <Box display="flex" alignItems="center" mb={2}>
+              <ShowChartIcon
+                style={{ color: "#1976d2", marginRight: "10px" }}
+              />
+              <Typography variant="h5" color="primary">
+                Sales Trends
+              </Typography>
+            </Box>
             <SalesTrends />
           </Card.Body>
         </Card>
