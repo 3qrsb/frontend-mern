@@ -24,8 +24,10 @@ import {
 
 const DashboardPage = () => {
   const { total } = useAppSelector((state) => state.productFilter);
-  const { orders } = useAppSelector((state) => state.orders);
-  const { users, newCustomers } = useAppSelector((state) => state.userList);
+  const { orders = [] } = useAppSelector((state) => state.orders);
+  const { users = [], newCustomers = 0 } = useAppSelector(
+    (state) => state.userList
+  );
   const dispatch = useAppDispatch();
 
   const getTotalCost = () => {

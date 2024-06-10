@@ -76,7 +76,7 @@ const aggregateSales = (orders: any[], timeframe: string) => {
 };
 
 const SalesTrends: React.FC = () => {
-  const { orders } = useAppSelector((state: any) => state.orders);
+  const { orders = [] } = useAppSelector((state: any) => state.orders);
   const [timeframe, setTimeframe] = useState("monthly");
   const [colorCurrentPeriod, setColorCurrentPeriod] = useState(
     "rgba(75, 192, 192, 1)"

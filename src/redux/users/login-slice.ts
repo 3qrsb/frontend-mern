@@ -40,7 +40,7 @@ export const userLogin = createAsyncThunk(
     } catch (error: any) {
       const message = setError(error);
       toast.error(message);
-      thunkAPI.rejectWithValue(message);
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -55,7 +55,6 @@ export const loginSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(userLogin.pending, (state) => {
-      // Add user to the state array
       state.loading = true;
     });
     builder.addCase(userLogin.fulfilled, (state, action) => {

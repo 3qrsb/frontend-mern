@@ -41,13 +41,15 @@ export const getUsersList = createAsyncThunk(
 
 export const getNewCustomersThisMonth = createAsyncThunk(
   'users/getNewCustomersThisMonth',
-  async () => {
+  async (_, thunkAPI) => {
     try {
       const { data } = await authAxios.get('/users/new-customers');
+      console.log("API Response:", data); // Add this line
       return data.count;
     } catch (error: any) {
       const message = setError(error);
       toast.error(message);
+      return thunkAPI.rejectWithValue(message); // Ensure to return this
     }
   }
 );

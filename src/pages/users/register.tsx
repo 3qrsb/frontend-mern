@@ -17,6 +17,7 @@ import publicAxios from "../../utils/public-axios";
 import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import DefaultLayout from "../../components/layouts/default-layout";
+import { useAppDispatch } from "../../redux"; // Import your redux hook for dispatch
 
 type FormValues = {
   name: string;
@@ -27,6 +28,8 @@ type FormValues = {
 
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch(); // Use your redux dispatch hook
+
   const validationSchema = Yup.object().shape({
     name: Yup.string()
       .required("Username is required")
@@ -80,13 +83,14 @@ const Register = () => {
       .then((res: any) => {
         if (res.data.message === "Email already in use.") {
           toast.error("Email is already in use. Please use a different email.");
-        } else if (res.data.success) {
-          toast.error("Registration failed. Please try again.");
         } else {
-          toast.success(
-            "Registration successful! Please check your email to confirm your account."
-          );
-          navigate("/login");
+          toast.success("Login successful!");
+          // Save the token and user details to local storage or state
+          localStorage.setItem("userInfo", JSON.stringify(res.data));
+          // Dispatch the userLogin action to update the state
+          dispatch({ type: "users/login/fulfilled", payload: res.data });
+          // Redirect to the main page
+          navigate("/");
         }
       })
       .catch((err: any) => {
