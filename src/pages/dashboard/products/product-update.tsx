@@ -18,7 +18,7 @@ import * as Yup from "yup";
 import authAxios from "../../../utils/auth-axios";
 import toast from "react-hot-toast";
 import { setError } from "../../../utils/error";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -73,9 +73,10 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
     },
   });
 
-  const [fileName, setFileName] = useState(product.image);
-  const [uploading, setUploading] = useState(false);
-  const baseUrl = "http://localhost:4000";
+  const [fileName, setFileName] = useState<string>(product.image);
+  const [image, setImage] = useState<string>(product.image);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     reset({
@@ -85,32 +86,13 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       price: product.price,
       description: product.description,
     });
-    const formattedImage = product.image.startsWith("http")
-      ? product.image
-      : `${baseUrl}/${product.image}`;
-    setFileName(formattedImage.replace(/\\/g, "/")); // Replace backslashes with forward slashes
+    setImage(product.image);
   }, [product, reset]);
 
-  const onSubmit = async (data: FormValues) => {
-    if (!fileName) {
-      toast.error("Please upload an image");
-      return;
-    }
-    const updatedData = { ...data, image: fileName };
-    try {
-      await authAxios.put(`/products/${product._id}`, updatedData);
-      toast.success("Product has been updated");
-      onClose();
-    } catch (err: any) {
-      toast.error(setError(err));
-    }
-  };
-
-  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
 
-      // Validate the file type and size
       if (!file.type.startsWith("image/")) {
         toast.error("Please upload a valid image file");
         return;
@@ -121,40 +103,61 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
         return;
       }
 
-      setUploading(true);
+      setFileName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-      try {
-        const formData = new FormData();
-        formData.append("image", file);
-        const { data } = await authAxios.post("/uploads/image", formData);
-        const fullImageUrl = `${baseUrl}${data}`.replace(/\\/g, "/"); // Ensure correct URL format
-        setFileName(fullImageUrl);
-        setValue("image", fullImageUrl);
+  const uploadImage = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      toast.error("Please upload an image");
+      return false;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await authAxios.post("/uploads/image", formData);
+      if (res.data.url) {
+        setImage(res.data.url);
         toast.success("Image uploaded successfully");
-      } catch (err: any) {
-        toast.error(setError(err));
-      } finally {
-        setUploading(false);
+        return res.data.url;
       }
+    } catch (err) {
+      toast.error(setError(err as Error));
+      return false;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const onSubmit = async (data: FormValues) => {
+    const imageUrl = await uploadImage();
+    if (!imageUrl) return;
+
+    const updatedData = { ...data, image: imageUrl };
+    try {
+      await authAxios.put(`/products/${product._id}`, updatedData);
+      toast.success("Product has been updated");
+      onClose();
+    } catch (err: any) {
+      toast.error(setError(err));
     }
   };
 
   const removeFile = () => {
     setFileName("");
-    setValue("image", "");
-  };
-
-  const isFormDirty = () => {
-    const currentValues = watch();
-    return (
-      isDirty ||
-      currentValues.name.trim() !== product.name.trim() ||
-      currentValues.category.trim() !== product.category.trim() ||
-      currentValues.brand.trim() !== product.brand.trim() ||
-      currentValues.price !== product.price ||
-      currentValues.description.trim() !== product.description.trim() ||
-      fileName !== product.image
-    );
+    setImage("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const hasMeaningfulChanges = () => {
@@ -207,6 +210,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
                 type="file"
                 hidden
                 onChange={onChange}
+                ref={fileInputRef}
                 aria-label="Upload Image"
               />
             </Button>
@@ -214,7 +218,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
               <Box mt={2} display="flex" alignItems="center">
                 <Tooltip
                   title={
-                    <img src={fileName} alt="Preview" style={{ width: 200 }} />
+                    <img src={image} alt="Preview" style={{ width: 200 }} />
                   }
                 >
                   <Typography

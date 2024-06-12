@@ -17,12 +17,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import toast from "react-hot-toast";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
-import React from "react";
-import { useImageUpload } from "../../utils/useImageUpload";
+import { ChangeEvent, useRef, useState, useEffect } from "react";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import React from "react";
 
 type Props = {
   show: boolean;
@@ -50,24 +49,94 @@ const validationSchema = Yup.object().shape({
 });
 
 const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
-  const { fileName, setFileName, image, uploading, uploadImage, resetImage } =
-    useImageUpload();
+  const [fileName, setFileName] = useState<string>("");
+  const [image, setImage] = useState<string>("");
+  const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [imageError, setImageError] = useState<string>("");
   const [openConfirm, setOpenConfirm] = useState(false);
 
-  const handleConfirmClose = (confirmed: boolean) => {
-    setOpenConfirm(false);
-    if (confirmed) {
-      reset();
-      resetImage();
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+  const {
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: yupResolver(validationSchema),
+  });
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload a valid image file");
+        return;
       }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+
+      setFileName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
       setImageError("");
-      handleClose();
     }
+  };
+
+  const uploadImage = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      toast.error("Please upload an image");
+      return false;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await authAxios.post("/uploads/image", formData);
+      if (res.data.url) {
+        setImage(res.data.url);
+        toast.success("Image uploaded successfully");
+        return res.data.url;
+      }
+    } catch (err) {
+      toast.error(setError(err as Error));
+      return false;
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+  const onSubmit = async (data: FormValues) => {
+    const imageUrl = await uploadImage();
+    if (!imageUrl) return;
+
+    try {
+      await authAxios.post("/products", { ...data, image: imageUrl });
+      toast.success("Product has been created");
+      setRefresh((prev: any) => !prev);
+      handleClose();
+    } catch (err: any) {
+      toast.error(setError(err));
+    }
+  };
+
+  const removeFile = () => {
+    setFileName("");
+    setImage("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setImageError("");
   };
 
   const hasUnsavedChanges = () => {
@@ -85,75 +154,22 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
     }
   };
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    getValues,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: yupResolver(validationSchema),
-  });
-
-  const onChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const file = e.target.files[0];
-
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload a valid image file");
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size should be less than 5MB");
-        return;
-      }
-
-      setFileName(file.name);
-      await uploadImage(file);
-      setImageError("");
-    }
-  };
-
-  const removeFile = () => {
-    resetImage();
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    setImageError("");
-  };
-
-  const onSubmit = async (data: FormValues) => {
-    if (!image) {
-      setImageError("Image is required");
-      toast.error("Please upload an image");
-      return;
-    }
-
-    try {
-      await authAxios.post("/products", { ...data, image });
-      toast.success("Product has been created");
-      setRefresh((prev: any) => !prev);
+  const handleConfirmClose = (confirmed: boolean) => {
+    setOpenConfirm(false);
+    if (confirmed) {
+      reset();
+      removeFile();
       handleClose();
-    } catch (err: any) {
-      if (err.response && err.response.data) {
-        toast.error(`Error: ${err.response.data.message}`);
-      } else {
-        toast.error("An unexpected error occurred. Please try again later.");
-      }
     }
   };
 
   useEffect(() => {
     if (!show) {
-      //reset(); Causing infinite loop
-      resetImage();
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      reset();
+      removeFile();
       setImageError("");
     }
-  }, [show, reset, resetImage]);
+  }, [show, reset]);
 
   return (
     <>
