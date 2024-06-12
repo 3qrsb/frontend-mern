@@ -37,7 +37,7 @@ const Products = () => {
   const [brand, setBrand] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [search, setSearch] = useState<string>("");
-  const [priceRange, setPriceRange] = useState<number[]>([0, 1000]);
+  const [priceRange, setPriceRange] = useState<number[]>([0, 2000]);
   const keyword = params.keyword;
 
   const pageNumber = params.pageNumber || 1;
@@ -46,7 +46,7 @@ const Products = () => {
     setBrand("");
     setCategory("");
     setSearch("");
-    setPriceRange([0, 1000]);
+    setPriceRange([0, 2000]);
   };
 
   const [sortOrder, setSortOrder] = useState<string>(""); // 'asc' for ascending, 'desc' for descending
@@ -178,7 +178,7 @@ const Products = () => {
                     value={priceRange}
                     onChange={handlePriceChange}
                     valueLabelDisplay="auto"
-                    max={1000}
+                    max={2000}
                     style={{ width: "100%" }}
                   />
                 </ListGroup.Item>

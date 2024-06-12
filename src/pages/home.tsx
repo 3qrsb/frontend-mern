@@ -25,7 +25,12 @@ const HomePage = () => {
   return (
     <DefaultLayout>
       <Container>
-        <h2 className="mt-3 mb-4">Latest Products</h2>
+        <Row className="mt-3 mb-4 justify-content-center">
+          <Col xs={12} className="text-center">
+            <h2 className="mb-2 mt-2">Latest Products</h2>
+            <hr className="w-50 mx-auto" />
+          </Col>
+        </Row>
         <Row className="mb-3">
           <Col>
             <Button
@@ -52,7 +57,7 @@ const HomePage = () => {
         {loading || !products ? (
           <Loader />
         ) : (
-          <Row md={3} xs={1} lg={3}>
+          <Row md={3} xs={1} lg={4} style={{marginBottom: "10px"}}>
             {products
               .filter(
                 (product) =>

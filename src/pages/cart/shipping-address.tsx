@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Grid, TextField, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import FormContainer from "../../components/UI/form-container";
+import Select from "react-select";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { saveAddress } from "../../redux/cart/cart-slice";
 import { AddressTypes } from "../../utils/interfaces";
+import { Country, City } from "country-state-city";
+import FormContainer from "../../components/UI/form-container";
 
 const ShippingAddress = () => {
   const { shippingAddress } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
-
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState<AddressTypes>({
     address: "",
     city: "",
     postalCode: "",
     country: "",
   });
+
+  const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [selectedCity, setSelectedCity] = useState<any>(null);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prevState) => ({
@@ -30,66 +35,113 @@ const ShippingAddress = () => {
     dispatch(
       saveAddress({
         address: formData.address,
-        city: formData.city,
+        city: selectedCity ? selectedCity.label : formData.city,
         postalCode: formData.postalCode,
-        country: formData.country,
+        country: selectedCountry ? selectedCountry.label : formData.country,
       })
     );
     navigate("/place-order");
   };
 
   useEffect(() => {
-    if (shippingAddress) return navigate("/place-order");
-  }, [shippingAddress]);
+    if (shippingAddress) navigate("/place-order");
+  }, [shippingAddress, navigate]);
+
+  const handleCountryChange = (selectedOption: any) => {
+    setSelectedCountry(selectedOption);
+    setSelectedCity(null); // reset city selection
+  };
+
+  const handleCityChange = (selectedOption: any) => {
+    setSelectedCity(selectedOption);
+  };
+
+  const countryOptions = Country.getAllCountries().map((country) => ({
+    value: country.isoCode,
+    label: country.name,
+  }));
+
+  const cityOptions = selectedCountry
+    ? City.getCitiesOfCountry(selectedCountry.value)?.map((city) => ({
+        value: city.name,
+        label: city.name,
+      })) || []
+    : [];
+
+  const customStyles = {
+    control: (provided: any) => ({
+      ...provided,
+      minHeight: "56px",
+      zIndex: 1,
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
+  };
 
   return (
     <FormContainer meta="Shipping Address" title="Shipping Address">
-      <Form onSubmit={onSubmit}>
-        <Form.Group controlId="address">
-          <Form.Label>Address</Form.Label>
-          <Form.Control
-            onChange={onChange}
-            name="address"
-            placeholder="enter your address"
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="city">
-          <Form.Label>City</Form.Label>
-          <Form.Control
-            onChange={onChange}
-            name="city"
-            placeholder="enter your city"
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="postalCode">
-          <Form.Label>Postal Code</Form.Label>
-          <Form.Control
-            onChange={onChange}
-            name="postalCode"
-            placeholder="enter your postal code"
-            required
-          />
-        </Form.Group>
-        <Form.Group controlId="country">
-          <Form.Label>Country</Form.Label>
-          <Form.Control
-            onChange={onChange}
-            name="country"
-            placeholder="enter your country"
-            required
-          />
-        </Form.Group>
-        <Button
-          style={{ backgroundColor: "#e03a3c", color: "#fff" }}
-          variant="outline-none"
-          type="submit"
-          className="mt-4 w-full"
-        >
-          Submit
-        </Button>
-      </Form>
+      <form onSubmit={onSubmit}>
+        <Grid container spacing={3} sx={{ mt: 2, mb: 2 }}>
+          <Grid item xs={12}>
+            <TextField
+              label="Address"
+              name="address"
+              variant="outlined"
+              fullWidth
+              required
+              value={formData.address}
+              onChange={onChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Box sx={{ position: "relative" }}>
+              <Select
+                options={countryOptions}
+                value={selectedCountry}
+                onChange={handleCountryChange}
+                placeholder="Select Country"
+                styles={customStyles}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={12}>
+            <Box sx={{ position: "relative" }}>
+              <Select
+                options={cityOptions}
+                value={selectedCity}
+                onChange={handleCityChange}
+                placeholder="Select City"
+                isDisabled={!selectedCountry}
+                styles={customStyles}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              label="Postal Code"
+              name="postalCode"
+              variant="outlined"
+              fullWidth
+              required
+              value={formData.postalCode}
+              onChange={onChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              style={{ backgroundColor: "#e03a3c" }}
+            >
+              Submit
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
     </FormContainer>
   );
 };
