@@ -16,6 +16,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 import DefaultLayout from "../components/layouts/default-layout";
 import { Product } from "../components/product-card";
 import Loader from "../components/UI/loader";
@@ -33,6 +35,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import StarIcon from "@mui/icons-material/Star";
+import ShareIcon from "@mui/icons-material/Share";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ReviewIcon from "@mui/icons-material/RateReview";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -122,7 +125,7 @@ const ProductDetails = () => {
             maxWidth: "95%", // Adjust the maximum width
           }}
         >
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             {/* Product Images Column */}
             <Grid item xs={12} md={5}>
               <Card sx={{ boxShadow: 3 }}>
@@ -137,14 +140,16 @@ const ProductDetails = () => {
                       border: "1px solid #ddd",
                     }}
                   >
-                    <ImageLazy
-                      imageUrl={selectedImage || ""}
-                      style={{
-                        maxWidth: "100%",
-                        maxHeight: "100%",
-                        objectFit: "contain",
-                      }}
-                    />
+                    <Zoom>
+                      <ImageLazy
+                        imageUrl={selectedImage || ""}
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </Zoom>
                   </Box>
                 </CardContent>
               </Card>
@@ -180,7 +185,7 @@ const ProductDetails = () => {
 
             {/* Nested Grid for Product Information and Price/Controls */}
             <Grid item xs={12} md={7}>
-              <Grid container spacing={2}>
+              <Grid container spacing={3}>
                 {/* Product Information Column */}
                 <Grid item xs={12} md={6}>
                   <Card sx={{ boxShadow: 3, p: 2, height: "auto" }}>
@@ -302,6 +307,17 @@ const ProductDetails = () => {
                           }
                         >
                           {isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
+                        </Button>
+                      </ListItem>
+                      <ListItem>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          fullWidth
+                          sx={{ mt: 2 }}
+                          startIcon={<ShareIcon />}
+                        >
+                          Share
                         </Button>
                       </ListItem>
                       <ListItem>
