@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CardContent,
-  CardMedia,
   Container,
   Grid,
   List,
@@ -14,6 +13,7 @@ import {
   Box,
   Rating,
   Divider,
+  IconButton,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import DefaultLayout from "../components/layouts/default-layout";
@@ -28,20 +28,35 @@ import { setError } from "../utils/error";
 import { formatCurrencry, getDate } from "../utils/helper";
 import ImageLazy from "../components/UI/lazy-image";
 import toast from "react-hot-toast";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import ReviewIcon from "@mui/icons-material/RateReview";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useWishlist } from "../context/WishlistContext";
 
 const ProductDetails = () => {
   const dispatch = useAppDispatch();
   const { product, loading } = useAppSelector((state) => state.productDetail);
   const { userInfo } = useAppSelector((state) => state.login);
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const params = useParams();
   const { id } = params;
   const navigate = useNavigate();
   const [rating, setRating] = useState<number | null>(1);
   const [comment, setComment] = useState<string>("");
+  const [quantity, setQuantity] = useState<number>(1);
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>("");
+  const [isLiked, setIsLiked] = useState<boolean>(false);
 
   const onAdd = () => {
-    dispatch(addToCart(product as Product));
+    if (product) {
+      dispatch(addToCart({ ...product, qty: quantity } as Product));
+    }
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -64,74 +79,244 @@ const ProductDetails = () => {
     window.scrollTo(0, 0);
   }, [id, dispatch, refresh]);
 
+  useEffect(() => {
+    if (product?.images?.length) {
+      setSelectedImage(product.images[0]);
+    }
+  }, [product]);
+
+  useEffect(() => {
+    const isProductInWishlist = wishlist.some(
+      (item) => item._id === product?._id
+    );
+    setIsLiked(isProductInWishlist);
+  }, [wishlist, product?._id]);
+
+  const handleLike = () => {
+    if (!product) return;
+
+    if (isLiked) {
+      removeFromWishlist(product._id);
+    } else {
+      addToWishlist(product);
+    }
+    setIsLiked(!isLiked);
+  };
+
+  const averageRating = product?.reviews?.length
+    ? product.reviews.reduce((acc, review) => acc + review.rating, 0) /
+      product.reviews.length
+    : 0;
+
   return (
     <DefaultLayout title={product?.name}>
       {loading || !product ? (
         <Loader />
       ) : (
-        <Container sx={{ py: 3 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={7}>
+        <Container
+          maxWidth={false}
+          sx={{
+            py: 3,
+            px: { xs: 2, sm: 3, md: 4, lg: 5 },
+            margin: "0 auto", // Center the container
+            maxWidth: "95%", // Adjust the maximum width
+          }}
+        >
+          <Grid container spacing={2}>
+            {/* Product Images Column */}
+            <Grid item xs={12} md={5}>
               <Card sx={{ boxShadow: 3 }}>
                 <CardContent sx={{ display: "flex", justifyContent: "center" }}>
-                  <ImageLazy
-                    imageUrl={product?.image}
-                    style={{
+                  <Box
+                    sx={{
                       width: "100%",
-                      height: "auto",
-                      maxWidth: "500px",
-                      maxHeight: "480px",
-                      objectFit: "contain",
+                      height: "500px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      border: "1px solid #ddd",
                     }}
-                  />
+                  >
+                    <ImageLazy
+                      imageUrl={selectedImage || ""}
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        objectFit: "contain",
+                      }}
+                    />
+                  </Box>
                 </CardContent>
               </Card>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  mt: 2,
+                }}
+              >
+                {product?.images?.map((img, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      border: selectedImage === img ? "2px solid #1976d2" : "",
+                      cursor: "pointer",
+                      mx: 1,
+                    }}
+                    onClick={() => setSelectedImage(img)}
+                  >
+                    <ImageLazy
+                      imageUrl={img}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
             </Grid>
-            <Grid item xs={12} md={5}>
-              <Card sx={{ boxShadow: 3, p: 2 }}>
-                <List>
-                  <ListItem>
-                    <Typography variant="h5">{product?.name}</Typography>
-                  </ListItem>
-                  <Divider />
-                  <ListItem>
-                    <ListItemText
-                      primary="Price:"
-                      secondary={formatCurrencry(product.price)}
-                    />
-                  </ListItem>
-                  <Divider />
-                  <ListItem>
-                    <ListItemText
-                      primary="Category:"
-                      secondary={product.category}
-                    />
-                  </ListItem>
-                  <Divider />
-                  <ListItem>
-                    <ListItemText primary="Brand:" secondary={product.brand} />
-                  </ListItem>
-                  <Divider />
-                  <ListItem>
-                    <Typography variant="body1">
-                      {product.description}
-                    </Typography>
-                  </ListItem>
-                  <Divider />
-                  <ListItem>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={onAdd}
-                      fullWidth
-                    >
-                      Add To Cart
-                    </Button>
-                  </ListItem>
-                </List>
-              </Card>
+
+            {/* Nested Grid for Product Information and Price/Controls */}
+            <Grid item xs={12} md={7}>
+              <Grid container spacing={2}>
+                {/* Product Information Column */}
+                <Grid item xs={12} md={6}>
+                  <Card sx={{ boxShadow: 3, p: 2, height: "auto" }}>
+                    <List>
+                      <ListItem>
+                        <Typography variant="h5">{product?.name}</Typography>
+                      </ListItem>
+                      <ListItem>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Rating
+                            name="read-only"
+                            value={averageRating}
+                            readOnly
+                            precision={0.5}
+                            icon={<StarIcon fontSize="inherit" />}
+                            emptyIcon={<StarBorderIcon fontSize="inherit" />}
+                          />
+                          <Typography variant="body2" sx={{ ml: 1 }}>
+                            {averageRating.toFixed(1)}
+                          </Typography>
+                        </Box>
+                      </ListItem>
+                      <ListItem>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <ReviewIcon sx={{ mr: 1 }} />
+                          <Typography variant="body2">
+                            {product?.reviews.length} Reviews
+                          </Typography>
+                        </Box>
+                      </ListItem>
+                      <ListItem>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <ShoppingCartIcon sx={{ mr: 1 }} />
+                          <Typography variant="body2">
+                            {product?.totalSales} Orders
+                          </Typography>
+                        </Box>
+                      </ListItem>
+                      <Divider />
+                      <ListItem>
+                        <ListItemText
+                          primary="Brand:"
+                          secondary={product?.brand}
+                        />
+                      </ListItem>
+                      <Divider />
+                      <ListItem>
+                        <ListItemText
+                          primary="Category:"
+                          secondary={product?.category}
+                        />
+                      </ListItem>
+                      <Divider />
+                      <ListItem>
+                        <Typography variant="body1">
+                          {product?.description}
+                        </Typography>
+                      </ListItem>
+                    </List>
+                  </Card>
+                </Grid>
+
+                {/* Price and Controls Column */}
+                <Grid item xs={12} md={6}>
+                  <Card sx={{ boxShadow: 3, p: 2, height: "auto" }}>
+                    <List>
+                      <ListItem>
+                        <Typography variant="h4" color="primary">
+                          {formatCurrencry(product?.price)}
+                        </Typography>
+                      </ListItem>
+                      <Divider />
+                      <ListItem>
+                        <Typography variant="body1">
+                          Some additional information here.
+                        </Typography>
+                      </ListItem>
+                      <Divider />
+                      <ListItem>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <IconButton
+                            onClick={() =>
+                              setQuantity((prev) => Math.max(prev - 1, 1))
+                            }
+                          >
+                            <RemoveIcon />
+                          </IconButton>
+                          <Typography variant="h6" sx={{ mx: 2 }}>
+                            {quantity}
+                          </Typography>
+                          <IconButton
+                            onClick={() => setQuantity((prev) => prev + 1)}
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </Box>
+                      </ListItem>
+                      <Divider />
+                      <ListItem>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={onAdd}
+                          fullWidth
+                          sx={{ mt: 2 }}
+                        >
+                          Add To Cart
+                        </Button>
+                      </ListItem>
+                      <ListItem>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          onClick={handleLike}
+                          fullWidth
+                          sx={{ mt: 2 }}
+                          startIcon={
+                            isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />
+                          }
+                        >
+                          {isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
+                        </Button>
+                      </ListItem>
+                      <ListItem>
+                        <Typography variant="body1">
+                          Additional product information or terms.
+                        </Typography>
+                      </ListItem>
+                    </List>
+                  </Card>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
+
+          {/* Reviews and Comment Section */}
           <Grid container spacing={3} sx={{ mt: 2 }}>
             <Grid item xs={12} md={7}>
               <Card>
@@ -140,7 +325,7 @@ const ProductDetails = () => {
                     Reviews
                   </Typography>
                   <List>
-                    {product.reviews?.length > 0 ? (
+                    {product?.reviews?.length > 0 ? (
                       product.reviews.map((review) => (
                         <ListItem
                           key={review._id}

@@ -17,7 +17,8 @@ export type Product = {
   _id: number | string;
   name: string;
   price: number;
-  image: string;
+  images: string[]; // Array of images
+  image?: string; // Optional single image for backward compatibility
   category: string;
   brand: string;
   description: string;
@@ -107,7 +108,7 @@ const ProductCard = ({ product }: Props) => {
         )}
         <Link to={`/products/${product._id}`}>
           <ImageLazy
-            imageUrl={product.image}
+            imageUrl={product.images?.[0] || ""} // Use the first image from the images array
             style={{
               height: "200px",
               width: "250px",

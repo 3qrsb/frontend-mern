@@ -50,7 +50,7 @@ const validationSchema = Yup.object().shape({
 
 const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const [fileName, setFileName] = useState<string>("");
-  const [image, setImage] = useState<string>("");
+  const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageError, setImageError] = useState<string>("");
@@ -68,60 +68,53 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const file = e.target.files[0];
+      const newFiles = Array.from(e.target.files);
 
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload a valid image file");
-        return;
-      }
+      newFiles.forEach((file) => {
+        if (!file.type.startsWith("image/")) {
+          toast.error("Please upload a valid image file");
+          return;
+        }
 
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size should be less than 5MB");
-        return;
-      }
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error("File size should be less than 5MB");
+          return;
+        }
+      });
 
-      setFileName(file.name);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
       setImageError("");
     }
   };
 
-  const uploadImage = async () => {
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) {
-      toast.error("Please upload an image");
-      return false;
-    }
-
+  const uploadImages = async () => {
+    const uploadedImageUrls: string[] = [];
+  
+    const formData = new FormData();
+    files.forEach(file => formData.append("images", file));
+  
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("image", file);
-
       const res = await authAxios.post("/uploads/image", formData);
-      if (res.data.url) {
-        setImage(res.data.url);
-        toast.success("Image uploaded successfully");
-        return res.data.url;
+      if (res.data.urls) {
+        uploadedImageUrls.push(...res.data.urls);
       }
     } catch (err) {
       toast.error(setError(err as Error));
-      return false;
+      return [];
     } finally {
       setUploading(false);
     }
-  };
   
+    return uploadedImageUrls;
+  };
+
   const onSubmit = async (data: FormValues) => {
-    const imageUrl = await uploadImage();
-    if (!imageUrl) return;
+    const imageUrls = await uploadImages();
+    if (imageUrls.length === 0) return;
 
     try {
-      await authAxios.post("/products", { ...data, image: imageUrl });
+      await authAxios.post("/products", { ...data, images: imageUrls });
       toast.success("Product has been created");
       setRefresh((prev: any) => !prev);
       handleClose();
@@ -132,7 +125,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
 
   const removeFile = () => {
     setFileName("");
-    setImage("");
+    setFiles([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -142,7 +135,8 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const hasUnsavedChanges = () => {
     const formValues = getValues();
     return (
-      Object.values(formValues).some((value) => value !== "") || !!fileName
+      Object.values(formValues).some((value) => value !== "") ||
+      files.length > 0
     );
   };
 
@@ -213,24 +207,31 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                   onChange={onChange}
                   ref={fileInputRef}
                   aria-label="Upload Image"
+                  multiple
                 />
               </Button>
-              {fileName && (
-                <Box mt={2} display="flex" alignItems="center">
+              {files.map((file, index) => (
+                <Box key={index} mt={2} display="flex" alignItems="center">
                   <Tooltip
                     title={
-                      <img src={image} alt="Preview" style={{ width: 200 }} />
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt="Preview"
+                        style={{ width: 200 }}
+                      />
                     }
                   >
                     <Typography
                       variant="body2"
                       style={{ cursor: "pointer", marginRight: 8 }}
                     >
-                      {fileName}
+                      Image {index + 1}
                     </Typography>
                   </Tooltip>
                   <IconButton
-                    onClick={removeFile}
+                    onClick={() =>
+                      setFiles(files.filter((_, i) => i !== index))
+                    }
                     size="small"
                     color="primary"
                     aria-label="Remove Image"
@@ -238,7 +239,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                     <DeleteIcon style={{ color: "#f44336" }} />
                   </IconButton>
                 </Box>
-              )}
+              ))}
               {imageError && (
                 <Typography
                   variant="body2"
@@ -249,9 +250,6 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                   {imageError}
                 </Typography>
               )}
-              <Typography variant="body2" color="primary" aria-live="polite">
-                {uploading ? "Uploading..." : ""}
-              </Typography>
             </FormControl>
             <FormControl fullWidth margin="normal">
               <TextField
