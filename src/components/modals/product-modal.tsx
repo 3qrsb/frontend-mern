@@ -11,6 +11,8 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useForm } from "react-hook-form";
@@ -22,6 +24,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
 import React from "react";
+import ImageLazy from "../UI/lazy-image";
 
 type Props = {
   show: boolean;
@@ -31,11 +34,12 @@ type Props = {
 
 type FormValues = {
   name: string;
-  image: string;
+  images: string[];
   category: string;
   brand: string;
   price: number;
   description: string;
+  inStock: boolean; // Add this line
 };
 
 const validationSchema = Yup.object().shape({
@@ -50,7 +54,7 @@ const validationSchema = Yup.object().shape({
 
 const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const [fileName, setFileName] = useState<string>("");
-  const [files, setFiles] = useState<File[]>([]);
+  const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageError, setImageError] = useState<string>("");
@@ -68,9 +72,9 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
+      const files = Array.from(e.target.files);
 
-      newFiles.forEach((file) => {
+      files.forEach((file) => {
         if (!file.type.startsWith("image/")) {
           toast.error("Please upload a valid image file");
           return;
@@ -80,32 +84,40 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
           toast.error("File size should be less than 5MB");
           return;
         }
-      });
 
-      setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImages((prevImages) => [...prevImages, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
       setImageError("");
     }
   };
 
   const uploadImages = async () => {
     const uploadedImageUrls: string[] = [];
-  
-    const formData = new FormData();
-    files.forEach(file => formData.append("images", file));
-  
-    setUploading(true);
-    try {
-      const res = await authAxios.post("/uploads/image", formData);
-      if (res.data.urls) {
-        uploadedImageUrls.push(...res.data.urls);
+
+    for (const image of images) {
+      const file = new File([image], "image.jpg", { type: "image/jpeg" }); // Convert base64 to file
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      setUploading(true);
+      try {
+        const res = await authAxios.post("/uploads/image", formData);
+        if (res.data.url) {
+          uploadedImageUrls.push(res.data.url);
+        }
+      } catch (err) {
+        toast.error(setError(err as Error));
+        return [];
+      } finally {
+        setUploading(false);
       }
-    } catch (err) {
-      toast.error(setError(err as Error));
-      return [];
-    } finally {
-      setUploading(false);
     }
-  
+
     return uploadedImageUrls;
   };
 
@@ -125,7 +137,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
 
   const removeFile = () => {
     setFileName("");
-    setFiles([]);
+    setImages([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -135,8 +147,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const hasUnsavedChanges = () => {
     const formValues = getValues();
     return (
-      Object.values(formValues).some((value) => value !== "") ||
-      files.length > 0
+      Object.values(formValues).some((value) => value !== "") || !!fileName
     );
   };
 
@@ -210,34 +221,18 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                   multiple
                 />
               </Button>
-              {files.map((file, index) => (
-                <Box key={index} mt={2} display="flex" alignItems="center">
-                  <Tooltip
-                    title={
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt="Preview"
-                        style={{ width: 200 }}
-                      />
-                    }
-                  >
-                    <Typography
-                      variant="body2"
-                      style={{ cursor: "pointer", marginRight: 8 }}
-                    >
-                      Image {index + 1}
-                    </Typography>
-                  </Tooltip>
-                  <IconButton
-                    onClick={() =>
-                      setFiles(files.filter((_, i) => i !== index))
-                    }
-                    size="small"
-                    color="primary"
-                    aria-label="Remove Image"
-                  >
-                    <DeleteIcon style={{ color: "#f44336" }} />
-                  </IconButton>
+              {images.map((img, index) => (
+                <Box key={index} sx={{ mt: 2 }}>
+                  <ImageLazy
+                    imageUrl={img}
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      maxWidth: "500px",
+                      maxHeight: "480px",
+                      objectFit: "contain",
+                    }}
+                  />
                 </Box>
               ))}
               {imageError && (
@@ -294,6 +289,10 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 inputProps={{ "aria-label": "Product Description" }}
               />
             </FormControl>
+            <FormControlLabel
+              control={<Checkbox {...register("inStock")} defaultChecked />}
+              label="In Stock"
+            />
             <DialogActions style={{ marginTop: "10px" }}>
               <Button
                 onClick={handleCloseWithConfirmation}

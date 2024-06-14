@@ -15,6 +15,9 @@ import {
   Divider,
   IconButton,
 } from "@mui/material";
+import SecurityIcon from "@mui/icons-material/Security";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { useNavigate, useParams } from "react-router-dom";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
@@ -193,6 +196,7 @@ const ProductDetails = () => {
                       <ListItem>
                         <Typography variant="h5">{product?.name}</Typography>
                       </ListItem>
+                      <Divider />
                       <ListItem>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Rating
@@ -209,18 +213,45 @@ const ProductDetails = () => {
                         </Box>
                       </ListItem>
                       <ListItem>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <ReviewIcon sx={{ mr: 1 }} />
-                          <Typography variant="body2">
-                            {product?.reviews.length} Reviews
-                          </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            width: "100%",
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <ReviewIcon
+                              sx={{ mr: 0.5, fontSize: 20, color: "#1976d2" }}
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "text.secondary" }}
+                            >
+                              {product?.reviews.length} Reviews
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <ShoppingCartIcon
+                              sx={{ mr: 0.5, fontSize: 20, color: "#1976d2" }}
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "text.secondary" }}
+                            >
+                              {product?.totalSales} Orders
+                            </Typography>
+                          </Box>
                         </Box>
                       </ListItem>
                       <ListItem>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <ShoppingCartIcon sx={{ mr: 1 }} />
-                          <Typography variant="body2">
-                            {product?.totalSales} Orders
+                          <Typography
+                            variant="body2"
+                            sx={{ color: product?.inStock ? "green" : "red" }}
+                          >
+                            {product?.inStock ? "In Stock" : "Out of Stock"}
                           </Typography>
                         </Box>
                       </ListItem>
@@ -250,7 +281,15 @@ const ProductDetails = () => {
 
                 {/* Price and Controls Column */}
                 <Grid item xs={12} md={6}>
-                  <Card sx={{ boxShadow: 3, p: 2, height: "auto" }}>
+                  <Card
+                    sx={{
+                      boxShadow: 3,
+                      p: 2,
+                      height: "auto",
+                      position: "sticky",
+                      top: "20px",
+                    }}
+                  >
                     <List>
                       <ListItem>
                         <Typography variant="h4" color="primary">
@@ -320,10 +359,71 @@ const ProductDetails = () => {
                           Share
                         </Button>
                       </ListItem>
+                      {/* Trust Badges Section */}
                       <ListItem>
-                        <Typography variant="body1">
-                          Additional product information or terms.
-                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-around",
+                            mt: 2,
+                            width: "100%",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              mx: 1,
+                            }}
+                          >
+                            <SecurityIcon
+                              sx={{ fontSize: 30, color: "#1976d2" }}
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ textAlign: "center", fontSize: "0.75rem" }}
+                            >
+                              Secure Checkout
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              mx: 1,
+                            }}
+                          >
+                            <MonetizationOnIcon
+                              sx={{ fontSize: 30, color: "#1976d2" }}
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ textAlign: "center", fontSize: "0.75rem" }}
+                            >
+                              Money-Back Guarantee
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              mx: 1,
+                            }}
+                          >
+                            <LocalShippingIcon
+                              sx={{ fontSize: 30, color: "#1976d2" }}
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ textAlign: "center", fontSize: "0.75rem" }}
+                            >
+                              Free Shipping
+                            </Typography>
+                          </Box>
+                        </Box>
                       </ListItem>
                     </List>
                   </Card>

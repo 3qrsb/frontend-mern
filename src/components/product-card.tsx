@@ -14,6 +14,7 @@ import Badge, { BadgeProps } from "@mui/material/Badge";
 import { styled } from "@mui/material/styles";
 
 export type Product = {
+  inStock: boolean;
   _id: number | string;
   name: string;
   price: number;
