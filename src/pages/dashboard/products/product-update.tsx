@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -66,7 +65,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
     reset,
     setValue,
     watch,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -81,6 +80,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
 
   const [images, setImages] = useState<string[]>(product.images);
   const [uploading, setUploading] = useState<boolean>(false);
+  const [formLoading, setFormLoading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -166,8 +166,12 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
   };
 
   const onSubmit = async (data: FormValues) => {
+    setFormLoading(true);
     const imageUrls = await uploadImages();
-    if (imageUrls.length === 0) return;
+    if (imageUrls.length === 0) {
+      setFormLoading(false);
+      return;
+    }
 
     const updatedData = { ...data, images: imageUrls };
     try {
@@ -176,6 +180,8 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       onClose();
     } catch (err: any) {
       toast.error(setError(err));
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -209,8 +215,26 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
           component="form"
           onSubmit={handleSubmit(onSubmit)}
           noValidate
-          sx={{ mt: 1 }}
+          sx={{ mt: 1, position: "relative", opacity: formLoading ? 0.5 : 1 }}
         >
+          {formLoading && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(255, 255, 255, 0.7)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 2,
+              }}
+            >
+              <Loader />
+            </Box>
+          )}
           <TextField
             label="Name"
             fullWidth
@@ -220,28 +244,46 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             helperText={errors.name?.message}
           />
           <FormControl fullWidth margin="normal">
-            <Button
-              variant="contained"
-              component="label"
-              startIcon={<CloudUploadIcon />}
-              style={{
-                backgroundColor: "#1976d2",
-                color: "#fff",
-                marginTop: "0",
-                width: "150px",
-              }}
-              disabled={uploading || images.length >= 4}
-            >
-              {uploading ? <CircularProgress size={24} /> : "Upload"}
-              <input
-                type="file"
-                hidden
-                onChange={onChange}
-                ref={fileInputRef}
-                aria-label="Upload Image"
-                multiple
-              />
-            </Button>
+            <Box position="relative">
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<CloudUploadIcon />}
+                sx={{
+                  backgroundColor: "#1976d2",
+                  color: "#fff",
+                  width: "150px",
+                  mt: 0,
+                }}
+                disabled={uploading || images.length >= 4}
+              >
+                Upload
+                <input
+                  type="file"
+                  hidden
+                  onChange={onChange}
+                  ref={fileInputRef}
+                  aria-label="Upload Image"
+                  multiple
+                />
+              </Button>
+              {images.length === 0 && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    top: "100%",
+                    left: 0,
+                    mt: 0.8,
+                    ml: 1.8,
+                    fontSize: "0.75rem",
+                    color: "#d32f2f",
+                  }}
+                  aria-live="polite"
+                >
+                  Please upload at least one image
+                </Typography>
+              )}
+            </Box>
             <Box display="flex" flexWrap="wrap" mt={2}>
               {images.map((img, index) => (
                 <Box
@@ -250,6 +292,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
                   alignItems="center"
                   mr={2}
                   mb={2}
+                  mt={0}
                   sx={{
                     border: "1px solid #ddd",
                     borderRadius: "4px",
@@ -276,30 +319,20 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
                         maxWidth: "100px",
                       }}
                     >
-                      {`Image ${index + 1}`}
+                      Image {index + 1}
                     </Typography>
                   </Tooltip>
                   <IconButton
                     onClick={() => removeFile(index)}
                     size="small"
-                    color="secondary"
+                    color="primary"
                     aria-label="Remove Image"
                   >
-                    <DeleteIcon style={{ color: "#f44336" }} />
+                    <DeleteIcon sx={{ color: "#f44336" }} />
                   </IconButton>
                 </Box>
               ))}
             </Box>
-            {images.length === 0 && (
-              <Typography
-                variant="body2"
-                color="error"
-                mt={2}
-                aria-live="polite"
-              >
-                Please upload at least one image
-              </Typography>
-            )}
           </FormControl>
           <TextField
             label="Brand"
@@ -353,10 +386,13 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             </Button>
             <Button
               type="submit"
-              style={{ backgroundColor: "#1976d2", color: "#fff" }}
               variant="contained"
               aria-label="Update Product"
               disabled={!hasMeaningfulChanges()}
+              sx={{
+                backgroundColor: hasMeaningfulChanges() ? "#1976d2" : "gray",
+                color: "#fff",
+              }}
             >
               Update
             </Button>

@@ -8,7 +8,6 @@ import {
   FormControl,
   TextField,
   Typography,
-  CircularProgress,
   IconButton,
   Tooltip,
   Checkbox,
@@ -109,7 +108,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
         reader.onloadend = () => {
           setImages((prevImages) => {
             const newImages = [...prevImages, reader.result as string];
-            setValue("images", newImages, { shouldValidate: true }); // Update the images in the form state and validate
+            setValue("images", newImages, { shouldValidate: true });
             return newImages;
           });
         };
@@ -162,7 +161,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const onSubmit = async (data: FormValues) => {
     setFormLoading(true);
     if (images.length === 0) {
-      setValue("images", []); // Manually set images field to trigger validation
+      setValue("images", []);
       setFormLoading(false);
       return;
     }
@@ -188,7 +187,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const removeFile = (index: number) => {
     setImages((prevImages) => {
       const newImages = prevImages.filter((_, i) => i !== index);
-      setValue("images", newImages, { shouldValidate: true }); // Update the images in the form state and validate
+      setValue("images", newImages, { shouldValidate: true });
       return newImages;
     });
     if (fileInputRef.current) {
@@ -196,7 +195,6 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
     }
   };
 
-  // Reset the form and clear images when the modal is closed
   useEffect(() => {
     if (!show) {
       reset(defaultValues);
@@ -306,7 +304,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                     sx={{
                       top: "100%",
                       left: 0,
-                      mt: "4px",
+                      mt: 1,
                       ml: "15px",
                       fontSize: "0.75rem",
                       color: "#d32f2f",
@@ -324,7 +322,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                     display="flex"
                     alignItems="center"
                     mr={2}
-                    mb={1}
+                    mb={2}
                     mt={0}
                     sx={{
                       border: "1px solid #ddd",
@@ -427,7 +425,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 style={{ backgroundColor: "#1976d2", color: "#fff" }}
                 variant="contained"
                 aria-label="Add Product"
-                disabled={formLoading} // Disable the button when the form is loading
+                disabled={formLoading}
               >
                 Add Product
               </Button>

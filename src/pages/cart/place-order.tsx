@@ -30,7 +30,10 @@ const PlaceOrder = () => {
   const onSubmit = () => {
     const order = {
       totalPrice,
-      cartItems,
+      cartItems: cartItems.map((item) => ({
+        ...item,
+        image: item.images[0],
+      })),
       shippingAddress,
     };
     authAxios
@@ -66,7 +69,7 @@ const PlaceOrder = () => {
                       <Row className="d-flex align-items-center">
                         <Col md={2}>
                           <ImageLazy
-                            imageUrl={item.image}
+                            imageUrl={item.images[0]}
                             style={{ objectFit: "contain" }}
                             className="avatar rounded-5"
                           />

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Button,
   Card,
   IconButton,
   Paper,
@@ -10,7 +9,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux";
@@ -58,7 +56,7 @@ const ProductTable = () => {
     _id: any;
     name: any;
     price?: number;
-    image?: string;
+    images?: string[];
     category?: string;
     brand?: string;
     description?: string;
@@ -125,7 +123,7 @@ const ProductTable = () => {
                   <TableRow key={product._id}>
                     <TableCell>
                       <img
-                        src={product.image}
+                        src={product.images[0]}
                         alt="Product"
                         style={{
                           width: "50px",
