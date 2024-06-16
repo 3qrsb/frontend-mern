@@ -24,7 +24,6 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
 import React from "react";
-import ImageLazy from "../UI/lazy-image";
 
 type Props = {
   show: boolean;
@@ -37,9 +36,9 @@ type FormValues = {
   images: string[];
   category: string;
   brand: string;
-  price: number;
+  price: number | null;
   description: string;
-  inStock: boolean; // Add this line
+  inStock: boolean;
 };
 
 const validationSchema = Yup.object().shape({
@@ -47,17 +46,30 @@ const validationSchema = Yup.object().shape({
   category: Yup.string().required("Category is required"),
   brand: Yup.string().required("Brand is required"),
   price: Yup.number()
+    .typeError("Price is required")
     .positive("Price must be a positive number")
     .required("Price is required"),
   description: Yup.string().required("Description is required"),
+  images: Yup.array()
+    .min(1, "At least one image is required")
+    .required("At least one image is required"),
 });
+
+const defaultValues: FormValues = {
+  name: "",
+  images: [],
+  category: "",
+  brand: "",
+  price: null,
+  description: "",
+  inStock: true,
+};
 
 const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const [fileName, setFileName] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageError, setImageError] = useState<string>("");
   const [openConfirm, setOpenConfirm] = useState(false);
 
   const {
@@ -65,14 +77,22 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
     handleSubmit,
     reset,
     getValues,
-    formState: { errors },
+    watch,
+    clearErrors,
+    setValue,
+    formState: { errors, isDirty, isSubmitted },
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema),
+    defaultValues: defaultValues,
   });
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
+      if (files.length + images.length > 4) {
+        toast.error("You can only upload up to 4 images");
+        return;
+      }
 
       files.forEach((file) => {
         if (!file.type.startsWith("image/")) {
@@ -87,11 +107,14 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
 
         const reader = new FileReader();
         reader.onloadend = () => {
-          setImages((prevImages) => [...prevImages, reader.result as string]);
+          setImages((prevImages) => {
+            const newImages = [...prevImages, reader.result as string];
+            setValue("images", newImages, { shouldValidate: true }); // Update the images in the form state and validate
+            return newImages;
+          });
         };
         reader.readAsDataURL(file);
       });
-      setImageError("");
     }
   };
 
@@ -99,22 +122,37 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
     const uploadedImageUrls: string[] = [];
 
     for (const image of images) {
-      const file = new File([image], "image.jpg", { type: "image/jpeg" }); // Convert base64 to file
-
-      const formData = new FormData();
-      formData.append("image", file);
-
-      setUploading(true);
-      try {
-        const res = await authAxios.post("/uploads/image", formData);
-        if (res.data.url) {
-          uploadedImageUrls.push(res.data.url);
+      if (image.startsWith("data:image/")) {
+        const base64Image = image.split(",")[1];
+        if (!base64Image) {
+          toast.error("Invalid image format");
+          return [];
         }
-      } catch (err) {
-        toast.error(setError(err as Error));
-        return [];
-      } finally {
-        setUploading(false);
+
+        const byteCharacters = atob(base64Image);
+        const byteNumbers = new Array(byteCharacters.length)
+          .fill(0)
+          .map((_, i) => byteCharacters.charCodeAt(i));
+        const byteArray = new Uint8Array(byteNumbers);
+        const file = new Blob([byteArray], { type: "image/jpeg" });
+
+        const formData = new FormData();
+        formData.append("images", file, "image.jpg");
+
+        setUploading(true);
+        try {
+          const res = await authAxios.post("/uploads/image", formData);
+          if (res.data.urls) {
+            uploadedImageUrls.push(...res.data.urls);
+          }
+        } catch (err) {
+          toast.error(setError(err as Error));
+          return [];
+        } finally {
+          setUploading(false);
+        }
+      } else {
+        uploadedImageUrls.push(image);
       }
     }
 
@@ -122,6 +160,11 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   };
 
   const onSubmit = async (data: FormValues) => {
+    if (images.length === 0) {
+      setValue("images", []); // Manually set images field to trigger validation
+      return;
+    }
+
     const imageUrls = await uploadImages();
     if (imageUrls.length === 0) return;
 
@@ -135,20 +178,38 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
     }
   };
 
-  const removeFile = () => {
-    setFileName("");
-    setImages([]);
+  const removeFile = (index: number) => {
+    setImages((prevImages) => {
+      const newImages = prevImages.filter((_, i) => i !== index);
+      setValue("images", newImages, { shouldValidate: true }); // Update the images in the form state and validate
+      return newImages;
+    });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-    setImageError("");
   };
 
+  // Reset the form and clear images when the modal is closed
+  useEffect(() => {
+    if (!show) {
+      reset(defaultValues);
+      setImages([]);
+    }
+  }, [show, reset]);
+
   const hasUnsavedChanges = () => {
-    const formValues = getValues();
-    return (
-      Object.values(formValues).some((value) => value !== "") || !!fileName
-    );
+    const currentValues = getValues();
+    const hasChanges = Object.keys(defaultValues).some((key) => {
+      if (key === "images") {
+        return images.length > 0;
+      }
+      return (
+        currentValues[key as keyof FormValues] !==
+        defaultValues[key as keyof FormValues]
+      );
+    });
+
+    return hasChanges;
   };
 
   const handleCloseWithConfirmation = () => {
@@ -162,19 +223,11 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const handleConfirmClose = (confirmed: boolean) => {
     setOpenConfirm(false);
     if (confirmed) {
-      reset();
-      removeFile();
+      reset(defaultValues);
+      setImages([]);
       handleClose();
     }
   };
-
-  useEffect(() => {
-    if (!show) {
-      reset();
-      removeFile();
-      setImageError("");
-    }
-  }, [show, reset]);
 
   return (
     <>
@@ -199,54 +252,97 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
               />
             </FormControl>
             <FormControl fullWidth margin="normal">
-              <Button
-                variant="contained"
-                component="label"
-                startIcon={<CloudUploadIcon />}
-                style={{
-                  backgroundColor: "#1976d2",
-                  color: "#fff",
-                  marginTop: "0",
-                  width: "150px",
-                }}
-                disabled={uploading}
-              >
-                {uploading ? <CircularProgress size={24} /> : "Upload"}
-                <input
-                  type="file"
-                  hidden
-                  onChange={onChange}
-                  ref={fileInputRef}
-                  aria-label="Upload Image"
-                  multiple
-                />
-              </Button>
-              {images.map((img, index) => (
-                <Box key={index} sx={{ mt: 2 }}>
-                  <ImageLazy
-                    imageUrl={img}
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      maxWidth: "500px",
-                      maxHeight: "480px",
-                      objectFit: "contain",
-                    }}
-                  />
-                </Box>
-              ))}
-              {imageError && (
-                <Typography
-                  variant="body2"
-                  color="error"
-                  mt={2}
-                  aria-live="polite"
+              <Box position="relative">
+                <Button
+                  variant="contained"
+                  component="label"
+                  startIcon={<CloudUploadIcon />}
+                  sx={{
+                    backgroundColor: "#1976d2",
+                    color: "#fff",
+                    width: "150px",
+                    mt: 0,
+                  }}
+                  disabled={uploading || images.length >= 4}
                 >
-                  {imageError}
-                </Typography>
-              )}
+                  {uploading ? <CircularProgress size={24} /> : "Upload"}
+                  <input
+                    type="file"
+                    hidden
+                    onChange={onChange}
+                    ref={fileInputRef}
+                    aria-label="Upload Image"
+                    multiple
+                  />
+                </Button>
+                {errors.images && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      top: "100%",
+                      left: 0,
+                      mt: "4px",
+                      ml: "15px",
+                      fontSize: "0.75rem",
+                      color: "#d32f2f",
+                    }}
+                    aria-live="polite"
+                  >
+                    {errors.images.message}
+                  </Typography>
+                )}
+              </Box>
+              <Box display="flex" flexWrap="wrap" mt={2}>
+                {images.map((img, index) => (
+                  <Box
+                    key={index}
+                    display="flex"
+                    alignItems="center"
+                    mr={2}
+                    mb={1}
+                    mt={0}
+                    sx={{
+                      border: "1px solid #ddd",
+                      borderRadius: "4px",
+                      padding: "4px",
+                    }}
+                  >
+                    <Tooltip
+                      title={
+                        <img
+                          src={img}
+                          alt={`Image ${index + 1}`}
+                          style={{ width: 200 }}
+                        />
+                      }
+                    >
+                      <Typography
+                        variant="body2"
+                        style={{
+                          cursor: "pointer",
+                          marginRight: 8,
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          maxWidth: "100px",
+                        }}
+                      >
+                        Image {index + 1}
+                      </Typography>
+                    </Tooltip>
+                    <IconButton
+                      onClick={() => removeFile(index)}
+                      size="small"
+                      color="primary"
+                      aria-label="Remove Image"
+                    >
+                      <DeleteIcon sx={{ color: "#f44336" }} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
             </FormControl>
-            <FormControl fullWidth margin="normal">
+            <FormControl fullWidth margin="normal" sx={{ mt: 0 }}>
               <TextField
                 label="Brand"
                 {...register("brand")}
@@ -272,7 +368,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 error={!!errors.price}
                 helperText={errors.price?.message}
                 inputProps={{
-                  min: 0,
+                  min: undefined,
                   step: 0.01,
                   "aria-label": "Product Price",
                 }}

@@ -1,3 +1,4 @@
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -11,35 +12,39 @@ import {
   Typography,
   IconButton,
   Tooltip,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import authAxios from "../../../utils/auth-axios";
 import toast from "react-hot-toast";
+import Loader from "../../../components/UI/loader";
 import { setError } from "../../../utils/error";
-import React, { useEffect, useRef, useState } from "react";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 type FormValues = {
   name: string;
-  image: string;
+  images: string[];
   category: string;
   brand: string;
   price: number;
   description: string;
+  inStock: boolean;
 };
 
 type ProductUpdateProps = {
   product: {
     _id: string;
     name: string;
-    image: string;
+    images: string[];
     category: string;
     brand: string;
     price: number;
     description: string;
+    inStock: boolean;
   };
   onClose: () => void;
 };
@@ -70,11 +75,11 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       brand: product.brand,
       price: product.price,
       description: product.description,
+      inStock: product.inStock,
     },
   });
 
-  const [fileName, setFileName] = useState<string>(product.image);
-  const [image, setImage] = useState<string>(product.image);
+  const [images, setImages] = useState<string[]>(product.images);
   const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -85,64 +90,86 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       brand: product.brand,
       price: product.price,
       description: product.description,
+      inStock: product.inStock,
     });
-    setImage(product.image);
+    setImages(product.images);
   }, [product, reset]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const file = e.target.files[0];
+      const files = Array.from(e.target.files);
 
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload a valid image file");
+      if (images.length + files.length > 4) {
+        toast.error("You can only upload a maximum of 4 images");
         return;
       }
 
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size should be less than 5MB");
-        return;
-      }
+      files.forEach((file, index) => {
+        if (!file.type.startsWith("image/")) {
+          toast.error("Please upload a valid image file");
+          return;
+        }
 
-      setFileName(file.name);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error("File size should be less than 5MB");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImages((prevImages) => [...prevImages, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
-  const uploadImage = async () => {
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) {
-      toast.error("Please upload an image");
-      return false;
-    }
+  const uploadImages = async () => {
+    const uploadedImageUrls: string[] = [];
 
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
+    for (const image of images) {
+      if (image.startsWith("data:image/")) {
+        const base64Image = image.split(",")[1];
+        if (!base64Image) {
+          toast.error("Invalid image format");
+          return [];
+        }
 
-      const res = await authAxios.post("/uploads/image", formData);
-      if (res.data.url) {
-        setImage(res.data.url);
-        toast.success("Image uploaded successfully");
-        return res.data.url;
+        const byteCharacters = atob(base64Image);
+        const byteNumbers = new Array(byteCharacters.length)
+          .fill(0)
+          .map((_, i) => byteCharacters.charCodeAt(i));
+        const byteArray = new Uint8Array(byteNumbers);
+        const file = new Blob([byteArray], { type: "image/jpeg" });
+
+        const formData = new FormData();
+        formData.append("images", file, "image.jpg");
+
+        setUploading(true);
+        try {
+          const res = await authAxios.post("/uploads/image", formData);
+          if (res.data.urls) {
+            uploadedImageUrls.push(...res.data.urls);
+          }
+        } catch (err) {
+          toast.error(setError(err as Error));
+          return [];
+        } finally {
+          setUploading(false);
+        }
+      } else {
+        uploadedImageUrls.push(image);
       }
-    } catch (err) {
-      toast.error(setError(err as Error));
-      return false;
-    } finally {
-      setUploading(false);
     }
+
+    return uploadedImageUrls;
   };
 
   const onSubmit = async (data: FormValues) => {
-    const imageUrl = await uploadImage();
-    if (!imageUrl) return;
+    const imageUrls = await uploadImages();
+    if (imageUrls.length === 0) return;
 
-    const updatedData = { ...data, image: imageUrl };
+    const updatedData = { ...data, images: imageUrls };
     try {
       await authAxios.put(`/products/${product._id}`, updatedData);
       toast.success("Product has been updated");
@@ -152,9 +179,8 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
     }
   };
 
-  const removeFile = () => {
-    setFileName("");
-    setImage("");
+  const removeFile = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -168,7 +194,8 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       currentValues.brand.trim() !== product.brand ||
       currentValues.price !== product.price ||
       currentValues.description.trim() !== product.description ||
-      fileName !== product.image
+      images.join(",") !== product.images.join(",") ||
+      currentValues.inStock !== product.inStock
     );
   };
 
@@ -203,7 +230,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
                 marginTop: "0",
                 width: "150px",
               }}
-              disabled={uploading}
+              disabled={uploading || images.length >= 4}
             >
               {uploading ? <CircularProgress size={24} /> : "Upload"}
               <input
@@ -212,40 +239,65 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
                 onChange={onChange}
                 ref={fileInputRef}
                 aria-label="Upload Image"
+                multiple
               />
             </Button>
-            {fileName && (
-              <Box mt={2} display="flex" alignItems="center">
-                <Tooltip
-                  title={
-                    <img src={image} alt="Preview" style={{ width: 200 }} />
-                  }
+            <Box display="flex" flexWrap="wrap" mt={2}>
+              {images.map((img, index) => (
+                <Box
+                  key={index}
+                  display="flex"
+                  alignItems="center"
+                  mr={2}
+                  mb={2}
+                  sx={{
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                    padding: "4px",
+                  }}
                 >
-                  <Typography
-                    variant="body2"
-                    style={{ cursor: "pointer", marginRight: 8 }}
+                  <Tooltip
+                    title={
+                      <img
+                        src={img}
+                        alt={`Image ${index + 1}`}
+                        style={{ width: 200 }}
+                      />
+                    }
                   >
-                    {fileName}
-                  </Typography>
-                </Tooltip>
-                <IconButton
-                  onClick={removeFile}
-                  size="small"
-                  color="secondary"
-                  aria-label="Remove Image"
-                >
-                  <DeleteIcon style={{ color: "#f44336" }} />
-                </IconButton>
-              </Box>
-            )}
-            {!fileName && (
+                    <Typography
+                      variant="body2"
+                      style={{
+                        cursor: "pointer",
+                        marginRight: 8,
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        maxWidth: "100px",
+                      }}
+                    >
+                      {`Image ${index + 1}`}
+                    </Typography>
+                  </Tooltip>
+                  <IconButton
+                    onClick={() => removeFile(index)}
+                    size="small"
+                    color="secondary"
+                    aria-label="Remove Image"
+                  >
+                    <DeleteIcon style={{ color: "#f44336" }} />
+                  </IconButton>
+                </Box>
+              ))}
+            </Box>
+            {images.length === 0 && (
               <Typography
                 variant="body2"
                 color="error"
                 mt={2}
                 aria-live="polite"
               >
-                Please upload an image
+                Please upload at least one image
               </Typography>
             )}
           </FormControl>
@@ -256,6 +308,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             {...register("brand")}
             error={!!errors.brand}
             helperText={errors.brand?.message}
+            sx={{ mt: 0 }}
           />
           <TextField
             label="Category"
@@ -284,6 +337,15 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             {...register("description")}
             error={!!errors.description}
             helperText={errors.description?.message}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                {...register("inStock")}
+                defaultChecked={product.inStock}
+              />
+            }
+            label="In Stock"
           />
           <DialogActions style={{ marginTop: "10px" }}>
             <Button onClick={onClose} color="primary" aria-label="Cancel">
