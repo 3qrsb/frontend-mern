@@ -1,5 +1,6 @@
 import React from "react";
-import { CircularProgress, Box } from "@mui/material";
+import { Box } from "@mui/material";
+import "ldrs/metronome"; // Import the metronome loader
 
 const Loader = () => {
   return (
@@ -11,7 +12,7 @@ const Loader = () => {
         alignItems: "center",
       }}
     >
-      <CircularProgress />
+      <l-metronome size="35" speed="1.6" color="blue"></l-metronome>
     </Box>
   );
 };

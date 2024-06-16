@@ -24,6 +24,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
 import React from "react";
+import Loader from "../UI/loader";
 
 type Props = {
   show: boolean;
@@ -50,9 +51,7 @@ const validationSchema = Yup.object().shape({
     .positive("Price must be a positive number")
     .required("Price is required"),
   description: Yup.string().required("Description is required"),
-  images: Yup.array()
-    .min(1, "At least one image is required")
-    .required("At least one image is required"),
+  images: Yup.array().min(1, "Image is required").required("Image is required"),
 });
 
 const defaultValues: FormValues = {
@@ -71,6 +70,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [formLoading, setFormLoading] = useState<boolean>(false);
 
   const {
     register,
@@ -160,13 +160,18 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
   };
 
   const onSubmit = async (data: FormValues) => {
+    setFormLoading(true);
     if (images.length === 0) {
       setValue("images", []); // Manually set images field to trigger validation
+      setFormLoading(false);
       return;
     }
 
     const imageUrls = await uploadImages();
-    if (imageUrls.length === 0) return;
+    if (imageUrls.length === 0) {
+      setFormLoading(false);
+      return;
+    }
 
     try {
       await authAxios.post("/products", { ...data, images: imageUrls });
@@ -175,6 +180,8 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
       handleClose();
     } catch (err: any) {
       toast.error(setError(err));
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -240,8 +247,26 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
             component="form"
             onSubmit={handleSubmit(onSubmit)}
             noValidate
-            sx={{ mt: 1 }}
+            sx={{ mt: 1, position: "relative", opacity: formLoading ? 0.5 : 1 }}
           >
+            {formLoading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(255, 255, 255, 0.7)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 2,
+                }}
+              >
+                <Loader />
+              </Box>
+            )}
             <FormControl fullWidth margin="normal">
               <TextField
                 label="Name"
@@ -265,7 +290,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                   }}
                   disabled={uploading || images.length >= 4}
                 >
-                  {uploading ? <CircularProgress size={24} /> : "Upload"}
+                  Upload
                   <input
                     type="file"
                     hidden
@@ -402,6 +427,7 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 style={{ backgroundColor: "#1976d2", color: "#fff" }}
                 variant="contained"
                 aria-label="Add Product"
+                disabled={formLoading} // Disable the button when the form is loading
               >
                 Add Product
               </Button>
