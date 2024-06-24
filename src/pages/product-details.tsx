@@ -15,6 +15,8 @@ import {
   Divider,
   IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import SecurityIcon from "@mui/icons-material/Security";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -58,11 +60,54 @@ const ProductDetails = () => {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | undefined>("");
   const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [editReview, setEditReview] = useState<null | {
+    id: string;
+    comment: string;
+    rating: number;
+  }>(null);
 
   const onAdd = () => {
     if (product) {
       dispatch(addToCart({ ...product, qty: quantity } as Product));
     }
+  };
+
+  const handleEditReview = (review: any) => {
+    setEditReview({
+      id: review._id,
+      comment: review.comment,
+      rating: review.rating,
+    });
+    setComment(review.comment);
+    setRating(review.rating);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const updatedReview = {
+      comment,
+      rating,
+    };
+    authAxios
+      .put(`/products/${product?._id}/reviews/${editReview?.id}`, updatedReview)
+      .then((res) => {
+        toast.success("Review updated successfully");
+        setEditReview(null);
+        setComment("");
+        setRating(1);
+        setRefresh((prev) => !prev);
+      })
+      .catch((err) => toast.error(setError(err)));
+  };
+
+  const handleDeleteReview = (reviewId: any) => {
+    authAxios
+      .delete(`/products/${product?._id}/reviews/${reviewId}`)
+      .then((res) => {
+        toast.success("Review deleted successfully");
+        setRefresh((prev) => !prev);
+      })
+      .catch((err) => toast.error(setError(err)));
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -472,6 +517,20 @@ const ProductDetails = () => {
                           <Typography variant="body2">
                             {review.comment}
                           </Typography>
+                          {userInfo?._id === review.user && (
+                            <Box>
+                              <IconButton
+                                onClick={() => handleEditReview(review)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleDeleteReview(review._id)}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Box>
+                          )}
                           <Divider sx={{ width: "100%", mt: 1 }} />
                         </ListItem>
                       ))
@@ -489,7 +548,7 @@ const ProductDetails = () => {
                     Comment
                   </Typography>
                   {userInfo ? (
-                    <form onSubmit={onSubmit}>
+                    <form onSubmit={editReview ? handleEditSubmit : onSubmit}>
                       <Rating
                         name="rating"
                         value={rating}
@@ -507,6 +566,7 @@ const ProductDetails = () => {
                         label="Comment"
                         multiline
                         rows={3}
+                        value={comment}
                         onChange={(e) => setComment(e.target.value)}
                       />
                       <Button
@@ -516,7 +576,7 @@ const ProductDetails = () => {
                         fullWidth
                         sx={{ mt: 2 }}
                       >
-                        Submit
+                        {editReview ? "Update" : "Submit"}
                       </Button>
                     </form>
                   ) : (
