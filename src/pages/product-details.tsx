@@ -17,6 +17,8 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Tab,
+  Tabs,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -51,6 +53,22 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useWishlist } from "../context/WishlistContext";
 import { deepOrange } from "@mui/material/colors";
 
+const TabPanel = (props: any) => {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+};
+
 const ProductDetails = () => {
   const dispatch = useAppDispatch();
   const { product, loading } = useAppSelector((state) => state.productDetail);
@@ -72,6 +90,7 @@ const ProductDetails = () => {
   }>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [currentReview, setCurrentReview] = useState<any>(null);
+  const [selectedTab, setSelectedTab] = useState("0");
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -85,6 +104,11 @@ const ProductDetails = () => {
     setAnchorEl(null);
     setCurrentReview(null);
   };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    setSelectedTab(newValue);
+  };
+
   const onAdd = () => {
     if (product) {
       dispatch(addToCart({ ...product, qty: quantity } as Product));
@@ -496,152 +520,207 @@ const ProductDetails = () => {
             </Grid>
           </Grid>
 
-          {/* Reviews and Comment Section */}
-          <Grid container spacing={3} mt={2}>
-            <Grid item xs={12} md={7}>
+          <Box sx={{ width: "100%", mt: 3 }}>
+            <Tabs value={selectedTab} onChange={handleTabChange} centered>
+              <Tab label="Specifications" value="0" />
+              <Tab label="Reviews" value="1" />
+              <Tab label="Shipping Info" value="2" />
+              <Tab label="Seller Profile" value="3" />
+            </Tabs>
+            <TabPanel value={selectedTab} index="0">
+              {/* Specifications Content */}
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="primary">
-                    Reviews and Comments
+                    Specifications
                   </Typography>
-                  <List>
-                    {product?.reviews?.length > 0 ? (
-                      product.reviews.map((review) => (
-                        <ListItem
-                          key={review._id}
-                          sx={{
-                            flexDirection: "column",
-                            alignItems: "flex-start",
-                            mb: 2,
-                            p: 2,
-                            borderRadius: 2,
-                            boxShadow: 1,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              width: "100%",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              position: "relative",
-                            }}
-                          >
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <Avatar sx={{ bgcolor: deepOrange[500], mr: 2 }}>
-                                {review.name.charAt(0)}
-                              </Avatar>
-                              <Typography variant="subtitle1">
-                                <strong>{review.name}</strong>
-                              </Typography>
-                            </Box>
-                            {userInfo?._id === review.user && (
-                              <Box sx={{ position: "absolute", right: 0 }}>
-                                <IconButton
-                                  aria-label="more"
-                                  aria-controls="long-menu"
-                                  aria-haspopup="true"
-                                  onClick={(event) =>
-                                    handleMenuClick(event, review)
-                                  }
-                                >
-                                  <MoreVertIcon />
-                                </IconButton>
-                                <Menu
-                                  id="long-menu"
-                                  anchorEl={anchorEl}
-                                  keepMounted
-                                  open={Boolean(anchorEl)}
-                                  onClose={handleMenuClose}
-                                >
-                                  <MenuItem
-                                    onClick={() => handleEditReview(review)}
-                                  >
-                                    Edit
-                                  </MenuItem>
-                                  <MenuItem
-                                    onClick={() =>
-                                      handleDeleteReview(review._id)
-                                    }
-                                  >
-                                    Delete
-                                  </MenuItem>
-                                </Menu>
-                              </Box>
-                            )}
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              width: "100%",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              mt: 1,
-                            }}
-                          >
-                            <Rating
-                              value={review.rating}
-                              readOnly
-                              precision={0.5}
-                              sx={{ mr: 2 }}
-                            />
-                            <Typography variant="body2">
-                              {getDate(review.createdAt)}
-                            </Typography>
-                          </Box>
-                          <Typography variant="body2" sx={{ mt: 1 }}>
-                            {review.comment}
-                          </Typography>
-                          <Divider sx={{ width: "100%", mt: 2 }} />
-                        </ListItem>
-                      ))
-                    ) : (
-                      <ListItem>No reviews yet</ListItem>
-                    )}
-                  </List>
-                  <Divider sx={{ my: 2 }} />
-                  <Typography variant="h6" color="primary">
-                    Leave a Comment
+                  <Typography variant="body2">
+                    {/* Specifications details go here */}
                   </Typography>
-                  {userInfo ? (
-                    <form onSubmit={editReview ? handleEditSubmit : onSubmit}>
-                      <Rating
-                        name="rating"
-                        value={rating}
-                        onChange={(event, newValue) => {
-                          if (newValue !== null) {
-                            setRating(newValue);
-                          }
-                        }}
-                      />
-                      <TextField
-                        required
-                        fullWidth
-                        variant="outlined"
-                        margin="normal"
-                        label="Comment"
-                        multiline
-                        rows={3}
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                      />
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        fullWidth
-                        sx={{ mt: 2 }}
-                      >
-                        {editReview ? "Update" : "Submit"}
-                      </Button>
-                    </form>
-                  ) : (
-                    <Message>You must login to leave a review</Message>
-                  )}
                 </CardContent>
               </Card>
-            </Grid>
-          </Grid>
+            </TabPanel>
+            <TabPanel value={selectedTab} index="1">
+              {/* Reviews Content */}
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" color="primary">
+                        Reviews
+                      </Typography>
+                      <List>
+                        {product?.reviews?.length > 0 ? (
+                          product.reviews.map((review) => (
+                            <ListItem
+                              key={review._id}
+                              sx={{
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                mb: 2,
+                                p: 2,
+                                borderRadius: 2,
+                                boxShadow: 1,
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  width: "100%",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  position: "relative",
+                                }}
+                              >
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                >
+                                  <Avatar
+                                    sx={{ bgcolor: deepOrange[500], mr: 2 }}
+                                  >
+                                    {review.name.charAt(0)}
+                                  </Avatar>
+                                  <Typography variant="subtitle1">
+                                    <strong>{review.name}</strong>
+                                  </Typography>
+                                </Box>
+                                {userInfo?._id === review.user && (
+                                  <Box sx={{ position: "absolute", right: 0 }}>
+                                    <IconButton
+                                      aria-label="more"
+                                      aria-controls="long-menu"
+                                      aria-haspopup="true"
+                                      onClick={(event) =>
+                                        handleMenuClick(event, review)
+                                      }
+                                    >
+                                      <MoreVertIcon />
+                                    </IconButton>
+                                    <Menu
+                                      id="long-menu"
+                                      anchorEl={anchorEl}
+                                      keepMounted
+                                      open={Boolean(anchorEl)}
+                                      onClose={handleMenuClose}
+                                    >
+                                      <MenuItem
+                                        onClick={() => handleEditReview(review)}
+                                      >
+                                        <EditIcon sx={{ mr: 1 }} /> Edit
+                                      </MenuItem>
+                                      <MenuItem
+                                        onClick={() =>
+                                          handleDeleteReview(review._id)
+                                        }
+                                      >
+                                        <DeleteIcon sx={{ mr: 1 }} /> Delete
+                                      </MenuItem>
+                                    </Menu>
+                                  </Box>
+                                )}
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  width: "100%",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  mt: 1,
+                                }}
+                              >
+                                <Rating
+                                  value={review.rating}
+                                  readOnly
+                                  precision={0.5}
+                                  sx={{ mr: 2 }}
+                                />
+                                <Typography variant="body2">
+                                  {getDate(review.createdAt)}
+                                </Typography>
+                              </Box>
+                              <Typography variant="body2" sx={{ mt: 1 }}>
+                                {review.comment}
+                              </Typography>
+                              <Divider sx={{ width: "100%", mt: 2 }} />
+                            </ListItem>
+                          ))
+                        ) : (
+                          <ListItem>No reviews yet</ListItem>
+                        )}
+                      </List>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="h6" color="primary">
+                        Leave a Comment
+                      </Typography>
+                      {userInfo ? (
+                        <form
+                          onSubmit={editReview ? handleEditSubmit : onSubmit}
+                        >
+                          <Rating
+                            name="rating"
+                            value={rating}
+                            onChange={(event, newValue) => {
+                              if (newValue !== null) {
+                                setRating(newValue);
+                              }
+                            }}
+                          />
+                          <TextField
+                            required
+                            fullWidth
+                            variant="outlined"
+                            margin="normal"
+                            label="Comment"
+                            multiline
+                            rows={3}
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                          />
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                          >
+                            {editReview ? "Update" : "Submit"}
+                          </Button>
+                        </form>
+                      ) : (
+                        <Message>You must login to leave a review</Message>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </TabPanel>
+            <TabPanel value={selectedTab} index="2">
+              {/* Shipping Info Content */}
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" color="primary">
+                    Shipping Info
+                  </Typography>
+                  <Typography variant="body2">
+                    {/* Shipping information goes here */}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </TabPanel>
+            <TabPanel value={selectedTab} index="3">
+              {/* Seller Profile Content */}
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" color="primary">
+                    Seller Profile
+                  </Typography>
+                  <Typography variant="body2">
+                    {/* Seller profile information goes here */}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </TabPanel>
+          </Box>
         </Container>
       )}
     </DefaultLayout>
