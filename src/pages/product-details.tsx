@@ -14,9 +14,13 @@ import {
   Rating,
   Divider,
   IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SecurityIcon from "@mui/icons-material/Security";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -45,6 +49,7 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ReviewIcon from "@mui/icons-material/RateReview";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useWishlist } from "../context/WishlistContext";
+import { deepOrange } from "@mui/material/colors";
 
 const ProductDetails = () => {
   const dispatch = useAppDispatch();
@@ -65,7 +70,21 @@ const ProductDetails = () => {
     comment: string;
     rating: number;
   }>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [currentReview, setCurrentReview] = useState<any>(null);
 
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLElement>,
+    review: any
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setCurrentReview(review);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setCurrentReview(null);
+  };
   const onAdd = () => {
     if (product) {
       dispatch(addToCart({ ...product, qty: quantity } as Product));
@@ -169,8 +188,8 @@ const ProductDetails = () => {
           sx={{
             py: 3,
             px: { xs: 2, sm: 3, md: 4, lg: 5 },
-            margin: "0 auto", // Center the container
-            maxWidth: "95%", // Adjust the maximum width
+            margin: "0 auto",
+            maxWidth: "95%",
           }}
         >
           <Grid container spacing={3}>
@@ -478,12 +497,12 @@ const ProductDetails = () => {
           </Grid>
 
           {/* Reviews and Comment Section */}
-          <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid container spacing={3} mt={2}>
             <Grid item xs={12} md={7}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="primary">
-                    Reviews
+                    Reviews and Comments
                   </Typography>
                   <List>
                     {product?.reviews?.length > 0 ? (
@@ -493,6 +512,10 @@ const ProductDetails = () => {
                           sx={{
                             flexDirection: "column",
                             alignItems: "flex-start",
+                            mb: 2,
+                            p: 2,
+                            borderRadius: 2,
+                            boxShadow: 1,
                           }}
                         >
                           <Box
@@ -500,52 +523,85 @@ const ProductDetails = () => {
                               display: "flex",
                               width: "100%",
                               justifyContent: "space-between",
+                              alignItems: "center",
+                              position: "relative",
                             }}
                           >
-                            <Typography variant="subtitle1">
-                              <strong>{review.name}</strong>
-                            </Typography>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <Avatar sx={{ bgcolor: deepOrange[500], mr: 2 }}>
+                                {review.name.charAt(0)}
+                              </Avatar>
+                              <Typography variant="subtitle1">
+                                <strong>{review.name}</strong>
+                              </Typography>
+                            </Box>
+                            {userInfo?._id === review.user && (
+                              <Box sx={{ position: "absolute", right: 0 }}>
+                                <IconButton
+                                  aria-label="more"
+                                  aria-controls="long-menu"
+                                  aria-haspopup="true"
+                                  onClick={(event) =>
+                                    handleMenuClick(event, review)
+                                  }
+                                >
+                                  <MoreVertIcon />
+                                </IconButton>
+                                <Menu
+                                  id="long-menu"
+                                  anchorEl={anchorEl}
+                                  keepMounted
+                                  open={Boolean(anchorEl)}
+                                  onClose={handleMenuClose}
+                                >
+                                  <MenuItem
+                                    onClick={() => handleEditReview(review)}
+                                  >
+                                    Edit
+                                  </MenuItem>
+                                  <MenuItem
+                                    onClick={() =>
+                                      handleDeleteReview(review._id)
+                                    }
+                                  >
+                                    Delete
+                                  </MenuItem>
+                                </Menu>
+                              </Box>
+                            )}
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              width: "100%",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              mt: 1,
+                            }}
+                          >
                             <Rating
                               value={review.rating}
                               readOnly
                               precision={0.5}
+                              sx={{ mr: 2 }}
                             />
                             <Typography variant="body2">
                               {getDate(review.createdAt)}
                             </Typography>
                           </Box>
-                          <Typography variant="body2">
+                          <Typography variant="body2" sx={{ mt: 1 }}>
                             {review.comment}
                           </Typography>
-                          {userInfo?._id === review.user && (
-                            <Box>
-                              <IconButton
-                                onClick={() => handleEditReview(review)}
-                              >
-                                <EditIcon />
-                              </IconButton>
-                              <IconButton
-                                onClick={() => handleDeleteReview(review._id)}
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </Box>
-                          )}
-                          <Divider sx={{ width: "100%", mt: 1 }} />
+                          <Divider sx={{ width: "100%", mt: 2 }} />
                         </ListItem>
                       ))
                     ) : (
                       <ListItem>No reviews yet</ListItem>
                     )}
                   </List>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <Card sx={{ p: 2 }}>
-                <CardContent>
+                  <Divider sx={{ my: 2 }} />
                   <Typography variant="h6" color="primary">
-                    Comment
+                    Leave a Comment
                   </Typography>
                   {userInfo ? (
                     <form onSubmit={editReview ? handleEditSubmit : onSubmit}>
