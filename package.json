@@ -9,8 +9,8 @@
   },
   "proxy": "http://localhost:4000",
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
@@ -18,7 +18,7 @@
     "@hookform/resolvers": "^2.9.3",
     "@mui/icons-material": "^5.15.19",
     "@mui/lab": "^5.0.0-alpha.170",
-    "@mui/material": "^5.15.19",
+    "@mui/material": "^6.1.6",
     "@mui/x-data-grid": "^7.6.2",
     "@react-oauth/google": "^0.12.1",
     "@reduxjs/toolkit": "^1.8.2",
@@ -52,7 +52,7 @@
     "react-stripe-checkout": "^2.6.3",
     "redux-persist": "^6.0.0",
     "stripe": "^15.7.0",
-    "styled-components": "^6.1.11",
+    "styled-components": "^6.1.13",
     "yup": "^0.32.11"
   },
   "devDependencies": {
@@ -66,6 +66,6 @@
     "@types/redux-localstorage": "^1.0.8",
     "@vitejs/plugin-react": "^1.3.0",
     "typescript": "^4.6.3",
-    "vite": "^2.9.9"
+    "vite": "^5.4.10"
   }
 }
