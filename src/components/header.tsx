@@ -54,7 +54,7 @@ const Header = () => {
               >
                 <span>Home</span>
               </Nav.Item>
-              <Nav.Item as={NavLink} className=" nav-link" to="/home">
+              <Nav.Item as={NavLink} className=" nav-link" to="/products">
                 <span>Products</span>
               </Nav.Item>
 
@@ -69,7 +69,7 @@ const Header = () => {
 
             <div className="d-flex align-items-center">
               <div className="d-flex align-items-center">
-                <Link className="nav-link" to="/home">
+                <Link className="nav-link" to="/products">
                   <i className="fa fa-fw fa-search text-dark me-2"></i>
                 </Link>
                 <Link

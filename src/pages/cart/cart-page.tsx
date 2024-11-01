@@ -39,7 +39,7 @@ const CartPage = () => {
               }}
             />
             <p style={{ marginTop: "70px" }}>Your cart is empty</p>
-            <Link to="/home" className="btn btn-primary mt-3">
+            <Link to="/products" className="btn btn-primary mt-3">
               Continue Shopping
             </Link>
           </div>

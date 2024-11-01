@@ -9,7 +9,6 @@ import { Toaster } from "react-hot-toast";
 import DashboardPage from "./pages/dashboard/dashboard-page";
 import ProductTable from "./pages/dashboard/products/product-table";
 import UserTable from "./pages/dashboard/users/users-table";
-import ProductUpdate from "./pages/dashboard/products/product-update";
 import Register from "./pages/users/register";
 import Profile from "./pages/users/profile";
 import Contact from "./pages/contact/contact";
@@ -42,7 +41,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/home" element={<Products />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/search/:keyword" element={<Products />} />
           <Route path="/page/:pageNumber" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetails />} />

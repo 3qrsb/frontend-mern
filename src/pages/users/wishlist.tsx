@@ -35,7 +35,7 @@ const Wishlist = () => {
             <p>Your wishlist is empty</p>
             <p>Seems like you don't have any wishes here</p>
             <Link
-              to="/home"
+              to="/products"
               className="btn btn-primary mt-3"
               style={{ fontSize: "16px", padding: "10px 20px" }}
             >
