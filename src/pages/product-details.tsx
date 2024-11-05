@@ -19,6 +19,8 @@ import {
   MenuItem,
   Tab,
   Tabs,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -202,6 +204,12 @@ const ProductDetails = () => {
       product.reviews.length
     : 0;
 
+  const theme = useTheme();
+  const screenSize = useMediaQuery(theme.breakpoints.only("md"));
+
+  // Grid is deprecated, need to fix
+  // and who tf wrote this code??
+
   return (
     <DefaultLayout title={product?.name}>
       {loading || !product ? (
@@ -284,7 +292,9 @@ const ProductDetails = () => {
                       <ListItem>
                         <Typography variant="h5">{product?.name}</Typography>
                       </ListItem>
+
                       <Divider />
+
                       <ListItem>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Rating
@@ -300,6 +310,7 @@ const ProductDetails = () => {
                           </Typography>
                         </Box>
                       </ListItem>
+
                       <ListItem>
                         <Box
                           sx={{
@@ -333,31 +344,49 @@ const ProductDetails = () => {
                           </Box>
                         </Box>
                       </ListItem>
+
                       <ListItem>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Typography
                             variant="body2"
-                            sx={{ color: product?.inStock ? "green" : "red" }}
+                            sx={{
+                              color:
+                                product?.qty === 0
+                                  ? "red"
+                                  : product?.qty <= 10
+                                  ? "red"
+                                  : "green",
+                            }}
                           >
-                            {product?.inStock ? "In Stock" : "Out of Stock"}
+                            {product?.qty === 0
+                              ? "Out of Stock"
+                              : product?.qty <= 10
+                              ? `Only ${product.qty} items left!`
+                              : "In Stock"}
                           </Typography>
                         </Box>
                       </ListItem>
+
                       <Divider />
+
                       <ListItem>
                         <ListItemText
                           primary="Brand:"
                           secondary={product?.brand}
                         />
                       </ListItem>
+
                       <Divider />
+
                       <ListItem>
                         <ListItemText
                           primary="Category:"
                           secondary={product?.category}
                         />
                       </ListItem>
+
                       <Divider />
+
                       <ListItem>
                         <Typography variant="body1">
                           {product?.description}
@@ -384,69 +413,80 @@ const ProductDetails = () => {
                           {formatCurrencry(product?.price)}
                         </Typography>
                       </ListItem>
+
                       <Divider />
+
                       <ListItem>
                         <Typography variant="body1">
-                          Some additional information here.
+                          Payment via Stripe
                         </Typography>
                       </ListItem>
+
                       <Divider />
-                      <ListItem>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <IconButton
-                            onClick={() =>
-                              setQuantity((prev) => Math.max(prev - 1, 1))
-                            }
-                          >
-                            <RemoveIcon />
-                          </IconButton>
-                          <Typography variant="h6" sx={{ mx: 2 }}>
-                            {quantity}
-                          </Typography>
-                          <IconButton
-                            onClick={() => setQuantity((prev) => prev + 1)}
-                          >
-                            <AddIcon />
-                          </IconButton>
-                        </Box>
-                      </ListItem>
-                      <Divider />
+
                       <ListItem>
                         <Button
                           variant="contained"
                           color="primary"
                           onClick={onAdd}
                           fullWidth
-                          sx={{ mt: 2 }}
+                          sx={{ mt: 1 }}
+                          disabled={!product?.inStock}
                         >
                           Add To Cart
                         </Button>
                       </ListItem>
+
                       <ListItem>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={handleLike}
-                          fullWidth
-                          sx={{ mt: 2 }}
-                          startIcon={
-                            isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />
-                          }
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          width="100%"
+                          mb={1}
                         >
-                          {isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
-                        </Button>
+                          {/* Like Button */}
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={handleLike}
+                            sx={{
+                              flex: 1,
+                              mr: 1,
+                              display: "flex",
+                              flexDirection: screenSize ? "column" : "row",
+                              alignItems: "center",
+                            }}
+                            startIcon={
+                              isLiked ? (
+                                <FavoriteIcon sx={{ color: "red" }} />
+                              ) : (
+                                <FavoriteBorderIcon sx={{ color: "red" }} />
+                              )
+                            }
+                          >
+                            Like
+                          </Button>
+
+                          {/* Share Button */}
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            sx={{
+                              flex: 1,
+                              ml: 1,
+                              display: "flex",
+                              flexDirection: screenSize ? "column" : "row",
+                              alignItems: "center",
+                            }}
+                            startIcon={<ShareIcon />}
+                          >
+                            Share
+                          </Button>
+                        </Box>
                       </ListItem>
-                      <ListItem>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          fullWidth
-                          sx={{ mt: 2 }}
-                          startIcon={<ShareIcon />}
-                        >
-                          Share
-                        </Button>
-                      </ListItem>
+
+                      <Divider />
+
                       {/* Trust Badges Section */}
                       <ListItem>
                         <Box
