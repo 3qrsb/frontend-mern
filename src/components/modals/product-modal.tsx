@@ -10,8 +10,6 @@ import {
   Typography,
   IconButton,
   Tooltip,
-  Checkbox,
-  FormControlLabel,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useForm } from "react-hook-form";
@@ -38,7 +36,7 @@ type FormValues = {
   brand: string;
   price: number | null;
   description: string;
-  inStock: boolean;
+  qty: number | null;
 };
 
 const validationSchema = Yup.object().shape({
@@ -51,6 +49,10 @@ const validationSchema = Yup.object().shape({
     .required("Price is required"),
   description: Yup.string().required("Description is required"),
   images: Yup.array().min(1, "Image is required").required("Image is required"),
+  qty: Yup.number()
+    .typeError("Quantity is required")
+    .required("Quantity is required")
+    .positive("Quantity must be a positive number"),
 });
 
 const defaultValues: FormValues = {
@@ -60,11 +62,10 @@ const defaultValues: FormValues = {
   brand: "",
   price: null,
   description: "",
-  inStock: true,
+  qty: null,
 };
 
 const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
-  const [fileName, setFileName] = useState<string>("");
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -76,10 +77,8 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
     handleSubmit,
     reset,
     getValues,
-    watch,
-    clearErrors,
     setValue,
-    formState: { errors, isDirty, isSubmitted },
+    formState: { errors },
   } = useForm<FormValues>({
     resolver: yupResolver(validationSchema),
     defaultValues: defaultValues,
@@ -371,7 +370,6 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 {...register("brand")}
                 error={!!errors.brand}
                 helperText={errors.brand?.message}
-                inputProps={{ "aria-label": "Product Brand" }}
               />
             </FormControl>
             <FormControl fullWidth margin="normal">
@@ -380,7 +378,6 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 {...register("category")}
                 error={!!errors.category}
                 helperText={errors.category?.message}
-                inputProps={{ "aria-label": "Product Category" }}
               />
             </FormControl>
             <FormControl fullWidth margin="normal">
@@ -390,11 +387,6 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 {...register("price")}
                 error={!!errors.price}
                 helperText={errors.price?.message}
-                inputProps={{
-                  min: undefined,
-                  step: 0.01,
-                  "aria-label": "Product Price",
-                }}
               />
             </FormControl>
             <FormControl fullWidth margin="normal">
@@ -405,13 +397,17 @@ const ProductModal = ({ show, handleClose, setRefresh }: Props) => {
                 rows={3}
                 error={!!errors.description}
                 helperText={errors.description?.message}
-                inputProps={{ "aria-label": "Product Description" }}
               />
             </FormControl>
-            <FormControlLabel
-              control={<Checkbox {...register("inStock")} defaultChecked />}
-              label="In Stock"
-            />
+            <FormControl fullWidth margin="normal">
+              <TextField
+                label="Quantity"
+                type="number"
+                {...register("qty")}
+                error={!!errors.qty}
+                helperText={errors.qty?.message}
+              />
+            </FormControl>
             <DialogActions style={{ marginTop: "10px" }}>
               <Button
                 onClick={handleCloseWithConfirmation}

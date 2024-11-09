@@ -11,8 +11,6 @@ import {
   Typography,
   IconButton,
   Tooltip,
-  Checkbox,
-  FormControlLabel,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -31,7 +29,7 @@ type FormValues = {
   brand: string;
   price: number;
   description: string;
-  inStock: boolean;
+  qty: number;
 };
 
 type ProductUpdateProps = {
@@ -43,7 +41,7 @@ type ProductUpdateProps = {
     brand: string;
     price: number;
     description: string;
-    inStock: boolean;
+    qty: number;
   };
   onClose: () => void;
 };
@@ -57,13 +55,15 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       .positive("Price must be a positive number")
       .required("Price is required"),
     description: Yup.string().trim().required("Description is required"),
+    qty: Yup.number()
+      .required("Quantity is required")
+      .positive("Quantity must be a positive number"),
   });
 
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors },
   } = useForm<FormValues>({
@@ -74,7 +74,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       brand: product.brand,
       price: product.price,
       description: product.description,
-      inStock: product.inStock,
+      qty: product.qty,
     },
   });
 
@@ -90,7 +90,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       brand: product.brand,
       price: product.price,
       description: product.description,
-      inStock: product.inStock,
+      qty: product.qty,
     });
     setImages(product.images);
   }, [product, reset]);
@@ -199,9 +199,9 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
       currentValues.category.trim() !== product.category ||
       currentValues.brand.trim() !== product.brand ||
       currentValues.price !== product.price ||
+      currentValues.qty !== product.qty ||
       currentValues.description.trim() !== product.description ||
-      images.join(",") !== product.images.join(",") ||
-      currentValues.inStock !== product.inStock
+      images.join(",") !== product.images.join(",")
     );
   };
 
@@ -359,7 +359,6 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             {...register("price")}
             error={!!errors.price}
             helperText={errors.price?.message}
-            InputProps={{ inputProps: { min: 0, step: 0.01 } }}
           />
           <TextField
             label="Description"
@@ -371,14 +370,14 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
             error={!!errors.description}
             helperText={errors.description?.message}
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                {...register("inStock")}
-                defaultChecked={product.inStock}
-              />
-            }
-            label="In Stock"
+          <TextField
+            label="Quantity"
+            type="number"
+            fullWidth
+            margin="normal"
+            {...register("qty")}
+            error={!!errors.qty}
+            helperText={errors.qty?.message}
           />
           <DialogActions style={{ marginTop: "10px" }}>
             <Button onClick={onClose} color="primary" aria-label="Cancel">
