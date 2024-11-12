@@ -43,8 +43,6 @@ import { setError } from "../utils/error";
 import { formatCurrencry, getDate } from "../utils/helper";
 import ImageLazy from "../components/UI/lazy-image";
 import toast from "react-hot-toast";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import StarIcon from "@mui/icons-material/Star";
@@ -93,6 +91,8 @@ const ProductDetails = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [currentReview, setCurrentReview] = useState<any>(null);
   const [selectedTab, setSelectedTab] = useState("0");
+  const { cartItems } = useAppSelector((state) => state.cart);
+  const isProductInCart = cartItems.some((item) => item._id === product?._id);
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -112,7 +112,7 @@ const ProductDetails = () => {
   };
 
   const onAdd = () => {
-    if (product) {
+    if (product && !isProductInCart) {
       dispatch(addToCart({ ...product, qty: quantity } as Product));
     }
   };
@@ -431,9 +431,9 @@ const ProductDetails = () => {
                           onClick={onAdd}
                           fullWidth
                           sx={{ mt: 1 }}
-                          disabled={!product?.inStock}
+                          disabled={!product?.inStock || isProductInCart}
                         >
-                          Add To Cart
+                          {isProductInCart ? "Already in Cart" : "Add to Cart"}{" "}
                         </Button>
                       </ListItem>
 
