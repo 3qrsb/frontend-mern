@@ -57,7 +57,7 @@ const ProductUpdate: React.FC<ProductUpdateProps> = ({ product, onClose }) => {
     description: Yup.string().trim().required("Description is required"),
     qty: Yup.number()
       .required("Quantity is required")
-      .positive("Quantity must be a positive number"),
+      .min(0, "Quantity must be 0 or a positive number"),
   });
 
   const {

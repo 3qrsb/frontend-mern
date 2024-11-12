@@ -52,7 +52,7 @@ const validationSchema = Yup.object().shape({
   qty: Yup.number()
     .typeError("Quantity is required")
     .required("Quantity is required")
-    .positive("Quantity must be a positive number"),
+    .min(0, "Quantity must be 0 or a positive number"),
 });
 
 const defaultValues: FormValues = {
