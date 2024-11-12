@@ -24,6 +24,7 @@ export type Product = {
   brand: string;
   description: string;
   qty: number;
+  availableQty: number;
   createdAt: Date;
   reviews: ReviewTypes[];
   totalSales: number;

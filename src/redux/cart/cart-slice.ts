@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Product } from '../../components/product-card';
-import { AddressTypes } from '../../utils/interfaces';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Product } from "../../components/product-card";
+import { AddressTypes } from "../../utils/interfaces";
 
 export interface CartSliceState {
   cartItems: Product[];
@@ -13,22 +13,24 @@ const initialState: CartSliceState = {
 };
 
 export const cartSlice = createSlice({
-  name: 'cart-items',
+  name: "cart-items",
   initialState: initialState,
 
   reducers: {
     addToCart: (state: CartSliceState, action: PayloadAction<Product>) => {
       const product = action.payload;
-      const exist = state.cartItems.find(
-        (item: any) => item._id == product._id
-      );
+      const exist = state.cartItems.find((item) => item._id === product._id);
 
       if (exist) {
-        state.cartItems = state.cartItems.map((item: any) =>
-          item._id == product._id ? { ...product, qty: item.qty + 1 } : item
-        );
+        if (exist.qty < exist.availableQty) {
+          state.cartItems = state.cartItems.map((item) =>
+            item._id === product._id ? { ...item, qty: item.qty + 1 } : item
+          );
+        }
       } else {
-        state.cartItems = [...state.cartItems, { ...product, qty: 1 }];
+        if (product.availableQty > 0) {
+          state.cartItems.push({ ...product, qty: 1 });
+        }
       }
     },
     removeFromCart: (state: CartSliceState, action: PayloadAction<Product>) => {

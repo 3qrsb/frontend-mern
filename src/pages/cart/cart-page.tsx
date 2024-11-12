@@ -10,6 +10,7 @@ import {
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import DefaultLayout from "../../components/layouts/default-layout";
 import Message from "../../components/UI/message";
 import { useAppDispatch, useAppSelector } from "../../redux";
@@ -66,10 +67,21 @@ const CartPage = () => {
                       <Col>{formatCurrencry(item.price * item.qty)}</Col>
                       <Col>
                         <FaPlus
-                          onClick={() => dispatch(addToCart(item))}
+                          onClick={() => {
+                            if (item.qty < item.availableQty) {
+                              dispatch(addToCart(item));
+                            } else {
+                              toast.dismiss(); // I know the code is trash af
+                              toast.error(
+                                "Cannot add more items. Stock limit reached."
+                              );
+                            }
+                          }}
                           size={"1.5rem"}
                           style={{ backgroundColor: "#e03a3c" }}
-                          className="icons__cart  m-2 rounded-circle text-white p-1 cursor-pointer"
+                          className={`icons__cart m-2 rounded-circle text-white p-1 cursor-pointer ${
+                            item.qty >= item.availableQty ? "disabled" : ""
+                          }`}
                         />
                         <FaMinus
                           size={"1.5rem"}
