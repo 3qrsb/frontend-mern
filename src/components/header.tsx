@@ -1,15 +1,40 @@
-import { Navbar, Nav, NavDropdown } from "react-bootstrap";
+import React, { useState } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  Button,
+  IconButton,
+  Badge,
+  Menu,
+  MenuItem,
+  InputBase,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu";
+import SearchIcon from "@mui/icons-material/Search";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PersonIcon from "@mui/icons-material/Person";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { useAppDispatch, useAppSelector } from "../redux";
 import { reset } from "../redux/cart/cart-slice";
 import { userLogout } from "../redux/users/login-slice";
-import React from "react";
 
-const Header = () => {
+const Header: React.FC = () => {
   const { userInfo } = useAppSelector((state) => state.login);
   const { cartItems } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const onLogout = () => {
     dispatch(userLogout());
@@ -22,126 +47,253 @@ const Header = () => {
     0
   );
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSearchIconClick = () => {
+    setSearchOpen((prev) => !prev);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+    setSearchOpen(false);
+  };
+
   return (
-    <>
-      <Navbar
-        collapseOnSelect
-        expand="lg"
-        sticky="top"
-        bg="white"
-        className="shadow px-0 py-3"
-      >
-        <div className="container-xl">
-          {/* Logo */}
-          <Navbar.Brand as={NavLink} to="/">
-            <img
+    <AppBar position="sticky" color="inherit" elevation={3}>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Box display="flex" alignItems="center">
+          {isMobile && (
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={handleMenuOpen}
+              sx={{
+                "&:hover": { color: theme.palette.primary.main },
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+          <Box
+            component={Link}
+            to="/"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+            }}
+          >
+            <Box
+              component="img"
               src="/src/file.png"
-              className="avatar rounded me-lg-10"
-              alt="..."
+              alt="Logo"
+              sx={{ height: 40, mr: 2 }}
             />
-          </Navbar.Brand>
-          {/* Navbar toggle */}
-          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-          {/* Collapse */}
-          <Navbar.Collapse id="responsive-navbar-nav">
-            {/* Nav */}
-            <div className="navbar-nav me-lg-auto">
-              <Nav.Item
-                as={NavLink}
-                className=" nav-link active"
+          </Box>
+          {!isMobile && (
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                component={NavLink}
                 to="/"
-                aria-current="page"
+                color="inherit"
+                sx={{ "&:hover": { color: theme.palette.primary.main } }}
               >
-                <span>Home</span>
-              </Nav.Item>
-              <Nav.Item as={NavLink} className=" nav-link" to="/products">
-                <span>Products</span>
-              </Nav.Item>
-
-              <Nav.Item as={NavLink} className=" nav-link" to="/contact">
-                <span>Contact</span>
-              </Nav.Item>
-              <Nav.Item as={NavLink} className=" nav-link" to="/about">
-                <span>About Us</span>
-              </Nav.Item>
-            </div>
-            {/* Right navigation */}
-
-            <div className="d-flex align-items-center">
-              <div className="d-flex align-items-center">
-                <Link className="nav-link" to="/products">
-                  <i className="fa fa-fw fa-search text-dark me-2"></i>
-                </Link>
-                <Link
-                  className="nav-icon position-relative text-decoration-none"
-                  to="/cart"
-                >
-                  <i className="fa fa-fw fa-cart-arrow-down text-dark me-2"></i>
-                  {totalCartQuantity > 0 && (
-                    <span className="cart-badge">{totalCartQuantity}</span>
-                  )}
-                </Link>
-              </div>
-              {!userInfo ? (
-                <>
-                  <div className="d-flex align-items-lg-center mt-3 mt-lg-0">
-                    <Nav.Link
-                      as={NavLink}
-                      to="/login"
-                      className="btn btn-secondary btn-sm text-white me-3 ms-5 "
-                    >
-                      Login
-                    </Nav.Link>
-                  </div>
-
-                  <div className="d-flex align-items-lg-center mt-3 mt-lg-0">
-                    <Nav.Link
-                      as={NavLink}
-                      to="/register"
-                      style={{ backgroundColor: "#e03a3c" }}
-                      className="btn btn-sm text-white  ms-xs-3 "
-                    >
-                      Register
-                    </Nav.Link>
-                  </div>
-                </>
-              ) : (
-                <NavDropdown
-                  title={<i className="fa fa-fw fa-user text-dark mr-3"></i>}
-                  id="basic-nav-dropdown"
-                >
-                  {userInfo && (userInfo.isAdmin || userInfo.isSeller) && (
-                    <NavDropdown.Item
-                      as={NavLink}
-                      to={
-                        userInfo.isAdmin
-                          ? "/dashboard"
-                          : "/dashboard/product-list"
-                      }
-                    >
-                      Dashboard
-                    </NavDropdown.Item>
-                  )}
-                  <NavDropdown.Item
-                    as={NavLink}
-                    to={`/profile/${userInfo._id}`}
+                Home
+              </Button>
+              <Button
+                component={NavLink}
+                to="/products"
+                color="inherit"
+                sx={{ "&:hover": { color: theme.palette.primary.main } }}
+              >
+                Products
+              </Button>
+              <Button
+                component={NavLink}
+                to="/contact"
+                color="inherit"
+                sx={{ "&:hover": { color: theme.palette.primary.main } }}
+              >
+                Contact
+              </Button>
+              <Button
+                component={NavLink}
+                to="/about"
+                color="inherit"
+                sx={{ "&:hover": { color: theme.palette.primary.main } }}
+              >
+                About Us
+              </Button>
+            </Box>
+          )}
+        </Box>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Box
+            component="form"
+            onSubmit={handleSearchSubmit}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              border: searchOpen ? "1px solid #ccc" : "none",
+              borderRadius: 1,
+              transition: theme.transitions.create(["width", "border"]),
+              backgroundColor: searchOpen
+                ? theme.palette.background.paper
+                : "transparent",
+            }}
+          >
+            {searchOpen && (
+              <InputBase
+                placeholder="Search…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                sx={{
+                  ml: 1,
+                  flex: 1,
+                  backgroundColor: "white",
+                  borderRadius: 1,
+                  px: 1,
+                  width: { xs: "100px", sm: "200px" },
+                  border: "1px solid transparent",
+                  "&:focus": {
+                    borderColor: theme.palette.primary.main,
+                  },
+                }}
+              />
+            )}
+            <IconButton
+              onClick={handleSearchIconClick}
+              color="inherit"
+              sx={{
+                "&:hover": { color: theme.palette.primary.main },
+              }}
+            >
+              <SearchIcon />
+            </IconButton>
+          </Box>
+          <IconButton
+            component={Link}
+            to="/cart"
+            color="inherit"
+            sx={{ "&:hover": { color: theme.palette.primary.main } }}
+          >
+            <Badge badgeContent={totalCartQuantity} color="error">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+          {!userInfo ? (
+            <>
+              <Button
+                component={NavLink}
+                to="/login"
+                variant="outlined"
+                color="primary"
+                sx={{
+                  ml: 1,
+                  "&:hover": {
+                    backgroundColor: theme.palette.action.hover,
+                    borderColor: theme.palette.primary.main,
+                    color: theme.palette.primary.main,
+                  },
+                }}
+              >
+                Login
+              </Button>
+              <Button
+                component={NavLink}
+                to="/register"
+                variant="contained"
+                color="primary"
+                sx={{
+                  ml: 1,
+                  "&:hover": {
+                    backgroundColor: theme.palette.primary.dark,
+                  },
+                }}
+              >
+                Register
+              </Button>
+            </>
+          ) : (
+            <>
+              <IconButton
+                color="inherit"
+                onClick={handleMenuOpen}
+                sx={{ "&:hover": { color: theme.palette.primary.main } }}
+              >
+                <AccountCircleIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                sx={{
+                  "& .MuiMenuItem-root": {
+                    "&:hover": { backgroundColor: theme.palette.action.hover },
+                  },
+                }}
+              >
+                {(userInfo.isAdmin || userInfo.isSeller) && (
+                  <MenuItem
+                    component={NavLink}
+                    to={
+                      userInfo.isAdmin
+                        ? "/dashboard"
+                        : "/dashboard/product-list"
+                    }
+                    onClick={handleMenuClose}
                   >
-                    Profile
-                  </NavDropdown.Item>
-                  <NavDropdown.Item as={NavLink} to={`/wishlist/`}>
-                    Wishlist
-                  </NavDropdown.Item>
-                  <NavDropdown.Divider
-                    style={{ backgroundColor: "#ddd", height: "1px" }}
-                  />
-                  <NavDropdown.Item onClick={onLogout}>Logout</NavDropdown.Item>
-                </NavDropdown>
-              )}
-            </div>
-          </Navbar.Collapse>
-        </div>
-      </Navbar>
-    </>
+                    <DashboardIcon sx={{ mr: 1 }} />
+                    Dashboard
+                  </MenuItem>
+                )}
+                <MenuItem
+                  component={NavLink}
+                  to={`/profile/${userInfo._id}`}
+                  onClick={handleMenuClose}
+                >
+                  <PersonIcon sx={{ mr: 1 }} />
+                  Profile
+                </MenuItem>
+                <MenuItem
+                  component={NavLink}
+                  to="/wishlist"
+                  onClick={handleMenuClose}
+                >
+                  <FavoriteIcon sx={{ mr: 1 }} />
+                  Wishlist
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    onLogout();
+                  }}
+                >
+                  <LogoutIcon sx={{ mr: 1 }} />
+                  Logout
+                </MenuItem>
+              </Menu>
+            </>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 
