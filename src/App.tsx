@@ -12,7 +12,7 @@ import UserTable from "./pages/dashboard/users/users-table";
 import Register from "./pages/users/register";
 import Profile from "./pages/users/profile";
 import Contact from "./pages/contact/contact";
-import About from "./pages/about/about";
+import About from "./pages/about";
 import OrdersTable from "./pages/dashboard/orders/order-table";
 import OrderDetails from "./pages/cart/order-details";
 import Products from "./pages/products";
