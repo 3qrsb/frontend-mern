@@ -17,32 +17,13 @@ a {
   text-decoration: none;
   color: inherit;
 }
-.rating span {
-  margin: 0 2px;
-}
 
 #main {
   min-height: 80vh;
 }
 
-.form-label {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
 .carsouel__item .lazy-carousel {
   height: 41rem;
-}
-
-.nav-link span {
-  font-size: 1.1rem;
-  transition: all 0.2s ease;
-}
-
-.nav-link span:hover {
-  font-weight: bold;
-  color: #e03a3c !important;
 }
 
 @media (max-height: 760px) {
@@ -59,31 +40,4 @@ section {
 
 .stripe__container button {
   width: 100%;
-}
-
-/* Brand */
-.brand-img {
-  filter: grayscale(100%);
-  opacity: 0.5;
-  transition: 0.5s;
-  height: 70px;
-  width: 120px;
-}
-
-@media (max-height: 760px) {
-  .brand-img {
-    height: 40px;
-    width: 80px;
-  }
-}
-
-.brand-img:hover {
-  filter: grayscale(0%);
-  opacity: 1;
-}
-
-/* Carousel Brand */
-.tempaltemo-carousel .h1 {
-  font-size: 0.5em !important;
-  color: #000 !important;
 }
