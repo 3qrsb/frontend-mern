@@ -64,8 +64,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Card
       sx={{
-        width: { xs: "100%", sm: 300 },
-        m: 2,
+        width: { xs: "100%", sm: "100%" },
         position: "relative",
         display: "flex",
         flexDirection: "column",

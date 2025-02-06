@@ -1,18 +1,17 @@
-import { useEffect, useState } from "react";
-import { Col, Container, Row, Button } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Container, Typography, Button, Box, Divider } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import DefaultLayout from "../components/layouts/default-layout";
 import ProductCard from "../components/product-card";
 import Loader from "../components/UI/loader";
 import { useAppDispatch, useAppSelector } from "../redux";
 import { getProducts } from "../redux/products/slice-list";
-import { trackWindowScroll } from "react-lazy-load-image-component";
-import React from "react";
 
 const HomePage = () => {
   const dispatch = useAppDispatch();
   const { products, loading } = useAppSelector((state) => state.productList);
   const { categories } = useAppSelector((state) => state.productFilter);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     dispatch(getProducts());
@@ -24,55 +23,62 @@ const HomePage = () => {
 
   return (
     <DefaultLayout>
-      <Container>
-        <Row className="mt-3 mb-4 justify-content-center">
-          <Col xs={12} className="text-center">
-            <h2 className="mb-2 mt-2">Latest Products</h2>
-            <hr className="w-50 mx-auto" />
-          </Col>
-        </Row>
-        <Row className="mb-3">
-          <Col>
+      <Container sx={{ py: 4 }}>
+        <Box sx={{ textAlign: "center", mb: 4 }}>
+          <Typography variant="h3" component="h1" gutterBottom>
+            Latest Products
+          </Typography>
+          <Divider sx={{ width: "50%", mx: "auto", mb: 2 }} />
+          <Typography variant="subtitle1" color="text.secondary">
+            Discover the newest additions to our collection.
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            flexWrap: "wrap",
+            gap: 1,
+            mb: 4,
+          }}
+        >
+          <Button
+            variant={selectedCategory === "" ? "contained" : "outlined"}
+            onClick={() => handleCategoryFilter("")}
+          >
+            All
+          </Button>
+          {categories.map((category) => (
             <Button
-              variant="outline-primary"
-              className="me-2"
-              onClick={() => handleCategoryFilter("")}
-              active={!selectedCategory}
+              key={category}
+              variant={selectedCategory === category ? "contained" : "outlined"}
+              onClick={() => handleCategoryFilter(category)}
             >
-              All
+              {category}
             </Button>
-            {categories.map((category: string) => (
-              <Button
-                key={category}
-                variant="outline-primary"
-                className="me-2"
-                onClick={() => handleCategoryFilter(category)}
-                active={selectedCategory === category}
-              >
-                {category}
-              </Button>
-            ))}
-          </Col>
-        </Row>
+          ))}
+        </Box>
+
         {loading || !products ? (
           <Loader />
         ) : (
-          <Row md={3} xs={1} lg={4} style={{marginBottom: "10px"}}>
+          <Grid container spacing={3}>
             {products
               .filter(
                 (product) =>
                   !selectedCategory || product.category === selectedCategory
               )
               .map((product) => (
-                <Col key={product._id}>
+                <Grid key={product._id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                   <ProductCard product={product} />
-                </Col>
+                </Grid>
               ))}
-          </Row>
+          </Grid>
         )}
       </Container>
     </DefaultLayout>
   );
 };
 
-export default trackWindowScroll(HomePage);
+export default HomePage;
