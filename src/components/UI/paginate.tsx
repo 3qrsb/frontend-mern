@@ -7,7 +7,7 @@ type Props = {
   page: number;
   isAdmin?: boolean;
   keyword: string;
-  urlPrefix: string; // Add this new prop
+  urlPrefix: string;
 };
 
 const Paginate = ({
@@ -29,7 +29,7 @@ const Paginate = ({
                   ? keyword
                     ? `/search/${keyword}/page/${x + 1}`
                     : `/page/${x + 1}`
-                  : `${urlPrefix}/${x + 1}` // Use the urlPrefix prop here
+                  : `${urlPrefix}/${x + 1}`
               }
             >
               <Pagination.Item active={x + 1 === page}>{x + 1}</Pagination.Item>

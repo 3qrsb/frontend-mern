@@ -21,9 +21,9 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonIcon from "@mui/icons-material/Person";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useAppDispatch, useAppSelector } from "../redux";
-import { reset } from "../redux/cart/cart-slice";
-import { userLogout } from "../redux/users/login-slice";
+import { useAppDispatch, useAppSelector } from "../../redux";
+import { reset } from "../../redux/cart/cart-slice";
+import { userLogout } from "../../redux/users/login-slice";
 
 const Header: React.FC = () => {
   const { userInfo } = useAppSelector((state) => state.login);

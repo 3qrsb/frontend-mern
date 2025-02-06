@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-import "ldrs/metronome"; // Import the metronome loader
+import "ldrs/metronome";
 
 const Loader = () => {
   return (

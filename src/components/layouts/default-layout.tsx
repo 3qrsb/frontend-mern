@@ -1,12 +1,10 @@
-import { Fragment, ReactNode } from "react";
+import React, { Fragment, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import Brands from "../brands/brands";
 import Carousels from "../carousels";
-import DownFooter from "../footer/down-footer";
-import Footer from "../footer/footer";
-import Header from "../header";
+import Footer from "./Footer";
 import Meta from "../UI/meta";
-import React from "react";
+import Header from "./Header";
 
 type LayoutProvider = {
   children: ReactNode;
@@ -30,10 +28,9 @@ const DefaultLayout = ({
         {children}
       </main>
       {isHome && <Brands />}
-      <div id="footer">
-        {isHome && <DownFooter />}
+      <footer>
         <Footer />
-      </div>
+      </footer>
     </Fragment>
   );
 };
