@@ -1,6 +1,6 @@
 import React from "react";
-import DefaultLayout from "../../components/layouts/default-layout";
-import ProductCard from "../../components/product-card";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
+import ProductCard from "../../components/product/ProductCard";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { useWishlist } from "../../context/WishlistContext";
 import { Link } from "react-router-dom";

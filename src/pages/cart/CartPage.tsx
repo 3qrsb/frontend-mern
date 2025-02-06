@@ -11,8 +11,7 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import DefaultLayout from "../../components/layouts/default-layout";
-import Message from "../../components/UI/message";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { addToCart, removeFromCart } from "../../redux/cart/cart-slice";
 import { formatCurrencry } from "../../utils/helper";
@@ -71,7 +70,7 @@ const CartPage = () => {
                             if (item.qty < item.availableQty) {
                               dispatch(addToCart(item));
                             } else {
-                              toast.dismiss(); // I know the code is trash af
+                              toast.dismiss();
                               toast.error(
                                 "Cannot add more items. Stock limit reached."
                               );

@@ -1,7 +1,7 @@
 import { Card, Col, Container, Image, ListGroup, Row } from "react-bootstrap";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import DefaultLayout from "../../components/layouts/default-layout";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import RedButton from "../../components/UI/red-button";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { reset } from "../../redux/cart/cart-slice";
@@ -11,7 +11,7 @@ import { formatCurrencry } from "../../utils/helper";
 import ImageLazy from "../../components/UI/lazy-image";
 import React from "react";
 
-const PlaceOrder = () => {
+const PlaceOrderPage = () => {
   const { shippingAddress, cartItems } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
 
@@ -136,4 +136,4 @@ const PlaceOrder = () => {
   );
 };
 
-export default PlaceOrder;
+export default PlaceOrderPage;

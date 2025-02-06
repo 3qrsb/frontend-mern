@@ -5,8 +5,8 @@ import { getOrdersList } from "../../redux/orders/slice-list";
 import { getNewCustomersThisMonth } from "../../redux/users/user-list";
 import { formatCurrencry, getDate } from "../../utils/helper";
 import React from "react";
-import SalesTrends from "./salesTrends";
-import TopSellingProducts from "./TopSellingProducts";
+import SalesTrends from "../../components/admin-dashboard/SalesTrends";
+import TopSellingProducts from "../../components/admin-dashboard/TopSellingProducts";
 import {
   TrendingUp as TrendingUpIcon,
   Receipt as ReceiptIcon,

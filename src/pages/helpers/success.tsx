@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import DefaultLayout from "../../components/layouts/default-layout";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 
 const Success = () => {
   const navigate = useNavigate();

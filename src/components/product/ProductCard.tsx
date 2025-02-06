@@ -10,13 +10,13 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
-import { useWishlist } from "../context/WishlistContext";
-import { useAppSelector, useAppDispatch } from "../redux";
-import { formatCurrencry } from "../utils/helper";
-import { addToCart, removeFromCart } from "../redux/cart/cart-slice";
-import { Product } from "../types/product";
-import { useAverageRating } from "../hooks/useAverageRating";
-import ProductActionsOverlay from "../components/ProductActionsOverlay";
+import { useWishlist } from "../../context/WishlistContext";
+import { useAppSelector, useAppDispatch } from "../../redux";
+import { formatCurrencry } from "../../utils/helper";
+import { addToCart, removeFromCart } from "../../redux/cart/cart-slice";
+import { Product } from "../../types/product";
+import { useAverageRating } from "../../hooks/useAverageRating";
+import ProductActionsOverlay from "./ProductActionsOverlay";
 
 type ProductCardProps = {
   product: Product;

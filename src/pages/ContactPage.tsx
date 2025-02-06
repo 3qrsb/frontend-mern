@@ -19,7 +19,7 @@ import { styled } from "@mui/material/styles";
 import MapIcon from "@mui/icons-material/Map";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
-import DefaultLayout from "../components/layouts/default-layout";
+import DefaultLayout from "../components/layouts/default/DefaultLayout";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -28,7 +28,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-const Contact = () => {
+const ContactPage = () => {
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -200,4 +200,4 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+export default ContactPage;

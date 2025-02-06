@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { Typography, Box, Button } from "@mui/material";
-import DefaultLayout from "../../components/layouts/default-layout";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 
 const EmailVerificationPage = () => {
   const [message, setMessage] = useState("");

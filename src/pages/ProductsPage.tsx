@@ -11,8 +11,8 @@ import {
   Button,
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import DefaultLayout from "../components/layouts/default-layout";
-import ProductCard from "../components/product-card";
+import DefaultLayout from "../components/layouts/default/DefaultLayout";
+import ProductCard from "../components/product/ProductCard";
 import Paginate from "../components/UI/paginate";
 import { useAppDispatch, useAppSelector } from "../redux";
 import { getFilterProducts } from "../redux/products/search-list";
@@ -28,7 +28,7 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 
-const Products = () => {
+const ProductsPage = () => {
   const params = useParams();
   const { products, categories, brands, page, pages } = useAppSelector(
     (state) => state.productFilter
@@ -236,4 +236,4 @@ const Products = () => {
   );
 };
 
-export default trackWindowScroll(Products);
+export default trackWindowScroll(ProductsPage);

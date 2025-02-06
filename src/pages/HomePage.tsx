@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Button, Box, Divider } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import DefaultLayout from "../components/layouts/default-layout";
-import ProductCard from "../components/product-card";
+import DefaultLayout from "../components/layouts/default/DefaultLayout";
+import ProductCard from "../components/product/ProductCard";
 import Loader from "../components/UI/loader";
 import { useAppDispatch, useAppSelector } from "../redux";
 import { getProducts } from "../redux/products/slice-list";

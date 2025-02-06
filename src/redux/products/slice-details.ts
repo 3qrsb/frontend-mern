@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Product } from '../../components/product-card';
-import publicAxios from '../../utils/public-axios';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { Product } from "../../components/product/ProductCard";
+import publicAxios from "../../utils/public-axios";
 
 export interface ProductSliceState {
   product: Product | null;
@@ -15,7 +15,7 @@ const initialState: ProductSliceState = {
 };
 
 export const getProductById = createAsyncThunk(
-  'products/details',
+  "products/details",
   async (id: string | undefined) => {
     try {
       const res = await publicAxios.get(`/products/${id}`);
@@ -27,7 +27,7 @@ export const getProductById = createAsyncThunk(
 );
 
 export const productDetailsSlice = createSlice({
-  name: 'product-detail',
+  name: "product-detail",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

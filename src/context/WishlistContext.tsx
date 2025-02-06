@@ -5,7 +5,7 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import { Product } from "../components/product-card";
+import { Product } from "../components/product/ProductCard";
 
 interface WishlistContextType {
   wishlist: Product[];

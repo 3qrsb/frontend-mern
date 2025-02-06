@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import toast from 'react-hot-toast';
-import { Product } from '../../components/product-card';
-import { setError } from '../../utils/error';
-import publicAxios from '../../utils/public-axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import toast from "react-hot-toast";
+import { Product } from "../../components/product/ProductCard";
+import { setError } from "../../utils/error";
+import publicAxios from "../../utils/public-axios";
 
 export interface ProductSliceState {
   products: Product[];
@@ -29,7 +29,7 @@ const initialState: ProductSliceState = {
 };
 
 export const getFilterProducts = createAsyncThunk(
-  'products/filter',
+  "products/filter",
   async (u: any) => {
     try {
       const { data } = await publicAxios.get(
@@ -44,7 +44,7 @@ export const getFilterProducts = createAsyncThunk(
 );
 
 export const productFilterSlice = createSlice({
-  name: 'products-filter',
+  name: "products-filter",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

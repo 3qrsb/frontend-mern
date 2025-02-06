@@ -31,8 +31,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { useNavigate, useParams } from "react-router-dom";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
-import DefaultLayout from "../components/layouts/default-layout";
-import { Product } from "../components/product-card";
+import DefaultLayout from "../components/layouts/default/DefaultLayout";
 import Loader from "../components/UI/loader";
 import Message from "../components/UI/message";
 import { useAppDispatch, useAppSelector } from "../redux";
@@ -52,6 +51,7 @@ import ReviewIcon from "@mui/icons-material/RateReview";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useWishlist } from "../context/WishlistContext";
 import { deepOrange } from "@mui/material/colors";
+import { Product } from "../types/product";
 
 const TabPanel = (props: any) => {
   const { children, value, index, ...other } = props;
@@ -69,7 +69,7 @@ const TabPanel = (props: any) => {
   );
 };
 
-const ProductDetails = () => {
+const ProductDetailsPage = () => {
   const dispatch = useAppDispatch();
   const { product, loading } = useAppSelector((state) => state.productDetail);
   const { userInfo } = useAppSelector((state) => state.login);
@@ -767,4 +767,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails;
+export default ProductDetailsPage;

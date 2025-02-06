@@ -2,7 +2,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
 import { Card, Col, Container, ListGroup, Row, Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import DefaultLayout from "../../components/layouts/default-layout";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import Loader from "../../components/UI/loader";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrderById } from "../../redux/orders/order-details";
@@ -14,7 +14,7 @@ import React from "react";
 
 const stripePromise = loadStripe(import.meta.env.VITE_API_STRIPE);
 
-const OrderDetails = () => {
+const OrderDetailsPage = () => {
   const { order, loading } = useAppSelector((state) => state.orderDetail);
   const dispatch = useAppDispatch();
   const { id } = useParams();
@@ -84,7 +84,6 @@ const OrderDetails = () => {
   return (
     <DefaultLayout title="Order Details">
       <Container className="py-3">
-
         {loading ? (
           <Loader />
         ) : (
@@ -182,4 +181,4 @@ const OrderDetails = () => {
   );
 };
 
-export default OrderDetails;
+export default OrderDetailsPage;

@@ -1,26 +1,26 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import CartPage from "./pages/cart/cart-page";
-import ShippingAddress from "./pages/cart/shipping-address";
-import HomePage from "./pages/home";
-import ProductDetails from "./pages/product-details";
+import CartPage from "./pages/cart/CartPage";
+import ShippingAddress from "./pages/cart/ShippingAddress";
+import HomePage from "./pages/HomePage";
+import ProductDetails from "./pages/ProductDetailsPage";
 import Login from "./pages/users/login";
 import { Toaster } from "react-hot-toast";
-import DashboardPage from "./pages/dashboard/dashboard-page";
+import DashboardPage from "./pages/dashboard/DashboardPage";
 import ProductTable from "./pages/dashboard/products/product-table";
 import UserTable from "./pages/dashboard/users/users-table";
 import Register from "./pages/users/register";
 import Profile from "./pages/users/profile";
 import OrdersTable from "./pages/dashboard/orders/order-table";
-import OrderDetails from "./pages/cart/order-details";
-import Products from "./pages/products";
+import OrderDetails from "./pages/cart/OrderDetailsPage";
+import Products from "./pages/ProductsPage";
 import AuthProvider from "./utils/auth-provider";
 import { lazy, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import Loader from "./components/UI/loader";
 import ErrorFallback from "./components/UI/error-fallback";
 import "react-lazy-load-image-component/src/effects/blur.css";
-import PlaceOrder from "./pages/cart/place-order";
+import PlaceOrder from "./pages/cart/PlaceOrderPage";
 import Cancel from "./pages/helpers/cancel";
 import Success from "./pages/helpers/success";
 import Wishlist from "./pages/users/wishlist";
@@ -28,11 +28,11 @@ import { WishlistProvider } from "./context/WishlistContext";
 import EmailVerificationPage from "./pages/helpers/EmailVerificationPage";
 import ResetPassword from "./pages/helpers/resetPassword";
 import ForgotPassword from "./pages/helpers/forgotPassword";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
+import Contact from "./pages/ContactPage";
+import About from "./pages/AboutPage";
 
 const DashboardLayout = lazy(
-  () => import("./components/layouts/dashboard-layout")
+  () => import("./components/layouts/admin-dashboard/DashboardLayout")
 );
 
 const App = () => {

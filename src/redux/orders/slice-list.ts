@@ -4,11 +4,11 @@ import {
   PayloadAction,
   CaseReducer,
   createEntityAdapter,
-} from '@reduxjs/toolkit';
-import toast from 'react-hot-toast';
-import { Product } from '../../components/product-card';
-import authAxios from '../../utils/auth-axios';
-import { setError } from '../../utils/error';
+} from "@reduxjs/toolkit";
+import toast from "react-hot-toast";
+import { Product } from "../../components/product/ProductCard";
+import authAxios from "../../utils/auth-axios";
+import { setError } from "../../utils/error";
 
 type Ordertypes = {
   _id: string;
@@ -40,9 +40,9 @@ const initialState: OrderSliceState = {
   totalPrice: 0,
 };
 
-export const getOrdersList = createAsyncThunk('orders/list', async () => {
+export const getOrdersList = createAsyncThunk("orders/list", async () => {
   try {
-    const { data: orders } = await authAxios.get('/orders');
+    const { data: orders } = await authAxios.get("/orders");
 
     const userPromises = orders.map(async (order: any) => {
       try {
@@ -74,7 +74,7 @@ export const getOrdersList = createAsyncThunk('orders/list', async () => {
 });
 
 export const orderListSlice = createSlice({
-  name: 'orders-list',
+  name: "orders-list",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -88,7 +88,7 @@ export const orderListSlice = createSlice({
     builder.addCase(getOrdersList.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error.message; // Capture the error message
-      console.error('Error fetching orders:', action.error.message); // Log the error
+      console.error("Error fetching orders:", action.error.message); // Log the error
     });
   },
 });

@@ -1,11 +1,11 @@
 import { Fragment, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { Outlet, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../redux";
-import Sidebar from "../dashboard/sidebar";
-import Topbar from "../dashboard/topbar";
+import { useAppSelector } from "../../../redux";
+import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
 import React from "react";
-import { UserSliceState } from "../../redux/users/login-slice";
+import { UserSliceState } from "../../../redux/users/login-slice";
 
 const DashboardLayout = () => {
   const { userInfo } = useAppSelector<UserSliceState>((state) => state.login);

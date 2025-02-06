@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { Container, Card, CardContent, Typography, Grid } from "@mui/material";
-import DefaultLayout from "../layouts/default-layout";
+import DefaultLayout from "../layouts/default/DefaultLayout";
 
 type FormTypes = {
   children: ReactNode;

@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { saveAddress } from "../../redux/cart/cart-slice";
-import { AddressTypes } from "../../utils/interfaces";
 import { Country, City } from "country-state-city";
 import FormContainer from "../../components/UI/form-container";
+import { AddressTypes } from "../../types/user";
 
-const ShippingAddress = () => {
+const ShippingAddressPage = () => {
   const { shippingAddress } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -146,4 +146,4 @@ const ShippingAddress = () => {
   );
 };
 
-export default ShippingAddress;
+export default ShippingAddressPage;

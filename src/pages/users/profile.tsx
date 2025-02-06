@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Link, useParams } from "react-router-dom";
-import DefaultLayout from "../../components/layouts/default-layout";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import Loader from "../../components/UI/loader";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getUserBydId } from "../../redux/users/user-details";

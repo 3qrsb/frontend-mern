@@ -16,7 +16,7 @@ import * as Yup from "yup";
 import publicAxios from "../../utils/public-axios";
 import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
-import DefaultLayout from "../../components/layouts/default-layout";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import { useAppDispatch } from "../../redux"; // Import your redux hook for dispatch
 
 type FormValues = {

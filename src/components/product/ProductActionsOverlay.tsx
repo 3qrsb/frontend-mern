@@ -1,10 +1,6 @@
 import React from "react";
 import { Box, IconButton } from "@mui/material";
-import {
-  FaHeart,
-  FaCartPlus,
-  FaCartArrowDown,
-} from "react-icons/fa";
+import { FaHeart, FaCartPlus, FaCartArrowDown } from "react-icons/fa";
 
 type ProductActionsOverlayProps = {
   isLiked: boolean;
@@ -46,7 +42,11 @@ const ProductActionsOverlay: React.FC<ProductActionsOverlayProps> = ({
           aria-label="add to wishlist"
           sx={{ color: "white", mx: 1, pointerEvents: "auto" }}
         >
-          {isLiked ? <FaHeart size={24} /> : <FaHeart color="crimson" size={24} />}
+          {isLiked ? (
+            <FaHeart size={24} color="crimson" />
+          ) : (
+            <FaHeart size={24} />
+          )}
         </IconButton>
       )}
       <IconButton

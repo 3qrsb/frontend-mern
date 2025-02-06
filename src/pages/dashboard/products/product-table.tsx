@@ -20,9 +20,9 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import Loader from "../../../components/UI/loader";
 import Paginate from "../../../components/UI/paginate";
 import toast from "react-hot-toast";
-import ProductModal from "../../../components/modals/product-modal";
+import ProductModal from "../../../components/product/ProductModal";
 import { ReviewTypes } from "../../../utils/interfaces";
-import ProductUpdate from "./product-update";
+import ProductUpdate from "../../../components/product/ProductUpdate";
 
 const ProductTable = () => {
   const dispatch = useAppDispatch();

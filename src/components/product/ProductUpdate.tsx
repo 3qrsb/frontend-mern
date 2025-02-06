@@ -15,10 +15,10 @@ import {
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import authAxios from "../../../utils/auth-axios";
+import authAxios from "../../utils/auth-axios";
 import toast from "react-hot-toast";
-import Loader from "../../../components/UI/loader";
-import { setError } from "../../../utils/error";
+import Loader from "../UI/loader";
+import { setError } from "../../utils/error";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 

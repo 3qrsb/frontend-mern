@@ -1,10 +1,10 @@
 import React, { Fragment, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
-import Brands from "../BrandsMarquee";
-import Carousels from "../carousels";
+import Brands from "../../BrandsMarquee";
 import Footer from "./Footer";
-import Meta from "../UI/meta";
+import Meta from "../../UI/meta";
 import Header from "./Header";
+import Carousels from "../../Carousels";
 
 type LayoutProvider = {
   children: ReactNode;

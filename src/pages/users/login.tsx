@@ -14,7 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { userLogin } from "../../redux/users/login-slice";
-import DefaultLayout from "../../components/layouts/default-layout";
+import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 
 type FormValues = {
   email: string;

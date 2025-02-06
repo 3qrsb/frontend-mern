@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import toast from 'react-hot-toast';
-import { Product } from '../../components/product-card';
-import authAxios from '../../utils/auth-axios';
-import { setError } from '../../utils/error';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import toast from "react-hot-toast";
+import { Product } from "../../components/product/ProductCard";
+import authAxios from "../../utils/auth-axios";
+import { setError } from "../../utils/error";
 
 type Ordertypes = {
   _id: string;
@@ -32,9 +32,9 @@ const initialState: OrderSliceState = {
   error: null,
 };
 
-export const getUserOrder = createAsyncThunk('users/orders', async () => {
+export const getUserOrder = createAsyncThunk("users/orders", async () => {
   try {
-    const { data } = await authAxios.get('/orders/orders-user');
+    const { data } = await authAxios.get("/orders/orders-user");
     return data;
   } catch (error: any) {
     const message = setError(error);
@@ -43,7 +43,7 @@ export const getUserOrder = createAsyncThunk('users/orders', async () => {
 });
 
 export const userOrderSlice = createSlice({
-  name: 'user-orders',
+  name: "user-orders",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

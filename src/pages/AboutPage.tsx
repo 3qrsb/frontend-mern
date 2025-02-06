@@ -10,7 +10,7 @@ import {
   Fade,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import DefaultLayout from "../components/layouts/default-layout";
+import DefaultLayout from "../components/layouts/default/DefaultLayout";
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -37,7 +37,7 @@ const teamMembers = [
   },
 ];
 
-const About = () => {
+const AboutPage = () => {
   return (
     <DefaultLayout title="About Us">
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -129,4 +129,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default AboutPage;
