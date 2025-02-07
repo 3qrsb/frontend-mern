@@ -67,20 +67,8 @@ const Header: React.FC = () => {
 
   return (
     <AppBar position="sticky" color="inherit" elevation={3}>
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar sx={{ justifyContent: "space-between", px: theme.spacing(2) }}>
         <Box display="flex" alignItems="center">
-          {isMobile && (
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleMenuOpen}
-              sx={{
-                "&:hover": { color: theme.palette.primary.main },
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
           <Box
             component={Link}
             to="/"
@@ -94,55 +82,49 @@ const Header: React.FC = () => {
               component="img"
               src="/src/file.png"
               alt="Logo"
-              sx={{ height: 40, mr: 2 }}
+              sx={{ height: 40, mr: theme.spacing(2) }}
             />
           </Box>
           {!isMobile && (
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Button
-                component={NavLink}
-                to="/"
-                color="inherit"
-                sx={{ "&:hover": { color: theme.palette.primary.main } }}
-              >
-                Home
-              </Button>
-              <Button
-                component={NavLink}
-                to="/products"
-                color="inherit"
-                sx={{ "&:hover": { color: theme.palette.primary.main } }}
-              >
-                Products
-              </Button>
-              <Button
-                component={NavLink}
-                to="/contact"
-                color="inherit"
-                sx={{ "&:hover": { color: theme.palette.primary.main } }}
-              >
-                Contact
-              </Button>
-              <Button
-                component={NavLink}
-                to="/about"
-                color="inherit"
-                sx={{ "&:hover": { color: theme.palette.primary.main } }}
-              >
-                About Us
-              </Button>
+            <Box sx={{ display: "flex", gap: theme.spacing(2) }}>
+              {["/", "/products", "/contact", "/about"].map((path) => {
+                const label =
+                  path === "/"
+                    ? "Home"
+                    : path
+                        .replace("/", "")
+                        .replace(/^\w/, (c) => c.toUpperCase());
+                return (
+                  <Button
+                    key={path}
+                    component={NavLink}
+                    to={path}
+                    color="inherit"
+                    sx={{
+                      transition: theme.transitions.create("color"),
+                      "&:hover": { color: theme.palette.primary.light },
+                      "&.active": { color: theme.palette.primary.dark },
+                    }}
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
             </Box>
           )}
         </Box>
-        <Box display="flex" alignItems="center" gap={1}>
+
+        <Box display="flex" alignItems="center" gap={theme.spacing(1)}>
           <Box
             component="form"
             onSubmit={handleSearchSubmit}
             sx={{
               display: "flex",
               alignItems: "center",
-              border: searchOpen ? "1px solid #ccc" : "none",
-              borderRadius: 1,
+              border: searchOpen
+                ? `1px solid ${theme.palette.divider}`
+                : "none",
+              borderRadius: theme.shape.borderRadius,
               transition: theme.transitions.create(["width", "border"]),
               backgroundColor: searchOpen
                 ? theme.palette.background.paper
@@ -156,11 +138,11 @@ const Header: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
                 sx={{
-                  ml: 1,
+                  ml: theme.spacing(1),
                   flex: 1,
-                  backgroundColor: "white",
-                  borderRadius: 1,
-                  px: 1,
+                  backgroundColor: theme.palette.common.white,
+                  borderRadius: theme.shape.borderRadius,
+                  px: theme.spacing(1),
                   width: { xs: "100px", sm: "200px" },
                   border: "1px solid transparent",
                   "&:focus": {
@@ -173,7 +155,9 @@ const Header: React.FC = () => {
               onClick={handleSearchIconClick}
               color="inherit"
               sx={{
-                "&:hover": { color: theme.palette.primary.main },
+                transition: theme.transitions.create("color"),
+                "&:hover": { color: theme.palette.primary.light },
+                "&:active": { color: theme.palette.primary.dark },
               }}
             >
               <SearchIcon />
@@ -183,7 +167,11 @@ const Header: React.FC = () => {
             component={Link}
             to="/cart"
             color="inherit"
-            sx={{ "&:hover": { color: theme.palette.primary.main } }}
+            sx={{
+              transition: theme.transitions.create("color"),
+              "&:hover": { color: theme.palette.primary.light },
+              "&:active": { color: theme.palette.primary.dark },
+            }}
           >
             <Badge badgeContent={totalCartQuantity} color="error">
               <ShoppingCartIcon />
@@ -197,11 +185,19 @@ const Header: React.FC = () => {
                 variant="outlined"
                 color="primary"
                 sx={{
-                  ml: 1,
+                  ml: theme.spacing(1),
+                  transition: theme.transitions.create([
+                    "backgroundColor",
+                    "color",
+                    "borderColor",
+                  ]),
                   "&:hover": {
                     backgroundColor: theme.palette.action.hover,
                     borderColor: theme.palette.primary.main,
                     color: theme.palette.primary.main,
+                  },
+                  "&.active": {
+                    color: theme.palette.primary.dark,
                   },
                 }}
               >
@@ -213,8 +209,12 @@ const Header: React.FC = () => {
                 variant="contained"
                 color="primary"
                 sx={{
-                  ml: 1,
+                  ml: theme.spacing(1),
+                  transition: theme.transitions.create("backgroundColor"),
                   "&:hover": {
+                    backgroundColor: theme.palette.primary.dark,
+                  },
+                  "&.active": {
                     backgroundColor: theme.palette.primary.dark,
                   },
                 }}
@@ -227,7 +227,11 @@ const Header: React.FC = () => {
               <IconButton
                 color="inherit"
                 onClick={handleMenuOpen}
-                sx={{ "&:hover": { color: theme.palette.primary.main } }}
+                sx={{
+                  transition: theme.transitions.create("color"),
+                  "&:hover": { color: theme.palette.primary.light },
+                  "&:active": { color: theme.palette.primary.dark },
+                }}
               >
                 <AccountCircleIcon />
               </IconButton>
@@ -235,17 +239,16 @@ const Header: React.FC = () => {
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
                 sx={{
                   "& .MuiMenuItem-root": {
+                    transition: theme.transitions.create("backgroundColor"),
                     "&:hover": { backgroundColor: theme.palette.action.hover },
+                    "&.active": {
+                      backgroundColor: theme.palette.action.hover,
+                      color: theme.palette.primary.dark,
+                    },
                   },
                 }}
               >
@@ -258,8 +261,14 @@ const Header: React.FC = () => {
                         : "/dashboard/product-list"
                     }
                     onClick={handleMenuClose}
+                    sx={{
+                      "&.active": {
+                        backgroundColor: theme.palette.action.hover,
+                        color: theme.palette.primary.dark,
+                      },
+                    }}
                   >
-                    <DashboardIcon sx={{ mr: 1 }} />
+                    <DashboardIcon sx={{ mr: theme.spacing(1) }} />
                     Dashboard
                   </MenuItem>
                 )}
@@ -267,16 +276,28 @@ const Header: React.FC = () => {
                   component={NavLink}
                   to={`/profile/${userInfo._id}`}
                   onClick={handleMenuClose}
+                  sx={{
+                    "&.active": {
+                      backgroundColor: theme.palette.action.hover,
+                      color: theme.palette.primary.dark,
+                    },
+                  }}
                 >
-                  <PersonIcon sx={{ mr: 1 }} />
+                  <PersonIcon sx={{ mr: theme.spacing(1) }} />
                   Profile
                 </MenuItem>
                 <MenuItem
                   component={NavLink}
                   to="/wishlist"
                   onClick={handleMenuClose}
+                  sx={{
+                    "&.active": {
+                      backgroundColor: theme.palette.action.hover,
+                      color: theme.palette.primary.dark,
+                    },
+                  }}
                 >
-                  <FavoriteIcon sx={{ mr: 1 }} />
+                  <FavoriteIcon sx={{ mr: theme.spacing(1) }} />
                   Wishlist
                 </MenuItem>
                 <MenuItem
@@ -285,7 +306,7 @@ const Header: React.FC = () => {
                     onLogout();
                   }}
                 >
-                  <LogoutIcon sx={{ mr: 1 }} />
+                  <LogoutIcon sx={{ mr: theme.spacing(1) }} />
                   Logout
                 </MenuItem>
               </Menu>
