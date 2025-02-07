@@ -1,37 +1,39 @@
-import React, { Fragment, ReactNode } from "react";
+import React, { ReactNode } from "react";
+import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
-import Brands from "../../BrandsMarquee";
-import Footer from "./Footer";
-import Meta from "../../UI/meta";
 import Header from "./Header";
+import Footer from "./Footer";
 import Carousels from "../../Carousels";
+import Brands from "../../BrandsMarquee";
+import Meta from "../../UI/meta";
 
-type LayoutProvider = {
+interface DefaultLayoutProps {
   children: ReactNode;
   title?: string;
   description?: string;
-};
+}
 
 const DefaultLayout = ({
   title = "",
   description = "",
   children,
-}: LayoutProvider) => {
+}: DefaultLayoutProps) => {
   const location = useLocation();
   const isHome = location.pathname === "/";
+
   return (
-    <Fragment>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Meta title={title} description={description} />
       <Header />
       {isHome && <Carousels />}
-      <main id="main" className="py-0">
+      <Box component="main" sx={{ flexGrow: 1 }}>
         {children}
-      </main>
+      </Box>
       {isHome && <Brands />}
-      <footer>
+      <Box component="footer">
         <Footer />
-      </footer>
-    </Fragment>
+      </Box>
+    </Box>
   );
 };
 
