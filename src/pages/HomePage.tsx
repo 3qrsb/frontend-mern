@@ -1,84 +1,154 @@
-import React, { useEffect, useState } from "react";
-import { Container, Typography, Button, Box, Divider } from "@mui/material";
+import React from "react";
+import { Button, Box, Typography, InputBase, Paper } from "@mui/material";
 import Grid from "@mui/material/Grid2";
+import { styled, alpha } from "@mui/material/styles";
+import SearchIcon from "@mui/icons-material/Search";
+import BrandsMarquee from "../components/BrandsMarquee";
+import FAQSection from "../components/sections/FAQSection";
 import DefaultLayout from "../components/layouts/default/DefaultLayout";
-import ProductCard from "../components/product/ProductCard";
-import Loader from "../components/UI/loader";
-import { useAppDispatch, useAppSelector } from "../redux";
-import { getProducts } from "../redux/products/slice-list";
 
-const HomePage = () => {
-  const dispatch = useAppDispatch();
-  const { products, loading } = useAppSelector((state) => state.productList);
-  const { categories } = useAppSelector((state) => state.productFilter);
-  const [selectedCategory, setSelectedCategory] = useState("");
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
 
-  useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  width: "100%",
+  paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+}));
 
-  const handleCategoryFilter = (category: string) => {
-    setSelectedCategory(category);
-  };
-
+export default function LandingPage() {
   return (
     <DefaultLayout>
-      <Container sx={{ py: 4 }}>
-        <Box sx={{ textAlign: "center", mb: 4 }}>
-          <Typography variant="h3" component="h1" gutterBottom>
-            Latest Products
-          </Typography>
-          <Divider sx={{ width: "50%", mx: "auto", mb: 2 }} />
-          <Typography variant="subtitle1" color="text.secondary">
-            Discover the newest additions to our collection.
-          </Typography>
-        </Box>
-
+      <Box>
+        {/* Hero Section */}
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            gap: 1,
-            mb: 4,
+            position: "relative",
+            py: { xs: 12, sm: 16, lg: 20 },
+            backgroundColor: "white",
+            overflow: "hidden",
           }}
         >
-          <Button
-            variant={selectedCategory === "" ? "contained" : "outlined"}
-            onClick={() => handleCategoryFilter("")}
+          {/* Background Image */}
+          <Box
+            component="img"
+            src="/images/bg4.jpg"
+            alt=""
+            sx={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: { xs: "center", lg: "center" },
+            }}
+          />
+          {/* Overlay */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              backgroundColor: alpha("#111827", 0.4),
+            }}
+          />
+          {/* Content */}
+          <Box
+            sx={{
+              position: "relative",
+              px: { xs: 4, sm: 6, lg: 8 },
+              maxWidth: "1200px",
+              margin: "0 auto",
+              textAlign: "center",
+              zIndex: 1,
+            }}
           >
-            All
-          </Button>
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "contained" : "outlined"}
-              onClick={() => handleCategoryFilter(category)}
+            <Typography
+              variant="h3"
+              component="h1"
+              sx={{ fontWeight: "bold", color: "white", mb: 2 }}
             >
-              {category}
-            </Button>
-          ))}
-        </Box>
+              Experience Tomorrow’s Technology Today
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{ maxWidth: 600, mx: "auto", color: "grey.300", mb: 4 }}
+            >
+              From powerful smartphones to high-fidelity audio and beyond, our
+              collection of premium gadgets is designed to fuel your passion for
+              innovation.
+            </Typography>
 
-        {loading || !products ? (
-          <Loader />
-        ) : (
-          <Grid container spacing={3}>
-            {products
-              .filter(
-                (product) =>
-                  !selectedCategory || product.category === selectedCategory
-              )
-              .map((product) => (
-                <Grid key={product._id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-                  <ProductCard product={product} />
-                </Grid>
-              ))}
-          </Grid>
-        )}
-      </Container>
+            {/* Search Form */}
+            <Box component="form" sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+              <Paper
+                component="form"
+                sx={{
+                  p: "2px 4px",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  mb: 2,
+                }}
+              >
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Try Desk, Chair, Webcam etc..."
+                  inputProps={{ "aria-label": "search" }}
+                />
+              </Paper>
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{ py: 2, fontWeight: "bold", textTransform: "uppercase" }}
+              >
+                Search now
+              </Button>
+            </Box>
+
+            {/* Statistics */}
+            <Grid
+              container
+              spacing={4}
+              justifyContent="center"
+              sx={{ mt: { xs: 4, md: 8 } }}
+            >
+              <Grid size={{ xs: 6, sm: 8 }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: "bold", color: "white" }}
+                >
+                  38,942
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1, color: "grey.300" }}>
+                  Order Delivered
+                </Typography>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 3 }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: "bold", color: "white" }}
+                >
+                  14,344
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1, color: "grey.300" }}>
+                  Registered Customers
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+        <BrandsMarquee />
+        <FAQSection />
+      </Box>
     </DefaultLayout>
   );
-};
-
-export default HomePage;
+}
