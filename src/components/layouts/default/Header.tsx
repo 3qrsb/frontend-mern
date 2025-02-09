@@ -8,7 +8,6 @@ import {
   Badge,
   Menu,
   MenuItem,
-  InputBase,
   Drawer,
   List,
   ListItem,

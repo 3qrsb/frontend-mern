@@ -101,7 +101,7 @@ export default function LandingPage() {
                   <SearchIcon />
                 </SearchIconWrapper>
                 <StyledInputBase
-                  placeholder="Try Desk, Chair, Webcam etc..."
+                  placeholder="Search for your desired gadget"
                   inputProps={{ "aria-label": "search" }}
                 />
               </Paper>
@@ -121,7 +121,7 @@ export default function LandingPage() {
               justifyContent="center"
               sx={{ mt: { xs: 4, md: 8 } }}
             >
-              <Grid size={{ xs: 6, sm: 8 }}>
+              <Grid size={{ xs: 6, sm: 3 }}>
                 <Typography
                   variant="h4"
                   sx={{ fontWeight: "bold", color: "white" }}

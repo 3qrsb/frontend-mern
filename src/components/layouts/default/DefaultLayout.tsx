@@ -1,10 +1,7 @@
 import React, { ReactNode } from "react";
 import { Box } from "@mui/material";
-import { useLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
-import Carousels from "../../Carousels";
-import Brands from "../../BrandsMarquee";
 import Meta from "../../UI/meta";
 
 interface DefaultLayoutProps {
@@ -18,15 +15,10 @@ const DefaultLayout = ({
   description = "",
   children,
 }: DefaultLayoutProps) => {
-  const location = useLocation();
-  const isHome = location.pathname === "/";
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Meta title={title} description={description} />
       <Header />
-      {isHome && <Carousels />}
-      {isHome && <Brands />}
       <Box component="main" sx={{ flexGrow: 1 }}>
         {children}
       </Box>
