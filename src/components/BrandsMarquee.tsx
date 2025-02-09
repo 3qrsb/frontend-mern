@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Typography, Box } from "@mui/material";
+import { Container, Typography, Box, useTheme } from "@mui/material";
 import Marquee from "react-fast-marquee";
 import { IconType } from "react-icons";
 import {
@@ -72,25 +72,16 @@ const techIcons: TechIconItem[] = [
 ];
 
 const BrandsMarquee = () => {
+  const theme = useTheme();
+
   return (
     <Box
-      sx={{ background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)", py: 8 }}
+      sx={{
+        background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.secondary.light})`,
+        py: theme.spacing(4),
+      }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: 6 }}>
-          <Typography
-            variant="h3"
-            component="h1"
-            sx={{ fontWeight: 700, color: "#333", mb: 1 }}
-          >
-            Our Brands
-          </Typography>
-          <Typography variant="h6" component="p" sx={{ color: "#555" }}>
-            Discover the best in consumer electronics — smartphones, laptops,
-            headphones, and more.
-          </Typography>
-        </Box>
-
         <Box
           sx={{
             overflow: "hidden",
@@ -107,7 +98,7 @@ const BrandsMarquee = () => {
                 sx={{
                   width: 64,
                   height: 64,
-                  mx: 4,
+                  mx: theme.spacing(4),
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

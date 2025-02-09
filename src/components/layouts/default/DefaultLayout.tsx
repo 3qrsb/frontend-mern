@@ -26,10 +26,10 @@ const DefaultLayout = ({
       <Meta title={title} description={description} />
       <Header />
       {isHome && <Carousels />}
+      {isHome && <Brands />}
       <Box component="main" sx={{ flexGrow: 1 }}>
         {children}
       </Box>
-      {isHome && <Brands />}
       <Box component="footer">
         <Footer />
       </Box>
