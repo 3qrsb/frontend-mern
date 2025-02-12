@@ -132,9 +132,11 @@ const Header: React.FC = () => {
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton component={Link} to="/wishlist" color="inherit">
-              <FavoriteIcon />
-            </IconButton>
+            {userInfo && (
+              <IconButton component={Link} to="/wishlist" color="inherit">
+                <FavoriteIcon />
+              </IconButton>
+            )}
             {!userInfo ? (
               <>
                 <Button
