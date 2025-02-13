@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Button,
   Card,
   CardContent,
   Container,
-  Grid,
   List,
   ListItem,
   ListItemText,
@@ -22,13 +21,14 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import SecurityIcon from "@mui/icons-material/Security";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import DefaultLayout from "../components/layouts/default/DefaultLayout";
@@ -53,9 +53,17 @@ import { useWishlist } from "../context/WishlistContext";
 import { deepOrange } from "@mui/material/colors";
 import { Product } from "../types/product";
 
-const TabPanel = (props: any) => {
-  const { children, value, index, ...other } = props;
-
+const TabPanel = ({
+  children,
+  value,
+  index,
+  ...other
+}: {
+  children: React.ReactNode;
+  value: string;
+  index: string;
+  [key: string]: any;
+}) => {
   return (
     <div
       role="tabpanel"
@@ -74,9 +82,8 @@ const ProductDetailsPage = () => {
   const { product, loading } = useAppSelector((state) => state.productDetail);
   const { userInfo } = useAppSelector((state) => state.login);
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-  const params = useParams();
-  const { id } = params;
-  const navigate = useNavigate();
+  const { id } = useParams();
+
   const [rating, setRating] = useState<number | null>(1);
   const [comment, setComment] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
@@ -91,84 +98,16 @@ const ProductDetailsPage = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [currentReview, setCurrentReview] = useState<any>(null);
   const [selectedTab, setSelectedTab] = useState("0");
+
   const { cartItems } = useAppSelector((state) => state.cart);
   const isProductInCart = cartItems.some((item) => item._id === product?._id);
+  const totalCartQuantity = cartItems.reduce(
+    (total, item) => total + item.qty,
+    0
+  );
 
-  const handleMenuClick = (
-    event: React.MouseEvent<HTMLElement>,
-    review: any
-  ) => {
-    setAnchorEl(event.currentTarget);
-    setCurrentReview(review);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setCurrentReview(null);
-  };
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
-    setSelectedTab(newValue);
-  };
-
-  const onAdd = () => {
-    if (product && !isProductInCart) {
-      dispatch(addToCart({ ...product, qty: quantity } as Product));
-    }
-  };
-
-  const handleEditReview = (review: any) => {
-    setEditReview({
-      id: review._id,
-      comment: review.comment,
-      rating: review.rating,
-    });
-    setComment(review.comment);
-    setRating(review.rating);
-  };
-
-  const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const updatedReview = {
-      comment,
-      rating,
-    };
-    authAxios
-      .put(`/products/${product?._id}/reviews/${editReview?.id}`, updatedReview)
-      .then((res) => {
-        toast.success("Review updated successfully");
-        setEditReview(null);
-        setComment("");
-        setRating(1);
-        setRefresh((prev) => !prev);
-      })
-      .catch((err) => toast.error(setError(err)));
-  };
-
-  const handleDeleteReview = (reviewId: any) => {
-    authAxios
-      .delete(`/products/${product?._id}/reviews/${reviewId}`)
-      .then((res) => {
-        toast.success("Review deleted successfully");
-        setRefresh((prev) => !prev);
-      })
-      .catch((err) => toast.error(setError(err)));
-  };
-
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const review = {
-      comment,
-      rating,
-    };
-    authAxios
-      .post(`/products/${product?._id}/reviews`, review)
-      .then((res) => {
-        toast.success("Thank you for the comment 🙂");
-        setRefresh((prev) => !prev);
-      })
-      .catch((err) => toast.error(setError(err)));
-  };
+  const theme = useTheme();
+  const screenSize = useMediaQuery(theme.breakpoints.only("md"));
 
   useEffect(() => {
     dispatch(getProductById(id));
@@ -188,9 +127,78 @@ const ProductDetailsPage = () => {
     setIsLiked(isProductInWishlist);
   }, [wishlist, product?._id]);
 
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLElement>,
+    review: any
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setCurrentReview(review);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setCurrentReview(null);
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    setSelectedTab(newValue);
+  };
+
+  const onAdd = useCallback(() => {
+    if (product && !isProductInCart) {
+      dispatch(addToCart({ ...product, qty: quantity } as Product));
+    }
+  }, [product, isProductInCart, quantity, dispatch]);
+
+  const handleEditReview = (review: any) => {
+    setEditReview({
+      id: review._id,
+      comment: review.comment,
+      rating: review.rating,
+    });
+    setComment(review.comment);
+    setRating(review.rating);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const updatedReview = { comment, rating };
+    authAxios
+      .put(`/products/${product?._id}/reviews/${editReview?.id}`, updatedReview)
+      .then(() => {
+        toast.success("Review updated successfully");
+        setEditReview(null);
+        setComment("");
+        setRating(1);
+        setRefresh((prev) => !prev);
+      })
+      .catch((err) => toast.error(setError(err)));
+  };
+
+  const handleDeleteReview = (reviewId: any) => {
+    authAxios
+      .delete(`/products/${product?._id}/reviews/${reviewId}`)
+      .then(() => {
+        toast.success("Review deleted successfully");
+        setRefresh((prev) => !prev);
+      })
+      .catch((err) => toast.error(setError(err)));
+  };
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const review = { comment, rating };
+    authAxios
+      .post(`/products/${product?._id}/reviews`, review)
+      .then(() => {
+        toast.success("Thank you for the comment 🙂");
+        setRefresh((prev) => !prev);
+      })
+      .catch((err) => toast.error(setError(err)));
+  };
+
   const handleLike = () => {
     if (!product) return;
-
     if (isLiked) {
       removeFromWishlist(product._id);
     } else {
@@ -200,15 +208,11 @@ const ProductDetailsPage = () => {
   };
 
   const averageRating = product?.reviews?.length
-    ? product.reviews.reduce((acc, review) => acc + review.rating, 0) /
-      product.reviews.length
+    ? product.reviews.reduce(
+        (acc: number, review: any) => acc + review.rating,
+        0
+      ) / product.reviews.length
     : 0;
-
-  const theme = useTheme();
-  const screenSize = useMediaQuery(theme.breakpoints.only("md"));
-
-  // Grid is deprecated, need to fix
-  // and who tf wrote this code??
 
   return (
     <DefaultLayout title={product?.name}>
@@ -224,9 +228,10 @@ const ProductDetailsPage = () => {
             maxWidth: "95%",
           }}
         >
+          {/* Main Product Section */}
           <Grid container spacing={3}>
             {/* Product Images Column */}
-            <Grid item xs={12} md={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Card sx={{ boxShadow: 3 }}>
                 <CardContent sx={{ display: "flex", justifyContent: "center" }}>
                   <Box
@@ -252,13 +257,7 @@ const ProductDetailsPage = () => {
                   </Box>
                 </CardContent>
               </Card>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  mt: 2,
-                }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
                 {product?.images?.map((img, index) => (
                   <Box
                     key={index}
@@ -282,19 +281,17 @@ const ProductDetailsPage = () => {
               </Box>
             </Grid>
 
-            {/* Nested Grid for Product Information and Price/Controls */}
-            <Grid item xs={12} md={7}>
+            {/* Product Info and Price/Controls Column */}
+            <Grid size={{ xs: 12, md: 7 }}>
               <Grid container spacing={3}>
-                {/* Product Information Column */}
-                <Grid item xs={12} md={6}>
-                  <Card sx={{ boxShadow: 3, p: 2, height: "auto" }}>
+                {/* Product Information */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Card sx={{ boxShadow: 3, p: 2 }}>
                     <List>
                       <ListItem>
                         <Typography variant="h5">{product?.name}</Typography>
                       </ListItem>
-
                       <Divider />
-
                       <ListItem>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Rating
@@ -310,7 +307,6 @@ const ProductDetailsPage = () => {
                           </Typography>
                         </Box>
                       </ListItem>
-
                       <ListItem>
                         <Box
                           sx={{
@@ -344,49 +340,40 @@ const ProductDetailsPage = () => {
                           </Box>
                         </Box>
                       </ListItem>
-
                       <ListItem>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color:
-                                product?.qty === 0
-                                  ? "red"
-                                  : product?.qty <= 10
-                                  ? "red"
-                                  : "green",
-                            }}
-                          >
-                            {product?.qty === 0
-                              ? "Out of Stock"
-                              : product?.qty <= 10
-                              ? `Only ${product.qty} items left!`
-                              : "In Stock"}
-                          </Typography>
-                        </Box>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color:
+                              product?.qty === 0
+                                ? "red"
+                                : product?.qty <= 10
+                                ? "red"
+                                : "green",
+                          }}
+                        >
+                          {product?.qty === 0
+                            ? "Out of Stock"
+                            : product?.qty <= 10
+                            ? `Only ${product.qty} items left!`
+                            : "In Stock"}
+                        </Typography>
                       </ListItem>
-
                       <Divider />
-
                       <ListItem>
                         <ListItemText
                           primary="Brand:"
                           secondary={product?.brand}
                         />
                       </ListItem>
-
                       <Divider />
-
                       <ListItem>
                         <ListItemText
                           primary="Category:"
                           secondary={product?.category}
                         />
                       </ListItem>
-
                       <Divider />
-
                       <ListItem>
                         <Typography variant="body1">
                           {product?.description}
@@ -396,13 +383,12 @@ const ProductDetailsPage = () => {
                   </Card>
                 </Grid>
 
-                {/* Price and Controls Column */}
-                <Grid item xs={12} md={6}>
+                {/* Price and Controls */}
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Card
                     sx={{
                       boxShadow: 3,
                       p: 2,
-                      height: "auto",
                       position: "sticky",
                       top: "20px",
                     }}
@@ -413,17 +399,13 @@ const ProductDetailsPage = () => {
                           {formatCurrencry(product?.price)}
                         </Typography>
                       </ListItem>
-
                       <Divider />
-
                       <ListItem>
                         <Typography variant="body1">
                           Payment via Stripe
                         </Typography>
                       </ListItem>
-
                       <Divider />
-
                       <ListItem>
                         <Button
                           variant="contained"
@@ -433,10 +415,9 @@ const ProductDetailsPage = () => {
                           sx={{ mt: 1 }}
                           disabled={!product?.inStock || isProductInCart}
                         >
-                          {isProductInCart ? "Already in Cart" : "Add to Cart"}{" "}
+                          {isProductInCart ? "Already in Cart" : "Add to Cart"}
                         </Button>
                       </ListItem>
-
                       <ListItem>
                         <Box
                           display="flex"
@@ -444,7 +425,6 @@ const ProductDetailsPage = () => {
                           width="100%"
                           mb={1}
                         >
-                          {/* Like Button */}
                           <Button
                             variant="outlined"
                             color="primary"
@@ -466,8 +446,6 @@ const ProductDetailsPage = () => {
                           >
                             Like
                           </Button>
-
-                          {/* Share Button */}
                           <Button
                             variant="outlined"
                             color="primary"
@@ -484,10 +462,7 @@ const ProductDetailsPage = () => {
                           </Button>
                         </Box>
                       </ListItem>
-
                       <Divider />
-
-                      {/* Trust Badges Section */}
                       <ListItem>
                         <Box
                           sx={{
@@ -560,6 +535,7 @@ const ProductDetailsPage = () => {
             </Grid>
           </Grid>
 
+          {/* Tabbed Section */}
           <Box sx={{ width: "100%", mt: 3 }}>
             <Tabs value={selectedTab} onChange={handleTabChange} centered>
               <Tab label="Specifications" value="0" />
@@ -568,22 +544,20 @@ const ProductDetailsPage = () => {
               <Tab label="Seller Profile" value="3" />
             </Tabs>
             <TabPanel value={selectedTab} index="0">
-              {/* Specifications Content */}
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="primary">
                     Specifications
                   </Typography>
                   <Typography variant="body2">
-                    {/* Specifications details go here */}
+                    {/* Specifications details */}
                   </Typography>
                 </CardContent>
               </Card>
             </TabPanel>
             <TabPanel value={selectedTab} index="1">
-              {/* Reviews Content */}
               <Grid container spacing={3}>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Card>
                     <CardContent>
                       <Typography variant="h6" color="primary">
@@ -591,7 +565,7 @@ const ProductDetailsPage = () => {
                       </Typography>
                       <List>
                         {product?.reviews?.length > 0 ? (
-                          product.reviews.map((review) => (
+                          product.reviews.map((review: any) => (
                             <ListItem
                               key={review._id}
                               sx={{
@@ -735,27 +709,25 @@ const ProductDetailsPage = () => {
               </Grid>
             </TabPanel>
             <TabPanel value={selectedTab} index="2">
-              {/* Shipping Info Content */}
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="primary">
                     Shipping Info
                   </Typography>
                   <Typography variant="body2">
-                    {/* Shipping information goes here */}
+                    {/* Shipping information */}
                   </Typography>
                 </CardContent>
               </Card>
             </TabPanel>
             <TabPanel value={selectedTab} index="3">
-              {/* Seller Profile Content */}
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="primary">
                     Seller Profile
                   </Typography>
                   <Typography variant="body2">
-                    {/* Seller profile information goes here */}
+                    {/* Seller profile information */}
                   </Typography>
                 </CardContent>
               </Card>
