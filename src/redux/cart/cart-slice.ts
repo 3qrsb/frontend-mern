@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Product } from "../../components/product/ProductCard";
-import { AddressTypes } from "../../utils/interfaces";
+import { AddressTypes } from "../../types/user";
+import { Product } from "../../types/product";
 
 export interface CartSliceState {
   cartItems: Product[];
@@ -15,12 +15,10 @@ const initialState: CartSliceState = {
 export const cartSlice = createSlice({
   name: "cart-items",
   initialState: initialState,
-
   reducers: {
     addToCart: (state: CartSliceState, action: PayloadAction<Product>) => {
       const product = action.payload;
       const exist = state.cartItems.find((item) => item._id === product._id);
-
       if (exist) {
         if (exist.qty < exist.availableQty) {
           state.cartItems = state.cartItems.map((item) =>
@@ -38,7 +36,6 @@ export const cartSlice = createSlice({
       const exist = state.cartItems.find(
         (item: any) => item._id == product._id
       );
-
       if (exist && exist.qty === 1) {
         state.cartItems = state.cartItems.filter(
           (item: any) => item._id !== product._id
@@ -62,7 +59,6 @@ export const cartSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const { addToCart, removeFromCart, saveAddress, reset } =
   cartSlice.actions;
 

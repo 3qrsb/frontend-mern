@@ -14,4 +14,5 @@ export interface Ordertypes {
   totalPrice: number;
   isPaid: boolean;
   createdAt: Date;
+  status?: string;
 }

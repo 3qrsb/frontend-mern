@@ -1,24 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
-import { Product } from "../../components/product/ProductCard";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
-
-type Ordertypes = {
-  _id: string;
-  user: string;
-  shippingAddress: {
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
-  cartItems: Product[];
-  discountAmount: number;
-  totalPrice: number;
-  isPaid: boolean;
-  createdAt: Date;
-};
+import { Ordertypes } from "../../types/order";
 
 export interface OrderSliceState {
   orders: Ordertypes[];
@@ -48,7 +32,6 @@ export const userOrderSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(getUserOrder.pending, (state) => {
-      // Add user to the state array
       state.loading = true;
     });
     builder.addCase(getUserOrder.fulfilled, (state, action) => {
@@ -60,7 +43,5 @@ export const userOrderSlice = createSlice({
     });
   },
 });
-
-// Action creators are generated for each case reducer function
 
 export default userOrderSlice;

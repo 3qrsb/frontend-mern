@@ -1,30 +1,8 @@
-import {
-  createSlice,
-  createAsyncThunk,
-  PayloadAction,
-  CaseReducer,
-  createEntityAdapter,
-} from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
-import { Product } from "../../components/product/ProductCard";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
-
-type Ordertypes = {
-  _id: string;
-  user: string;
-  shippingAddress: {
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
-  cartItems: Product[];
-  discountAmount: number;
-  totalPrice: number;
-  isPaid: boolean;
-  createdAt: Date;
-};
+import { Ordertypes } from "../../types/order";
 
 export interface OrderSliceState {
   orders: Ordertypes[];
@@ -43,7 +21,6 @@ const initialState: OrderSliceState = {
 export const getOrdersList = createAsyncThunk("orders/list", async () => {
   try {
     const { data: orders } = await authAxios.get("/orders");
-
     const userPromises = orders.map(async (order: any) => {
       try {
         const userResponse = await authAxios.get(`/users/${order.user}`);
@@ -54,22 +31,21 @@ export const getOrdersList = createAsyncThunk("orders/list", async () => {
         } else {
           console.error(`Failed to fetch user ${order.user}:`, error.message);
         }
-        return null; // Return null for users that can't be fetched
+        return null;
       }
     });
 
     const users = await Promise.all(userPromises);
-
     const ordersWithUserDetails = orders.map((order: any, index: any) => ({
       ...order,
-      user: users[index], // This could be null if the user was not found
+      user: users[index],
     }));
 
-    return ordersWithUserDetails.filter((order: any) => order.user !== null); // Filter out orders with missing users
+    return ordersWithUserDetails.filter((order: any) => order.user !== null);
   } catch (error: any) {
     const message = setError(error);
     toast.error(message);
-    throw error; // Ensure to throw the error so it's properly handled
+    throw error;
   }
 });
 
@@ -87,8 +63,8 @@ export const orderListSlice = createSlice({
     });
     builder.addCase(getOrdersList.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.error.message; // Capture the error message
-      console.error("Error fetching orders:", action.error.message); // Log the error
+      state.error = action.error.message;
+      console.error("Error fetching orders:", action.error.message);
     });
   },
 });
