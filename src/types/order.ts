@@ -1,14 +1,18 @@
 import { Product } from "./product";
 
+export interface ShippingAddress {
+  street: string;
+  apartment?: string;
+  city: string;
+  state?: string;
+  country: string;
+  postalCode: string;
+}
+
 export interface Ordertypes {
   _id: string;
   user: string;
-  shippingAddress: {
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
+  shippingAddress: ShippingAddress;
   cartItems: Product[];
   discountAmount: number;
   totalPrice: number;
