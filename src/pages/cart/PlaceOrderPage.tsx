@@ -1,137 +1,203 @@
-import { Card, Col, Container, Image, ListGroup, Row } from "react-bootstrap";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  Container,
+  Card,
+  CardContent,
+  List,
+  ListItem,
+  Box,
+  Button,
+  Typography,
+  Divider,
+} from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
-import RedButton from "../../components/UI/red-button";
-import { useAppDispatch, useAppSelector } from "../../redux";
-import { reset } from "../../redux/cart/cart-slice";
-import authAxios from "../../utils/auth-axios";
-import { setError } from "../../utils/error";
+import { useAppSelector, useAppDispatch } from "../../redux";
 import { formatCurrencry } from "../../utils/helper";
-import ImageLazy from "../../components/UI/lazy-image";
-import React from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import authAxios from "../../utils/auth-axios";
+import toast from "react-hot-toast";
+import { saveAddress } from "../../redux/cart/cart-slice";
+import AddressSelectorModal from "../../components/checkout/AddressSelectorModal";
+
+const stripePromise = loadStripe(import.meta.env.VITE_API_STRIPE);
 
 const PlaceOrderPage = () => {
   const { shippingAddress, cartItems } = useAppSelector((state) => state.cart);
+  const { user } = useAppSelector((state) => state.userDetails);
   const dispatch = useAppDispatch();
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
 
-  const navigate = useNavigate();
   const itemsPrice = cartItems.reduce(
     (acc, item) => acc + item.qty * item.price,
     0
   );
-
   const taxPrice = 0;
-
   const shippingPrice = itemsPrice >= 200 ? 0 : 30;
-
   const totalPrice = itemsPrice + taxPrice + shippingPrice;
 
-  const onSubmit = () => {
-    const order = {
-      totalPrice,
-      cartItems: cartItems.map((item) => ({
-        ...item,
+  const handlePlaceOrder = async () => {
+    if (!shippingAddress) {
+      toast.error("Please select a shipping address.");
+      return;
+    }
+    const orderPayload = {
+      items: cartItems.map((item) => ({
+        _id: item._id,
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
         image: item.images[0],
       })),
       shippingAddress,
+      totalPrice,
     };
-    authAxios
-      .post("/orders", order)
-      .then((res) => {
-        toast.success("Your order has been created!");
-        dispatch(reset());
-        navigate(`/orders/${res.data._id}`);
-      })
-      .catch((err) => toast.error(setError(err)));
+
+    try {
+      const response = await authAxios.post(
+        "/stripe/create-checkout-session",
+        orderPayload
+      );
+      const { id: sessionId } = response.data;
+      if (sessionId) {
+        const stripe = await stripePromise;
+        if (!stripe) throw new Error("Stripe failed to initialize.");
+        const { error } = await stripe.redirectToCheckout({ sessionId });
+        if (error) throw new Error(error.message);
+      }
+    } catch (error: any) {
+      toast.error(
+        error.message || "Payment initiation failed. Please try again."
+      );
+    }
   };
 
   return (
-    <DefaultLayout title="Place Order">
-      <Container className="py-3">
-        <Row>
-          <Col md={8} className="mb-2">
-            <Card>
-              <Card.Body>
-                <ListGroup variant="flush">
-                  <ListGroup.Item>
-                    <h4 className=" justify-content-between d-flex align-items-center">
-                      <span> Address: </span>
-                      <span>
-                        {shippingAddress?.address} {shippingAddress?.city}{" "}
-                        {shippingAddress?.postalCode}
-                      </span>
-                    </h4>
-                  </ListGroup.Item>
-                  <h3 className="my-3">Items</h3>
-                  {cartItems.map((item) => (
-                    <ListGroup.Item key={item._id} className=" mb-2">
-                      <Row className="d-flex align-items-center">
-                        <Col md={2}>
-                          <ImageLazy
-                            imageUrl={item.images[0]}
-                            style={{ objectFit: "contain" }}
-                            className="avatar rounded-5"
-                          />
-                        </Col>
-                        <Col md={6}>{item.name}</Col>
-                        <Col>{item?.qty}</Col>
+    <DefaultLayout title="Checkout">
+      <Container sx={{ py: 4 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Review &amp; Place Your Order
+        </Typography>
+        <Grid container spacing={3}>
+          {/* Shipping Address Section */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Card
+              variant="outlined"
+              sx={{ borderColor: "grey.300", boxShadow: 3 }}
+            >
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Shipping Address
+                </Typography>
+                {shippingAddress ? (
+                  <Box
+                    sx={{
+                      p: 2,
+                      border: "1px solid",
+                      borderColor: "grey.300",
+                      borderRadius: 1,
+                      mb: 2,
+                    }}
+                  >
+                    <Typography variant="subtitle1">
+                      {shippingAddress.street}
+                      {shippingAddress.apartment &&
+                        `, ${shippingAddress.apartment}`}
+                    </Typography>
+                    <Typography variant="body2">
+                      {shippingAddress.city}
+                      {shippingAddress.state && `, ${shippingAddress.state}`}
+                    </Typography>
+                    <Typography variant="body2">
+                      {shippingAddress.country}, {shippingAddress.postalCode}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Typography variant="body1" color="error">
+                    No shipping address selected.
+                  </Typography>
+                )}
+                <Button
+                  variant="outlined"
+                  onClick={() => setAddressModalOpen(true)}
+                  sx={{ mt: 1 }}
+                >
+                  Select / Add Address
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
 
-                        <Col>{formatCurrencry(item.price * item.qty)}</Col>
-                        <Col></Col>
-                      </Row>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              </Card.Body>
+          {/* Order Summary Section */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Card
+              variant="outlined"
+              sx={{ borderColor: "grey.300", boxShadow: 3 }}
+            >
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Order Summary
+                </Typography>
+                <List sx={{ py: 0 }}>
+                  <ListItem disableGutters>
+                    <Typography>
+                      SubTotal (
+                      {cartItems.reduce((acc, item) => acc + item.qty, 0)}{" "}
+                      items): {formatCurrencry(itemsPrice)}
+                    </Typography>
+                  </ListItem>
+                  <Divider sx={{ my: 1 }} />
+                  <ListItem disableGutters>
+                    <Typography>
+                      Tax Price: {formatCurrencry(taxPrice)}
+                    </Typography>
+                  </ListItem>
+                  <Divider sx={{ my: 1 }} />
+                  <ListItem disableGutters>
+                    <Typography>
+                      Shipping Price: {formatCurrencry(shippingPrice)}
+                    </Typography>
+                  </ListItem>
+                  <Divider sx={{ my: 1 }} />
+                  <ListItem disableGutters>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      Final Price: {formatCurrencry(totalPrice)}
+                    </Typography>
+                  </ListItem>
+                </List>
+              </CardContent>
             </Card>
-          </Col>
-          <Col md={4}>
-            <Card className="shadow ">
-              <Card.Body>
-                <ListGroup variant="flush">
-                  <ListGroup.Item as="h2">
-                    SubTotal (
-                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}) item
-                  </ListGroup.Item>
-                  <ListGroup.Item className=" d-flex justify-content-between align-items-center">
-                    <span>Total Price</span>
-                    <span>
-                      {formatCurrencry(
-                        cartItems.reduce(
-                          (acc, item) => acc + item.price * item.qty,
-                          0
-                        )
-                      )}
-                    </span>
-                  </ListGroup.Item>
-                  <ListGroup.Item className=" d-flex justify-content-between align-items-center">
-                    <span>Tax Price</span>
-                    <span>{formatCurrencry(taxPrice)}</span>
-                  </ListGroup.Item>
-                  <ListGroup.Item className=" d-flex justify-content-between align-items-center">
-                    <span>Shipping Price</span>
-                    <span>{formatCurrencry(shippingPrice)}</span>
-                  </ListGroup.Item>
-                  <ListGroup.Item className=" d-flex justify-content-between align-items-center">
-                    <span>Total Price</span>
-                    <span>{formatCurrencry(totalPrice)}</span>
-                  </ListGroup.Item>
-                  <ListGroup.Item className=" d-flex justify-content-between align-items-center">
-                    <RedButton
-                      onClick={onSubmit}
-                      disabled={cartItems.length === 0}
-                      className="w-full"
-                    >
-                      Place order
-                    </RedButton>
-                  </ListGroup.Item>
-                </ListGroup>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 4, textAlign: "center" }}>
+          <Button
+            variant="contained"
+            onClick={handlePlaceOrder}
+            disabled={cartItems.length === 0}
+            size="large"
+            sx={{
+              px: 6,
+              py: 1.5,
+              fontWeight: "bold",
+              backgroundColor: "primary.main",
+              "&:hover": { backgroundColor: "primary.dark" },
+            }}
+          >
+            Place Order &amp; Pay
+          </Button>
+        </Box>
       </Container>
+
+      <AddressSelectorModal
+        open={addressModalOpen}
+        onClose={() => setAddressModalOpen(false)}
+        userId={user ? user._id : ""}
+        onAddressSelected={(address) => {
+          dispatch(saveAddress(address));
+          setAddressModalOpen(false);
+        }}
+      />
     </DefaultLayout>
   );
 };
