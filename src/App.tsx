@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import CartPage from "./pages/cart/CartPage";
-import ShippingAddress from "./pages/cart/ShippingAddress";
 import HomePage from "./pages/HomePage";
 import ProductDetails from "./pages/ProductDetailsPage";
 import Login from "./pages/users/login";
@@ -51,14 +50,6 @@ const App = () => {
           <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route
-            path="/shipping-address"
-            element={
-              <AuthProvider>
-                <ShippingAddress />
-              </AuthProvider>
-            }
-          />
           <Route
             path="/place-order"
             element={
