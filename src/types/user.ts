@@ -1,4 +1,5 @@
 export interface AddressTypes {
+  _id?: string;
   street: string;
   apartment?: string;
   city: string;
