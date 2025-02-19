@@ -55,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     if (isInCart) {
-      dispatch(removeFromCart(product));
+      dispatch(removeFromCart({ product, deleteAll: true }));
     } else {
       dispatch(addToCart(product));
     }

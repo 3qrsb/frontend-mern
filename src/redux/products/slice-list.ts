@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
-import { Product } from "../../components/product/ProductCard";
 import { setError } from "../../utils/error";
 import publicAxios from "../../utils/public-axios";
+import { Product } from "../../types/product";
 
 export interface ProductSliceState {
   products: Product[];

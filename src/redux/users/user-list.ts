@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
-import { User } from "../../utils/interfaces";
+import { User } from "../../types/user";
 
 interface ProductSliceState {
   users: User[];

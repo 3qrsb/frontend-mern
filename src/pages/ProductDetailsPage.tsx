@@ -40,7 +40,7 @@ import { getProductById } from "../redux/products/slice-details";
 import authAxios from "../utils/auth-axios";
 import { setError } from "../utils/error";
 import { formatCurrencry, getDate } from "../utils/helper";
-import ImageLazy from "../components/UI/lazy-image";
+import LazyImage from "../components/UI/LazyImage";
 import toast from "react-hot-toast";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -245,7 +245,7 @@ const ProductDetailsPage = () => {
                     }}
                   >
                     <Zoom>
-                      <ImageLazy
+                      <LazyImage
                         imageUrl={selectedImage || ""}
                         style={{
                           maxWidth: "100%",
@@ -268,7 +268,7 @@ const ProductDetailsPage = () => {
                     }}
                     onClick={() => setSelectedImage(img)}
                   >
-                    <ImageLazy
+                    <LazyImage
                       imageUrl={img}
                       style={{
                         width: "100px",

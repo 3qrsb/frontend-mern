@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { User } from '../../utils/interfaces';
 import publicAxios from '../../utils/public-axios';
+import { User } from '../../types/user';
 
 interface ProductSliceState {
   user: User | null;
