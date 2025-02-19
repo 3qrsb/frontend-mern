@@ -14,7 +14,7 @@ const initialState: CartSliceState = {
 
 export const cartSlice = createSlice({
   name: "cart-items",
-  initialState: initialState,
+  initialState,
   reducers: {
     addToCart: (state: CartSliceState, action: PayloadAction<Product>) => {
       const product = action.payload;
@@ -31,20 +31,37 @@ export const cartSlice = createSlice({
         }
       }
     },
-    removeFromCart: (state: CartSliceState, action: PayloadAction<Product>) => {
-      const product = action.payload;
-      const exist = state.cartItems.find(
-        (item: any) => item._id == product._id
-      );
-      if (exist && exist.qty === 1) {
+    removeFromCart: (
+      state: CartSliceState,
+      action: PayloadAction<{ product: Product; deleteAll?: boolean }>
+    ) => {
+      const { product, deleteAll } = action.payload;
+      if (deleteAll) {
         state.cartItems = state.cartItems.filter(
-          (item: any) => item._id !== product._id
+          (item) => item._id !== product._id
         );
       } else {
-        state.cartItems = state.cartItems.map((item: any) =>
-          item._id == product._id ? { ...product, qty: item.qty - 1 } : item
-        );
+        const exist = state.cartItems.find((item) => item._id === product._id);
+        if (exist && exist.qty === 1) {
+          state.cartItems = state.cartItems.filter(
+            (item) => item._id !== product._id
+          );
+        } else {
+          state.cartItems = state.cartItems.map((item) =>
+            item._id === product._id ? { ...product, qty: item.qty - 1 } : item
+          );
+        }
       }
+    },
+    updateCart: (
+      state: CartSliceState,
+      action: PayloadAction<{ product: Product; qty: number }>
+    ) => {
+      state.cartItems = state.cartItems.map((item) =>
+        item._id === action.payload.product._id
+          ? { ...item, qty: action.payload.qty }
+          : item
+      );
     },
     saveAddress: (
       state: CartSliceState,
@@ -52,14 +69,14 @@ export const cartSlice = createSlice({
     ) => {
       state.shippingAddress = action.payload;
     },
-    reset: (state: any) => {
+    reset: (state: CartSliceState) => {
       state.cartItems = [];
       state.shippingAddress = null;
     },
   },
 });
 
-export const { addToCart, removeFromCart, saveAddress, reset } =
+export const { addToCart, removeFromCart, updateCart, saveAddress, reset } =
   cartSlice.actions;
 
 export default cartSlice;
