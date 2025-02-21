@@ -1,37 +1,28 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Grid,
-  Button,
-  TextField,
-  Card,
-  Typography,
-  IconButton,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Paper,
-  CardContent,
-} from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import Loader from "../../components/UI/loader";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getUserBydId } from "../../redux/users/user-details";
+import { getUserOrder } from "../../redux/orders/user-orders";
+import authAxios from "../../utils/auth-axios";
+import { setError } from "../../utils/error";
+import toast from "react-hot-toast";
+import {
+  Container,
+  Button,
+  TextField,
+  Typography,
+  Box,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import authAxios from "../../utils/auth-axios";
-import toast from "react-hot-toast";
-import { setError } from "../../utils/error";
-import { getUserOrder } from "../../redux/orders/user-orders";
-import { formatCurrencry, getDate } from "../../utils/helper";
-import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
-import { GrView } from "react-icons/gr";
+import UserOrdersTable from "../../components/profile/UserOrdersTable";
+import AddressManager from "../../components/profile/AddressManager";
 
 type FormValues = {
   email: string;
@@ -40,18 +31,21 @@ type FormValues = {
   confirmPassword: string;
 };
 
-const Profile = () => {
+const ProfilePage = () => {
   const dispatch = useAppDispatch();
+  const { id } = useParams();
+
   const { user, loading } = useAppSelector((state) => state.userDetails);
   const { orders, loading: orderLoading } = useAppSelector(
     (state) => state.userOrder
   );
-  const { id } = useParams();
+
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [tabValue, setTabValue] = useState(0);
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required(),
-    email: Yup.string().required("Email is required").email("Email is invalid"),
+    name: Yup.string().required("Name is required"),
+    email: Yup.string().required("Email is required").email("Invalid email"),
     password: Yup.string(),
     confirmPassword: Yup.string().oneOf(
       [Yup.ref("password"), null],
@@ -75,20 +69,20 @@ const Profile = () => {
     };
     authAxios
       .put(`/users/${user?._id}`, update)
-      .then((res) => {
-        toast.success("user has been updated");
-        setRefresh((prev) => (prev = !prev));
+      .then(() => {
+        toast.success("User has been updated!");
+        setRefresh((prev) => !prev);
       })
       .catch((err) => toast.error(setError(err)));
   };
 
-  const onDelete = (id: string | number) => {
+  const onDeleteOrder = (orderId: string) => {
     if (window.confirm("It will delete this order from your account!")) {
       authAxios
-        .delete(`/orders/${id}`)
+        .delete(`/orders/${orderId}`)
         .then((res) => {
           toast.success(res.data);
-          setRefresh((prev) => (prev = !prev));
+          setRefresh((prev) => !prev);
         })
         .catch((e) => toast.error(setError(e)));
     }
@@ -99,25 +93,51 @@ const Profile = () => {
     dispatch(getUserOrder());
   }, [dispatch, id, refresh]);
 
-  const cols = ["Order id", "Price", "Address", "Paid", "Date", "Options"];
+  if (loading || !user || orderLoading) {
+    return (
+      <DefaultLayout title="Profile">
+        <Loader />
+      </DefaultLayout>
+    );
+  }
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
   return (
     <DefaultLayout title={`${user?.name} profile`}>
-      <Container>
-        {loading || !user || orderLoading || !orders ? (
-          <Loader />
-        ) : (
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={4} className="mt-5 mb-5">
-              <Card sx={{ p: 3 }}>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <Typography variant="h6" gutterBottom>
-                    Profile Details
-                  </Typography>
+      <Container sx={{ py: 4 }}>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Tabs
+              orientation="vertical"
+              value={tabValue}
+              onChange={handleTabChange}
+              sx={{ borderRight: 1, borderColor: "divider" }}
+            >
+              <Tab label="Profile" />
+              <Tab label="Addresses" />
+              <Tab label="Orders" />
+            </Tabs>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 9 }}>
+            {tabValue === 0 && (
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Profile Details
+                </Typography>
+                <Box
+                  component="form"
+                  onSubmit={handleSubmit(onSubmit)}
+                  sx={{ maxWidth: 400 }}
+                >
                   <TextField
                     fullWidth
                     label="Username"
-                    {...register("name", { value: user?.name })}
+                    defaultValue={user.name}
+                    {...register("name")}
                     margin="normal"
                     error={!!errors.name}
                     helperText={errors.name?.message}
@@ -125,7 +145,8 @@ const Profile = () => {
                   <TextField
                     fullWidth
                     label="Email Address"
-                    {...register("email", { value: user?.email })}
+                    defaultValue={user.email}
+                    {...register("email")}
                     margin="normal"
                     error={!!errors.email}
                     helperText={errors.email?.message}
@@ -153,103 +174,36 @@ const Profile = () => {
                     type="submit"
                     variant="contained"
                     color="primary"
-                    sx={{ mt: 3 }}
+                    sx={{ mt: 2 }}
                   >
                     Update
                   </Button>
-                </form>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={8} className="mt-5 mb-5">
-              <Card>
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead sx={{ backgroundColor: "#c62828" }}>
-                      <TableRow>
-                        {cols.map((col: any) => (
-                          <TableCell
-                            key={col}
-                            sx={{
-                              color: "white",
-                              textTransform: "uppercase",
-                              fontWeight: "normal",
-                              fontSize: "0.875rem",
-                              py: 1,
-                              px: 2,
-                            }}
-                          >
-                            {col}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {orders.map((order) => (
-                        <TableRow key={order._id}>
-                          <TableCell sx={{ color: "gray" }}>
-                            {order._id}
-                          </TableCell>
-                          <TableCell sx={{ color: "gray" }}>
-                            {formatCurrencry(order?.totalPrice)}
-                          </TableCell>
-                          <TableCell sx={{ color: "gray" }}>
-                            {order?.shippingAddress?.address}
-                          </TableCell>
-                          <TableCell sx={{ color: "gray" }}>
-                            {order.isPaid ? (
-                              <FaCheck color="green" />
-                            ) : (
-                              <FaTimes color="red" />
-                            )}
-                          </TableCell>
-                          <TableCell sx={{ color: "gray" }}>
-                            {getDate(order?.createdAt)}
-                          </TableCell>
-                          <TableCell>
-                            <IconButton
-                              component={Link}
-                              to={`/orders/${order._id}`}
-                              size="small"
-                              sx={{
-                                backgroundColor: "#bdbdbd",
-                                color: "white",
-                                "&:hover": {
-                                  backgroundColor: "#757575",
-                                },
-                                mr: 1,
-                                borderRadius: 2,
-                              }}
-                            >
-                              <GrView />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => onDelete(order._id)}
-                              size="small"
-                              sx={{
-                                backgroundColor: "#ef5350",
-                                color: "white",
-                                "&:hover": {
-                                  backgroundColor: "#c62828",
-                                },
-                                ml: 1,
-                                borderRadius: 2,
-                              }}
-                            >
-                              <FaTrash />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Card>
-            </Grid>
+                </Box>
+              </Box>
+            )}
+
+            {tabValue === 1 && (
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Manage Addresses
+                </Typography>
+                <AddressManager userId={user._id} />
+              </Box>
+            )}
+
+            {tabValue === 2 && (
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Your Orders
+                </Typography>
+                <UserOrdersTable orders={orders} onDelete={onDeleteOrder} />
+              </Box>
+            )}
           </Grid>
-        )}
+        </Grid>
       </Container>
     </DefaultLayout>
   );
 };
 
-export default Profile;
+export default ProfilePage;
