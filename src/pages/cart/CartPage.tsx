@@ -1,142 +1,235 @@
+import React from "react";
 import {
   Container,
-  Row,
-  Col,
-  ListGroup,
-  Image,
-  Button,
   Card,
-} from "react-bootstrap";
-import { FaMinus, FaPlus } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  Divider,
+  List,
+  ListItem,
+  IconButton,
+} from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
-import { useAppDispatch, useAppSelector } from "../../redux";
-import { addToCart, removeFromCart } from "../../redux/cart/cart-slice";
+import { useAppSelector, useAppDispatch } from "../../redux";
 import { formatCurrencry } from "../../utils/helper";
-import ImageLazy from "../../components/UI/lazy-image";
-import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import LazyImage from "../../components/UI/LazyImage";
+import { updateCart, removeFromCart } from "../../redux/cart/cart-slice";
+import QuantityField from "../../components/UI/QuantityField";
+import CloseIcon from "@mui/icons-material/Close";
 
-const CartPage = () => {
+const CartPage: React.FC = () => {
   const { cartItems } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
-
   const navigate = useNavigate();
+
+  const handleQuantityChange = (item: any, newQty: number) => {
+    if (newQty < 1 || newQty > item.availableQty) {
+      toast.error(`Quantity must be between 1 and ${item.availableQty}`);
+      return;
+    }
+    dispatch(updateCart({ product: item, qty: newQty }));
+  };
+
+  const handleDeleteItem = (item: any) => {
+    dispatch(removeFromCart({ product: item, deleteAll: true }));
+    toast.success("Item removed from cart.");
+  };
+
+  const itemsPrice = cartItems.reduce(
+    (acc, item) => acc + item.qty * item.price,
+    0
+  );
+  const taxPrice = 0;
+  const shippingPrice = itemsPrice >= 200 ? 0 : 30;
+  const finalPrice = itemsPrice + taxPrice + shippingPrice;
 
   return (
     <DefaultLayout title="Cart">
-      <Container className="py-3">
+      <Container sx={{ py: 4 }}>
         {cartItems.length === 0 ? (
-          <div className="empty-cart-container text-center">
-            <img
-              src="public/images/empty-cart.png"
-              alt="Empty Cart"
-              style={{
-                maxWidth: "30%",
-                marginBottom: "20px",
-                marginTop: "100px",
-              }}
-            />
-            <p style={{ marginTop: "70px" }}>Your cart is empty</p>
-            <Link to="/products" className="btn btn-primary mt-3">
+          <Box sx={{ textAlign: "center", mt: 8 }}>
+            <Typography variant="h6" sx={{ mt: 4 }}>
+              Your cart is empty
+            </Typography>
+            <Button
+              variant="contained"
+              component={Link}
+              to="/products"
+              sx={{ mt: 3 }}
+            >
               Continue Shopping
-            </Link>
-          </div>
+            </Button>
+          </Box>
         ) : (
-          <Row>
-            <Col md={8}>
-              <ListGroup variant="flush">
-                {cartItems.map((item) => (
-                  <ListGroup.Item
-                    key={item._id}
-                    className="shadow rounded p-5 bg-white mb-2"
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Box sx={{ overflowX: "auto", p: 2 }}>
+                <Box sx={{ minWidth: 600 }}>
+                  <Box
+                    sx={{
+                      mb: 2,
+                      p: 1,
+                      borderBottom: "1px solid #ccc",
+                    }}
                   >
-                    <Row className="d-flex align-items-center">
-                      <Col md={2}>
-                        <ImageLazy
-                          imageUrl={item.image}
-                          style={{ objectFit: "contain" }}
-                          className="h-16 w-16 rounded-5"
-                        />
-                      </Col>
-                      <Col className="d-none d-lg-block">{item.name}</Col>
-                      <Col>{item?.qty}</Col>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid
+                        size={{ xs: 2, md: 1 }}
+                        sx={{ textAlign: "center" }}
+                      >
+                      </Grid>
+                      <Grid
+                        size={{ xs: 3, md: 2 }}
+                        sx={{ textAlign: "center" }}
+                      >
+                        <Typography variant="subtitle2">Image</Typography>
+                      </Grid>
+                      <Grid
+                        size={{ xs: 4, md: 4 }}
+                        sx={{ textAlign: "center" }}
+                      >
+                        <Typography variant="subtitle2">Title</Typography>
+                      </Grid>
+                      <Grid
+                        size={{ xs: 2, md: 3 }}
+                        sx={{ textAlign: "center" }}
+                      >
+                        <Typography variant="subtitle2">Quantity</Typography>
+                      </Grid>
+                      <Grid
+                        size={{ xs: 1, md: 2 }}
+                        sx={{ textAlign: "center" }}
+                      >
+                        <Typography variant="subtitle2">Price</Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
 
-                      <Col>{formatCurrencry(item.price * item.qty)}</Col>
-                      <Col>
-                        <FaPlus
-                          onClick={() => {
-                            if (item.qty < item.availableQty) {
-                              dispatch(addToCart(item));
-                            } else {
-                              toast.dismiss();
-                              toast.error(
-                                "Cannot add more items. Stock limit reached."
-                              );
+                  {cartItems.map((item) => (
+                    <Card
+                      key={item._id}
+                      sx={{ mb: 2, p: 2, boxShadow: 3, mx: 2 }}
+                    >
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid
+                          size={{ xs: 2, md: 1 }}
+                          sx={{ textAlign: "center" }}
+                        >
+                          <IconButton onClick={() => handleDeleteItem(item)}>
+                            <CloseIcon />
+                          </IconButton>
+                        </Grid>
+                        <Grid
+                          size={{ xs: 3, md: 2 }}
+                          sx={{ textAlign: "center" }}
+                        >
+                          <LazyImage
+                            imageUrl={item.images[0]}
+                            sx={{
+                              width: "100%",
+                              objectFit: "contain",
+                              borderRadius: 1,
+                            }}
+                          />
+                        </Grid>
+                        <Grid
+                          size={{ xs: 4, md: 4 }}
+                          sx={{ textAlign: "center" }}
+                        >
+                          <Typography variant="subtitle1">
+                            {item.name}
+                          </Typography>
+                        </Grid>
+                        <Grid
+                          size={{ xs: 2, md: 3 }}
+                          sx={{ textAlign: "center" }}
+                        >
+                          <QuantityField
+                            value={item.qty}
+                            min={1}
+                            max={item.availableQty}
+                            onChange={(newQty) =>
+                              handleQuantityChange(item, newQty)
                             }
-                          }}
-                          size={"1.5rem"}
-                          style={{ backgroundColor: "#e03a3c" }}
-                          className={`icons__cart m-2 rounded-circle text-white p-1 cursor-pointer ${
-                            item.qty >= item.availableQty ? "disabled" : ""
-                          }`}
-                        />
-                        <FaMinus
-                          size={"1.5rem"}
-                          style={{ backgroundColor: "#e03a3c" }}
-                          className={`icons__cart m-2 rounded-circle text-white p-1 cursor-pointer `}
-                          onClick={() => dispatch(removeFromCart(item))}
-                        />
-                      </Col>
-                    </Row>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            </Col>
-            <Col md={4}>
-              <Card className="shadow ">
-                <Card.Body>
-                  <ListGroup variant="flush">
-                    <ListGroup.Item as="h2">
-                      SubTotal (
-                      {cartItems.reduce((acc, item) => acc + item.qty, 0)}) item
-                    </ListGroup.Item>
-                    <ListGroup.Item className=" d-flex justify-content-between align-items-center">
-                      <span>Total Price</span>
-                      <span>
-                        {formatCurrencry(
-                          cartItems.reduce(
-                            (acc, item) => acc + item.price * item.qty,
-                            0
-                          )
-                        )}
-                      </span>
-                    </ListGroup.Item>
-                    <ListGroup.Item className=" d-flex justify-content-between align-items-center">
-                      <Button
-                        style={{ backgroundColor: "#e03a3c" }}
-                        disabled={cartItems.length === 0}
-                        onClick={() => navigate("/shipping-address")}
-                        className="w-1/2 text-white me-2"
-                        variant="outline-none"
-                      >
-                        Place Order
-                      </Button>
-                      <Button
-                        style={{ backgroundColor: "#e03a3c" }}
-                        onClick={() => navigate("/")}
-                        className="w-1/2 text-white me-2"
-                        variant="outline-none"
-                      >
-                        Back to Shopping
-                      </Button>
-                    </ListGroup.Item>
-                  </ListGroup>
-                </Card.Body>
+                          />
+                        </Grid>
+                        <Grid
+                          size={{ xs: 1, md: 2 }}
+                          sx={{ textAlign: "center" }}
+                        >
+                          <Typography variant="subtitle1">
+                            {formatCurrencry(item.price * item.qty)}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Card>
+                  ))}
+                </Box>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Card sx={{ boxShadow: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Order Summary
+                  </Typography>
+                  <List sx={{ py: 0 }}>
+                    <ListItem disableGutters>
+                      <Typography>
+                        SubTotal (
+                        {cartItems.reduce((acc, item) => acc + item.qty, 0)}{" "}
+                        items): {formatCurrencry(itemsPrice)}
+                      </Typography>
+                    </ListItem>
+                    <Divider sx={{ my: 1 }} />
+                    <ListItem disableGutters>
+                      <Typography>
+                        Tax Price: {formatCurrencry(taxPrice)}
+                      </Typography>
+                    </ListItem>
+                    <Divider sx={{ my: 1 }} />
+                    <ListItem disableGutters>
+                      <Typography>
+                        Shipping Price: {formatCurrencry(shippingPrice)}
+                      </Typography>
+                    </ListItem>
+                    <Divider sx={{ my: 1 }} />
+                    <ListItem disableGutters>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        Final Price: {formatCurrencry(finalPrice)}
+                      </Typography>
+                    </ListItem>
+                  </List>
+                </CardContent>
               </Card>
-            </Col>
-          </Row>
+              <Box sx={{ mt: 3, textAlign: "center" }}>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate("/place-order")}
+                  disabled={cartItems.length === 0}
+                  size="large"
+                  fullWidth
+                >
+                  Place Order
+                </Button>
+                <Button
+                  variant="outlined"
+                  component={Link}
+                  to="/"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  size="large"
+                >
+                  Continue Shopping
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         )}
       </Container>
     </DefaultLayout>
