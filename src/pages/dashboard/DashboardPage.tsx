@@ -286,7 +286,7 @@ const DashboardPage = () => {
                             variant="body2"
                             color="textSecondary"
                           >
-                            Date: {getDate(order.createdAt)}
+                            Date: {getDate(new Date(order.createdAt))}
                           </Typography>
                           <br />
                         </>

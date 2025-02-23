@@ -1,7 +1,6 @@
 import {
   Button,
   Card,
-  IconButton,
   Paper,
   Table,
   TableBody,
@@ -9,7 +8,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
@@ -21,7 +19,6 @@ import { setError } from "../../../utils/error";
 import { getDate } from "../../../utils/helper";
 import toast from "react-hot-toast";
 import React from "react";
-import { Pagination } from "react-bootstrap";
 
 const UserTable = () => {
   const dispatch = useAppDispatch();
@@ -100,7 +97,7 @@ const UserTable = () => {
                     <TableCell sx={{ color: "gray" }}>{user.name}</TableCell>
                     <TableCell sx={{ color: "gray" }}>{user.email}</TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {getDate(user.createdAt)}
+                      {getDate(new Date(user.createdAt))}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
                       {user.isAdmin ? (

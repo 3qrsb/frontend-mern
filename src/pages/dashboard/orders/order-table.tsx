@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Button,
   Card,
   IconButton,
   Paper,
@@ -10,7 +9,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux";
@@ -111,7 +109,7 @@ function OrdersTable() {
                       )}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {getDate(order.createdAt)}
+                      {getDate(new Date(order.createdAt))}
                     </TableCell>
                     <TableCell>
                       <IconButton

@@ -10,7 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getFilterProducts } from "../../../redux/products/search-list";
 import authAxios from "../../../utils/auth-axios";
@@ -21,8 +21,8 @@ import Loader from "../../../components/UI/loader";
 import Paginate from "../../../components/UI/paginate";
 import toast from "react-hot-toast";
 import ProductModal from "../../../components/product/ProductModal";
-import { ReviewTypes } from "../../../utils/interfaces";
 import ProductUpdate from "../../../components/product/ProductUpdate";
+import { ReviewTypes } from "../../../types/review";
 
 const ProductTable = () => {
   const dispatch = useAppDispatch();
@@ -143,7 +143,7 @@ const ProductTable = () => {
                       {formatCurrencry(product.price)}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {getDate(product.createdAt)}
+                      {getDate(new Date(product.createdAt))}
                     </TableCell>
                     <TableCell>
                       <IconButton

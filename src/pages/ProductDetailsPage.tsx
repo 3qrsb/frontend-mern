@@ -649,7 +649,7 @@ const ProductDetailsPage = () => {
                                   sx={{ mr: 2 }}
                                 />
                                 <Typography variant="body2">
-                                  {getDate(review.createdAt)}
+                                  {getDate(new Date(review.createdAt))}
                                 </Typography>
                               </Box>
                               <Typography variant="body2" sx={{ mt: 1 }}>
