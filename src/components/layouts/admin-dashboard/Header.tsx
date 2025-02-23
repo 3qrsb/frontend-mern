@@ -3,14 +3,19 @@ import {
   AppBar,
   Toolbar,
   Container,
-  Box,
   Typography,
+  IconButton,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useAppSelector } from "../../../redux";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { userInfo } = useAppSelector((state) => state.login);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -27,20 +32,28 @@ const Header: React.FC = () => {
       <Container maxWidth="lg">
         <Toolbar
           sx={{
-            justifyContent: "space-between",
+            display: "flex",
+            alignItems: "center",
             minHeight: { xs: 56, sm: 64 },
           }}
         >
-          <Box>
-            <Typography
-              variant={isMobile ? "h6" : "h5"}
-              component="div"
-              color="white"
-              sx={{ fontWeight: 500 }}
+          {isMobile && (
+            <IconButton
+              onClick={onMenuClick}
+              sx={{ color: "white", mr: 2 }}
+              edge="start"
             >
-              {userInfo?.isAdmin ? "Admin Dashboard" : "Seller Dashboard"}
-            </Typography>
-          </Box>
+              <MenuIcon />
+            </IconButton>
+          )}
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            component="div"
+            color="white"
+            sx={{ fontWeight: 500 }}
+          >
+            {userInfo?.isAdmin ? "Admin Dashboard" : "Seller Dashboard"}
+          </Typography>
         </Toolbar>
       </Container>
     </AppBar>

@@ -7,14 +7,12 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
   IconButton,
   Tooltip,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import MenuIcon from "@mui/icons-material/Menu";
 import GrainOutlinedIcon from "@mui/icons-material/GrainOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
@@ -22,10 +20,16 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AddIcon from "@mui/icons-material/Add";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useAppDispatch, useAppSelector } from "../../../redux";
 import { reset } from "../../../redux/cart/cart-slice";
 import { userLogout } from "../../../redux/users/login-slice";
 import ProductModal from "../../product/ProductModal";
+
+interface SidebarProps {
+  mobileOpen: boolean;
+  handleMobileToggle: () => void;
+}
 
 const expandedWidth = 240;
 const collapsedWidth = 60;
@@ -49,21 +53,22 @@ const listItemIconSx = (open: boolean) => ({
   color: "white",
 });
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({
+  mobileOpen,
+  handleMobileToggle,
+}) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { userInfo } = useAppSelector((state) => state.login);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const headerHeight = { xs: 56, sm: 64 };
+  const headerHeight = { xs: 55, sm: 64 };
   const [open, setOpen] = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const handleToggleDrawer = () => setOpen((prev) => !prev);
-  const handleMobileToggle = () => setMobileOpen((prev) => !prev);
   const handleModalOpen = () => setModalOpen(true);
   const handleModalClose = () => setModalOpen(false);
 
@@ -122,7 +127,6 @@ const Sidebar: React.FC = () => {
           </IconButton>
         )}
       </Box>
-      <Divider sx={{ bgcolor: "grey.700" }} />
       <List>
         {navItems.map((item) => (
           <ListItem
@@ -169,7 +173,6 @@ const Sidebar: React.FC = () => {
         ))}
       </List>
       <Box sx={{ flexGrow: 1 }} />
-      <Divider sx={{ bgcolor: "grey.700" }} />
       <List>
         <ListItem disablePadding>
           <ListItemButton
@@ -198,36 +201,27 @@ const Sidebar: React.FC = () => {
   return (
     <>
       {isMobile ? (
-        <>
-          <IconButton
-            onClick={handleMobileToggle}
-            sx={{
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleMobileToggle}
+          container={document.body}
+          ModalProps={{ keepMounted: true, disableScrollLock: false }}
+          sx={{
+            "& .MuiDrawer-paper": {
               position: "fixed",
-              top: theme.spacing(9),
-              left: theme.spacing(1),
+              top: headerHeight,
+              height: { xs: "calc(100vh - 56px)", sm: "calc(100vh - 64px)" },
+              width: expandedWidth,
+              boxSizing: "border-box",
+              backgroundColor: "#1b1b1b",
               color: "white",
-              zIndex: theme.zIndex.drawer + 2,
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleMobileToggle}
-            ModalProps={{ keepMounted: true }}
-            sx={{
-              "& .MuiDrawer-paper": {
-                top: headerHeight,
-                width: expandedWidth,
-                backgroundColor: "#1b1b1b",
-                color: "white",
-              },
-            }}
-          >
-            {drawerContent}
-          </Drawer>
-        </>
+              overflowY: "auto",
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
       ) : (
         <Drawer
           variant="permanent"
@@ -238,6 +232,7 @@ const Sidebar: React.FC = () => {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               top: headerHeight,
+              height: { xs: `calc(100vh - 56px)`, sm: `calc(100vh - 64px)` },
               width: open ? expandedWidth : collapsedWidth,
               boxSizing: "border-box",
               backgroundColor: "#1b1b1b",
