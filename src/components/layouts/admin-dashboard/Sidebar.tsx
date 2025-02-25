@@ -24,7 +24,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useAppDispatch, useAppSelector } from "../../../redux";
 import { reset } from "../../../redux/cart/cart-slice";
 import { userLogout } from "../../../redux/users/login-slice";
-import ProductModal from "../../product/ProductModal";
+import ProductModal from "../../product/ProductCreateModal";
 
 interface SidebarProps {
   mobileOpen: boolean;

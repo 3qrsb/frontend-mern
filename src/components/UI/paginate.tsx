@@ -1,6 +1,7 @@
 import React from "react";
-import { Pagination } from "react-bootstrap";
-import { LinkContainer } from "react-router-bootstrap";
+import Pagination from "@mui/material/Pagination";
+import PaginationItem from "@mui/material/PaginationItem";
+import { Link } from "react-router-dom";
 
 type Props = {
   pages: number;
@@ -10,32 +11,42 @@ type Props = {
   urlPrefix: string;
 };
 
-const Paginate = ({
+const Paginate: React.FC<Props> = ({
   pages,
   page,
   isAdmin = false,
   keyword = "",
   urlPrefix,
-}: Props) => {
+}) => {
+  const generateLink = (pageNumber: number) => {
+    if (!isAdmin) {
+      return keyword
+        ? `/search/${keyword}/page/${pageNumber}`
+        : `/page/${pageNumber}`;
+    }
+    return `${urlPrefix}/${pageNumber}`;
+  };
+
   return (
     <>
       {pages > 1 && (
-        <Pagination>
-          {[...Array(pages).keys()].map((x) => (
-            <LinkContainer
-              key={x + 1}
-              to={
-                !isAdmin
-                  ? keyword
-                    ? `/search/${keyword}/page/${x + 1}`
-                    : `/page/${x + 1}`
-                  : `${urlPrefix}/${x + 1}`
-              }
-            >
-              <Pagination.Item active={x + 1 === page}>{x + 1}</Pagination.Item>
-            </LinkContainer>
-          ))}
-        </Pagination>
+        <Pagination
+          count={pages}
+          page={page}
+          color="primary"
+          shape="rounded"
+          renderItem={(item) =>
+            item.page !== null ? (
+              <PaginationItem
+                component={Link}
+                to={generateLink(item.page)}
+                {...item}
+              />
+            ) : (
+              <PaginationItem {...item} />
+            )
+          }
+        />
       )}
     </>
   );
