@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Card,
   IconButton,
   Paper,
   Table,
@@ -9,6 +8,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Box,
+  useTheme,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../redux";
@@ -16,35 +17,37 @@ import { getFilterProducts } from "../../../redux/products/search-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
 import { formatCurrencry, getDate } from "../../../utils/helper";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Loader from "../../../components/UI/loader";
 import Paginate from "../../../components/UI/paginate";
 import toast from "react-hot-toast";
-import ProductModal from "../../../components/product/ProductModal";
-import ProductUpdate from "../../../components/product/ProductUpdate";
-import { ReviewTypes } from "../../../types/review";
+import ProductCreateModal from "../../../components/product/ProductCreateModal";
+import ProductUpdateModal from "../../../components/product/ProductUpdateModal";
+import FloatingActionButton from "../../../components/UI/FloatingActionButton";
 
-const ProductTable = () => {
+const ProductTable: React.FC = () => {
   const dispatch = useAppDispatch();
+  const theme = useTheme();
   const { products, page, pages, loading } = useAppSelector(
     (state) => state.productFilter
   );
   const { userInfo } = useAppSelector((state) => state.login);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [show, setShow] = useState<boolean>(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
   const params = useParams();
   const pageNumber = params.pageNumber || 1;
 
-  const onOpen = () => setShow(true);
-  const onClose = () => setShow(false);
+  const openModal = () => setShowModal(true);
+  const closeModal = () => setShowModal(false);
 
   const onDelete = (id: string | number, productName: string) => {
     if (window.confirm(`Are you sure you want to delete ${productName}?`)) {
       authAxios
         .delete(`/products/${id}`)
-        .then((res) => {
+        .then(() => {
           toast.success("Product has been deleted");
           setRefresh((prev) => !prev);
         })
@@ -52,21 +55,8 @@ const ProductTable = () => {
     }
   };
 
-  const handleDelete = (product: {
-    _id: any;
-    name: any;
-    price?: number;
-    images?: string[];
-    category?: string;
-    brand?: string;
-    description?: string;
-    qty?: number;
-    createdAt?: Date;
-    reviews?: ReviewTypes[];
-    user: string;
-  }) => {
-    const productName = product.name;
-    onDelete(product._id, productName);
+  const handleDelete = (product: any) => {
+    onDelete(product._id, product.name);
   };
 
   const handleEditClick = (product: any) => {
@@ -81,133 +71,125 @@ const ProductTable = () => {
     dispatch(getFilterProducts({ n: pageNumber, b: "", c: "", q: "" }));
   }, [dispatch, pageNumber, refresh]);
 
-  const cols = [
-    "Image",
-    "Name",
-    "Brand",
-    "Category",
-    "Price",
-    "Created At",
-    "Options",
-  ];
-
   return (
     <>
       {loading ? (
         <Loader />
       ) : (
-        <Card className="mt-6 mb-6">
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead sx={{ backgroundColor: "#c62828" }}>
-                <TableRow>
-                  {cols.map((col: any) => (
-                    <TableCell
-                      key={col}
+        <TableContainer component={Paper} sx={{ my: 4 }}>
+          <Table sx={{ minWidth: 650 }} aria-label="admin products table">
+            <TableHead sx={{ backgroundColor: theme.palette.primary.main }}>
+              <TableRow>
+                {[
+                  "Image",
+                  "Name",
+                  "Brand",
+                  "Category",
+                  "Price",
+                  "Created At",
+                  "Options",
+                ].map((col) => (
+                  <TableCell
+                    key={col}
+                    sx={{
+                      color: "white",
+                      textTransform: "uppercase",
+                      fontWeight: "bold",
+                      fontSize: "0.875rem",
+                      py: 1,
+                      px: 2,
+                    }}
+                  >
+                    {col}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {products.map((product: any) => (
+                <TableRow
+                  key={product._id}
+                  hover
+                  sx={{
+                    "&:nth-of-type(even)": { backgroundColor: "#f5f5f5" },
+                  }}
+                >
+                  <TableCell>
+                    <Box
+                      component="img"
+                      src={product.images[0]}
+                      alt={product.name}
+                      sx={{ width: 50, height: 50, objectFit: "contain" }}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 500, color: "#424242" }}>
+                    {product.name}
+                  </TableCell>
+                  <TableCell sx={{ color: "#424242" }}>
+                    {product.brand}
+                  </TableCell>
+                  <TableCell sx={{ color: "#424242" }}>
+                    {product.category}
+                  </TableCell>
+                  <TableCell sx={{ color: "#424242" }}>
+                    {formatCurrencry(product.price)}
+                  </TableCell>
+                  <TableCell sx={{ color: "#424242" }}>
+                    {getDate(new Date(product.createdAt))}
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      onClick={() => handleEditClick(product)}
+                      size="small"
                       sx={{
+                        mr: 1,
+                        backgroundColor:
+                          userInfo?._id === product.user || userInfo?.isAdmin
+                            ? "#1976d2"
+                            : "grey",
                         color: "white",
-                        textTransform: "uppercase",
-                        fontWeight: "normal",
-                        fontSize: "0.875rem",
-                        py: 1,
-                        px: 2,
+                        "&:hover": {
+                          backgroundColor:
+                            userInfo?._id === product.user || userInfo?.isAdmin
+                              ? "#1565c0"
+                              : "grey",
+                        },
+                        fontSize: { xs: "1.25rem", md: "inherit" },
+                        p: { xs: 0.5, md: 1 },
+                        m: { xs: 0.5, md: 1 },
                       }}
                     >
-                      {col}
-                    </TableCell>
-                  ))}
+                      <EditIcon fontSize="inherit" />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleDelete(product)}
+                      size="small"
+                      sx={{
+                        backgroundColor:
+                          userInfo?._id === product.user || userInfo?.isAdmin
+                            ? "#ef5350"
+                            : "grey",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor:
+                            userInfo?._id === product.user || userInfo?.isAdmin
+                              ? "#c62828"
+                              : "grey",
+                        },
+                        fontSize: { xs: "1.25rem", md: "inherit" },
+                        p: { xs: 0.5, md: 1 },
+                      }}
+                    >
+                      <DeleteIcon fontSize="inherit" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product._id}>
-                    <TableCell>
-                      <img
-                        src={product.images[0]}
-                        alt="Product"
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          objectFit: "contain",
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ color: "gray" }}>{product.name}</TableCell>
-                    <TableCell sx={{ color: "gray" }}>
-                      {product.brand}
-                    </TableCell>
-                    <TableCell sx={{ color: "gray" }}>
-                      {product.category}
-                    </TableCell>
-                    <TableCell sx={{ color: "gray" }}>
-                      {formatCurrencry(product.price)}
-                    </TableCell>
-                    <TableCell sx={{ color: "gray" }}>
-                      {getDate(new Date(product.createdAt))}
-                    </TableCell>
-                    <TableCell>
-                      <IconButton
-                        onClick={() => handleEditClick(product)}
-                        size="small"
-                        sx={{
-                          borderRadius: 2,
-                          backgroundColor:
-                            userInfo?._id === product.user || userInfo?.isAdmin
-                              ? "#1976d2"
-                              : "grey",
-                          color: "white",
-                          pointerEvents:
-                            userInfo?._id === product.user || userInfo?.isAdmin
-                              ? "auto"
-                              : "none",
-                          "&:hover": {
-                            backgroundColor:
-                              userInfo?._id === product.user ||
-                              userInfo?.isAdmin
-                                ? "#1565c0"
-                                : "grey",
-                            color: "white",
-                          },
-                        }}
-                      >
-                        <FaEdit />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(product)}
-                        size="small"
-                        sx={{
-                          backgroundColor:
-                            userInfo?._id === product.user || userInfo?.isAdmin
-                              ? "#ef5350"
-                              : "grey",
-                          color: "white",
-                          pointerEvents:
-                            userInfo?._id === product.user || userInfo?.isAdmin
-                              ? "auto"
-                              : "none",
-                          "&:hover": {
-                            backgroundColor:
-                              userInfo?._id === product.user ||
-                              userInfo?.isAdmin
-                                ? "#c62828"
-                                : "grey",
-                            color: "white",
-                          },
-                          ml: 1,
-                          borderRadius: 2,
-                        }}
-                      >
-                        <FaTrash />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
-      <div style={{ margin: "25px 0" }}>
+      <Box sx={{ my: 3, mx: { xs: 2, md: 4 } }}>
         <Paginate
           pages={pages}
           page={page}
@@ -215,10 +197,18 @@ const ProductTable = () => {
           keyword={""}
           urlPrefix="/dashboard/product-list"
         />
-      </div>
-      <ProductModal setRefresh={setRefresh} show={show} handleClose={onClose} />
+      </Box>
+      <ProductCreateModal
+        setRefresh={setRefresh}
+        show={showModal}
+        handleClose={closeModal}
+      />
+      <FloatingActionButton onClick={openModal} />
       {selectedProduct && (
-        <ProductUpdate product={selectedProduct} onClose={handleUpdateClose} />
+        <ProductUpdateModal
+          product={selectedProduct}
+          onClose={handleUpdateClose}
+        />
       )}
     </>
   );
