@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import CartPage from "./pages/cart/CartPage";
 import HomePage from "./pages/HomePage";
@@ -29,12 +29,20 @@ import ResetPassword from "./pages/helpers/resetPassword";
 import ForgotPassword from "./pages/helpers/forgotPassword";
 import Contact from "./pages/ContactPage";
 import About from "./pages/AboutPage";
+import { fetchExchangeRates } from "./redux/settings/exchangeRatesSlice";
+import { useAppDispatch } from "./redux";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/admin-dashboard/DashboardLayout")
 );
 
 const App = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchExchangeRates());
+  }, [dispatch]);
+
   return (
     <WishlistProvider>
       <Router>
