@@ -3,7 +3,7 @@ import { Row, Col, Card } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrdersList } from "../../redux/orders/slice-list";
 import { getNewCustomersThisMonth } from "../../redux/users/user-list";
-import { formatCurrency, getDate } from "../../utils/helper";
+import { getDate } from "../../utils/helper";
 import React from "react";
 import SalesTrends from "../../components/admin-dashboard/SalesTrends";
 import TopSellingProducts from "../../components/admin-dashboard/TopSellingProducts";
@@ -21,6 +21,8 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 const DashboardPage = () => {
   const { total } = useAppSelector((state) => state.productFilter);
@@ -29,6 +31,7 @@ const DashboardPage = () => {
     (state) => state.userList
   );
   const dispatch = useAppDispatch();
+  const { currency, rates, baseCurrency } = useCurrencyData();
 
   const getTotalCost = () => {
     let total = 0;
@@ -64,7 +67,7 @@ const DashboardPage = () => {
                   Revenue
                 </span>
                 <span className="h3 font-bold mb-0">
-                  {formatCurrency(totalPrice)}
+                  {formatCurrency(totalPrice, currency, rates, baseCurrency)}
                 </span>
               </Col>
               <div className="col-auto">
@@ -265,7 +268,7 @@ const DashboardPage = () => {
                             variant="body2"
                             color="textPrimary"
                           >
-                            Total: {formatCurrency(order.totalPrice)}
+                            Total: {formatCurrency(order.totalPrice, currency, rates, baseCurrency)}
                           </Typography>
                           <br />
                           {order.discountAmount && (

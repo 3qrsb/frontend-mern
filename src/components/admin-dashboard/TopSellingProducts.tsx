@@ -14,13 +14,15 @@ import {
   Box,
 } from "@mui/material";
 import { TrendingUp as TrendingUpIcon } from "@mui/icons-material";
-import { formatCurrency } from "../../utils/helper";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 const TopSellingProducts = () => {
   const dispatch = useAppDispatch();
   const { topSellingProducts = [], loading } = useAppSelector(
     (state) => state.productList
   );
+  const { currency, rates, baseCurrency } = useCurrencyData();
 
   useEffect(() => {
     dispatch(getTopSellingProducts());
@@ -69,7 +71,12 @@ const TopSellingProducts = () => {
                           variant="body2"
                           color="textSecondary"
                         >
-                          {`Price: ${formatCurrency(product.price)}`}
+                          {`Price: ${formatCurrency(
+                            product.price,
+                            currency,
+                            rates,
+                            baseCurrency
+                          )}`}
                         </Typography>
                       </>
                     }

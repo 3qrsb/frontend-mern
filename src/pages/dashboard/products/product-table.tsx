@@ -11,17 +11,19 @@ import {
   Box,
   useTheme,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getFilterProducts } from "../../../redux/products/search-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
-import { formatCurrency, getDate } from "../../../utils/helper";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { getDate } from "../../../utils/helper";
+import { formatCurrency } from "../../../utils/currencyUtils";
+import { useCurrencyData } from "../../../hooks/useCurrencyData";
 import Loader from "../../../components/UI/loader";
 import Paginate from "../../../components/UI/paginate";
-import toast from "react-hot-toast";
 import ProductCreateModal from "../../../components/product/ProductCreateModal";
 import ProductUpdateModal from "../../../components/product/ProductUpdateModal";
 import FloatingActionButton from "../../../components/UI/FloatingActionButton";
@@ -36,7 +38,7 @@ const ProductTable: React.FC = () => {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
+  const { currency, rates, baseCurrency } = useCurrencyData();
   const params = useParams();
   const pageNumber = params.pageNumber || 1;
 
@@ -132,7 +134,12 @@ const ProductTable: React.FC = () => {
                     {product.category}
                   </TableCell>
                   <TableCell sx={{ color: "#424242" }}>
-                    {formatCurrency(product.price)}
+                    {formatCurrency(
+                      product.price,
+                      currency,
+                      rates,
+                      baseCurrency
+                    )}
                   </TableCell>
                   <TableCell sx={{ color: "#424242" }}>
                     {getDate(new Date(product.createdAt))}

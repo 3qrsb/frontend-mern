@@ -39,7 +39,7 @@ import { addToCart } from "../redux/cart/cart-slice";
 import { getProductById } from "../redux/products/slice-details";
 import authAxios from "../utils/auth-axios";
 import { setError } from "../utils/error";
-import { formatCurrency, getDate } from "../utils/helper";
+import { getDate } from "../utils/helper";
 import LazyImage from "../components/UI/LazyImage";
 import toast from "react-hot-toast";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -52,6 +52,8 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useWishlist } from "../context/WishlistContext";
 import { deepOrange } from "@mui/material/colors";
 import { Product } from "../types/product";
+import { formatCurrency } from "../utils/currencyUtils";
+import { useCurrencyData } from "../hooks/useCurrencyData";
 
 const TabPanel = ({
   children,
@@ -83,7 +85,6 @@ const ProductDetailsPage = () => {
   const { userInfo } = useAppSelector((state) => state.login);
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { id } = useParams();
-
   const [rating, setRating] = useState<number | null>(1);
   const [comment, setComment] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
@@ -105,6 +106,7 @@ const ProductDetailsPage = () => {
     (total, item) => total + item.qty,
     0
   );
+  const { currency, rates, baseCurrency } = useCurrencyData();
 
   const theme = useTheme();
   const screenSize = useMediaQuery(theme.breakpoints.only("md"));
@@ -396,7 +398,12 @@ const ProductDetailsPage = () => {
                     <List>
                       <ListItem>
                         <Typography variant="h4" color="primary">
-                          {formatCurrency(product?.price)}
+                          {formatCurrency(
+                            product.price,
+                            currency,
+                            rates,
+                            baseCurrency
+                          )}
                         </Typography>
                       </ListItem>
                       <Divider />

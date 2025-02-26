@@ -14,19 +14,20 @@ import {
 import Grid from "@mui/material/Grid2";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import { useAppSelector, useAppDispatch } from "../../redux";
-import { formatCurrency } from "../../utils/helper";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import LazyImage from "../../components/UI/LazyImage";
 import { updateCart, removeFromCart } from "../../redux/cart/cart-slice";
 import QuantityField from "../../components/UI/QuantityField";
 import CloseIcon from "@mui/icons-material/Close";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 const CartPage: React.FC = () => {
   const { cartItems } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-
+  const { currency, rates, baseCurrency } = useCurrencyData();
   const handleQuantityChange = (item: any, newQty: number) => {
     if (newQty < 1 || newQty > item.availableQty) {
       toast.error(`Quantity must be between 1 and ${item.availableQty}`);
@@ -44,9 +45,8 @@ const CartPage: React.FC = () => {
     (acc, item) => acc + item.qty * item.price,
     0
   );
-  const taxPrice = 0;
-  const shippingPrice = itemsPrice >= 200 ? 0 : 30;
-  const finalPrice = itemsPrice + taxPrice + shippingPrice;
+
+  const finalPrice = itemsPrice;
 
   return (
     <DefaultLayout title="Cart">
@@ -81,8 +81,7 @@ const CartPage: React.FC = () => {
                       <Grid
                         size={{ xs: 2, md: 1 }}
                         sx={{ textAlign: "center" }}
-                      >
-                      </Grid>
+                      ></Grid>
                       <Grid
                         size={{ xs: 3, md: 2 }}
                         sx={{ textAlign: "center" }}
@@ -163,7 +162,12 @@ const CartPage: React.FC = () => {
                           sx={{ textAlign: "center" }}
                         >
                           <Typography variant="subtitle1">
-                            {formatCurrency(item.price * item.qty)}
+                            {formatCurrency(
+                              item.price * item.qty,
+                              currency,
+                              rates,
+                              baseCurrency
+                            )}
                           </Typography>
                         </Grid>
                       </Grid>
@@ -183,25 +187,39 @@ const CartPage: React.FC = () => {
                       <Typography>
                         SubTotal (
                         {cartItems.reduce((acc, item) => acc + item.qty, 0)}{" "}
-                        items): {formatCurrency(itemsPrice)}
+                        items):{" "}
+                        {formatCurrency(
+                          itemsPrice,
+                          currency,
+                          rates,
+                          baseCurrency
+                        )}
                       </Typography>
                     </ListItem>
                     <Divider sx={{ my: 1 }} />
                     <ListItem disableGutters>
                       <Typography>
-                        Tax Price: {formatCurrency(taxPrice)}
+                        Tax Price:{" "}
+                        {formatCurrency(0, currency, rates, baseCurrency)}
                       </Typography>
                     </ListItem>
                     <Divider sx={{ my: 1 }} />
                     <ListItem disableGutters>
                       <Typography>
-                        Shipping Price: {formatCurrency(shippingPrice)}
+                        Shipping Price:{" "}
+                        {formatCurrency(0, currency, rates, baseCurrency)}
                       </Typography>
                     </ListItem>
                     <Divider sx={{ my: 1 }} />
                     <ListItem disableGutters>
                       <Typography variant="subtitle1" fontWeight="bold">
-                        Final Price: {formatCurrency(finalPrice)}
+                        Final Price:{" "}
+                        {formatCurrency(
+                          finalPrice,
+                          currency,
+                          rates,
+                          baseCurrency
+                        )}
                       </Typography>
                     </ListItem>
                   </List>

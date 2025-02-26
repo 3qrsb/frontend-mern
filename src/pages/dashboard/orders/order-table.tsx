@@ -15,17 +15,19 @@ import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getOrdersList } from "../../../redux/orders/slice-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
-import { formatCurrency, getDate } from "../../../utils/helper";
+import { getDate } from "../../../utils/helper";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import Loader from "../../../components/UI/loader";
 import toast from "react-hot-toast";
 import { GrView } from "react-icons/gr";
+import { formatCurrency } from "../../../utils/currencyUtils";
+import { useCurrencyData } from "../../../hooks/useCurrencyData";
 
 function OrdersTable() {
   const dispatch = useAppDispatch();
   const { orders, loading } = useAppSelector((state) => state.orders);
   const [refresh, setRefresh] = useState<boolean>(false);
-
+  const { currency, rates, baseCurrency } = useCurrencyData();
   const onDelete = (id: string | number, productName: string) => {
     if (
       window.confirm(
@@ -96,7 +98,7 @@ function OrdersTable() {
                       {order.user && order.user.email}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {formatCurrency(order.totalPrice)}
+                      {formatCurrency(order.totalPrice, currency, rates, baseCurrency)}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
                       {order.shippingAddress.address}

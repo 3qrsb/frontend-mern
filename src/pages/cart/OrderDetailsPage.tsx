@@ -4,7 +4,6 @@ import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrderById } from "../../redux/orders/order-details";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import Loader from "../../components/UI/loader";
-import { formatCurrency } from "../../utils/helper";
 import LazyImage from "../../components/UI/LazyImage";
 import Grid from "@mui/material/Grid2";
 import {
@@ -24,11 +23,14 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 const OrderDetailsPage = () => {
   const dispatch = useAppDispatch();
   const { id } = useParams();
   const { order, loading } = useAppSelector((state) => state.orderDetail);
+  const { currency, rates, baseCurrency } = useCurrencyData();
 
   useEffect(() => {
     dispatch(getOrderById(id));
@@ -50,7 +52,6 @@ const OrderDetailsPage = () => {
     order?.cartItems.reduce((acc, item) => acc + item.qty, 0) || 0;
   const cartSubTotal =
     order?.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0) || 0;
-  const shippingCost = order?.totalPrice ? order.totalPrice - cartSubTotal : 0;
 
   return (
     <DefaultLayout title="Order Details">
@@ -151,7 +152,12 @@ const OrderDetailsPage = () => {
                         />
 
                         <Typography variant="body1" fontWeight="bold">
-                          {formatCurrency(item.qty * item.price)}
+                          {formatCurrency(
+                            item.price * item.qty,
+                            currency,
+                            rates,
+                            baseCurrency
+                          )}
                         </Typography>
                       </ListItem>
                     ))}
@@ -183,7 +189,12 @@ const OrderDetailsPage = () => {
                         Subtotal ({cartItemCount} items)
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {formatCurrency(cartSubTotal)}
+                        {formatCurrency(
+                          cartSubTotal,
+                          currency,
+                          rates,
+                          baseCurrency
+                        )}
                       </Typography>
                     </Box>
 
@@ -197,7 +208,7 @@ const OrderDetailsPage = () => {
                         Tax Price
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {formatCurrency(0)}
+                        {formatCurrency(0, currency, rates, baseCurrency)}
                       </Typography>
                     </Box>
 
@@ -211,7 +222,7 @@ const OrderDetailsPage = () => {
                         Shipping Price
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {formatCurrency(shippingCost > 0 ? shippingCost : 0)}
+                        {formatCurrency(0, currency, rates, baseCurrency)}
                       </Typography>
                     </Box>
 
@@ -248,7 +259,12 @@ const OrderDetailsPage = () => {
                       Final Price
                     </Typography>
                     <Typography variant="h5" fontWeight="bold" color="primary">
-                      {formatCurrency(order?.totalPrice)}
+                      {formatCurrency(
+                        order!.totalPrice,
+                        currency,
+                        rates,
+                        baseCurrency
+                      )}
                     </Typography>
                   </Box>
                 </CardContent>

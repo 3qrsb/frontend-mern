@@ -13,8 +13,10 @@ import {
 import { Link } from "react-router-dom";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import { GrView } from "react-icons/gr";
-import { formatCurrency, getDate } from "../../utils/helper";
+import { getDate } from "../../utils/helper";
 import { Ordertypes } from "../../types/order";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 interface UserOrdersTableProps {
   orders: Ordertypes[];
@@ -26,6 +28,7 @@ const UserOrdersTable: React.FC<UserOrdersTableProps> = ({
   onDelete,
 }) => {
   const cols = ["Order id", "Price", "Address", "Paid", "Date", "Actions"];
+  const { currency, rates, baseCurrency } = useCurrencyData();
 
   return (
     <TableContainer
@@ -59,7 +62,7 @@ const UserOrdersTable: React.FC<UserOrdersTableProps> = ({
                 {order._id}
               </TableCell>
               <TableCell sx={{ color: "gray", fontSize: "inherit" }}>
-                {formatCurrency(order.totalPrice)}
+                {formatCurrency(order.totalPrice, currency, rates, baseCurrency)}
               </TableCell>
               <TableCell sx={{ color: "gray", fontSize: "inherit" }}>
                 {order.shippingAddress.street}

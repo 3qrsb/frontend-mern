@@ -12,11 +12,12 @@ import {
 } from "@mui/material";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAppSelector, useAppDispatch } from "../../redux";
-import { formatCurrency } from "../../utils/helper";
 import { addToCart, removeFromCart } from "../../redux/cart/cart-slice";
 import { Product } from "../../types/product";
 import { useAverageRating } from "../../hooks/useAverageRating";
 import ProductActionsOverlay from "./ProductActionsOverlay";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 type ProductCardProps = {
   product: Product;
@@ -29,8 +30,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [isLiked, setIsLiked] = useState(false);
   const averageRating = useAverageRating(product.reviews);
-
   const isInCart = cartItems.some((item) => item._id === product._id);
+  const { currency, rates, baseCurrency } = useCurrencyData();
 
   useEffect(() => {
     const isProductInWishlist = wishlist.some(
@@ -42,7 +43,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleLike = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (isLiked) {
       removeFromWishlist(product._id);
     } else {
@@ -110,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.name}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {(product.price)}
+            {formatCurrency(product.price, currency, rates, baseCurrency)}
           </Typography>
         </CardContent>
       </CardActionArea>

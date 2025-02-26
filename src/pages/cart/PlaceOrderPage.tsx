@@ -13,12 +13,13 @@ import {
 import Grid from "@mui/material/Grid2";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import { useAppSelector, useAppDispatch } from "../../redux";
-import { formatCurrency } from "../../utils/helper";
 import { loadStripe } from "@stripe/stripe-js";
 import authAxios from "../../utils/auth-axios";
 import toast from "react-hot-toast";
 import { saveAddress } from "../../redux/cart/cart-slice";
 import AddressSelectorModal from "../../components/checkout/AddressSelectorModal";
+import { formatCurrency } from "../../utils/currencyUtils";
+import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 const stripePromise = loadStripe(import.meta.env.VITE_API_STRIPE);
 
@@ -27,14 +28,12 @@ const PlaceOrderPage = () => {
   const { user } = useAppSelector((state) => state.userDetails);
   const dispatch = useAppDispatch();
   const [addressModalOpen, setAddressModalOpen] = useState(false);
-
+  const { currency, rates, baseCurrency } = useCurrencyData();
   const itemsPrice = cartItems.reduce(
     (acc, item) => acc + item.qty * item.price,
     0
   );
-  const taxPrice = 0;
-  const shippingPrice = itemsPrice >= 200 ? 0 : 30;
-  const totalPrice = itemsPrice + taxPrice + shippingPrice;
+  const totalPrice = itemsPrice;
 
   const handlePlaceOrder = async () => {
     if (!shippingAddress) {
@@ -143,25 +142,39 @@ const PlaceOrderPage = () => {
                     <Typography>
                       SubTotal (
                       {cartItems.reduce((acc, item) => acc + item.qty, 0)}{" "}
-                      items): {formatCurrency(itemsPrice)}
+                      items):{" "}
+                      {formatCurrency(
+                        itemsPrice,
+                        currency,
+                        rates,
+                        baseCurrency
+                      )}
                     </Typography>
                   </ListItem>
                   <Divider sx={{ my: 1 }} />
                   <ListItem disableGutters>
                     <Typography>
-                      Tax Price: {formatCurrency(taxPrice)}
+                      Tax Price:{" "}
+                      {formatCurrency(0, currency, rates, baseCurrency)}
                     </Typography>
                   </ListItem>
                   <Divider sx={{ my: 1 }} />
                   <ListItem disableGutters>
                     <Typography>
-                      Shipping Price: {formatCurrency(shippingPrice)}
+                      Shipping Price:{" "}
+                      {formatCurrency(0, currency, rates, baseCurrency)}
                     </Typography>
                   </ListItem>
                   <Divider sx={{ my: 1 }} />
                   <ListItem disableGutters>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      Final Price: {formatCurrency(totalPrice)}
+                      Final Price:{" "}
+                      {formatCurrency(
+                        totalPrice,
+                        currency,
+                        rates,
+                        baseCurrency
+                      )}
                     </Typography>
                   </ListItem>
                 </List>
