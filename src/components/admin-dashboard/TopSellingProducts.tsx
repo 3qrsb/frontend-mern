@@ -14,7 +14,7 @@ import {
   Box,
 } from "@mui/material";
 import { TrendingUp as TrendingUpIcon } from "@mui/icons-material";
-import { formatCurrencry } from "../../utils/helper";
+import { formatCurrency } from "../../utils/helper";
 
 const TopSellingProducts = () => {
   const dispatch = useAppDispatch();
@@ -69,7 +69,7 @@ const TopSellingProducts = () => {
                           variant="body2"
                           color="textSecondary"
                         >
-                          {`Price: ${formatCurrencry(product.price)}`}
+                          {`Price: ${formatCurrency(product.price)}`}
                         </Typography>
                       </>
                     }

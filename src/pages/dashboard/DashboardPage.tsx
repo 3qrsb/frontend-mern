@@ -3,7 +3,7 @@ import { Row, Col, Card } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrdersList } from "../../redux/orders/slice-list";
 import { getNewCustomersThisMonth } from "../../redux/users/user-list";
-import { formatCurrencry, getDate } from "../../utils/helper";
+import { formatCurrency, getDate } from "../../utils/helper";
 import React from "react";
 import SalesTrends from "../../components/admin-dashboard/SalesTrends";
 import TopSellingProducts from "../../components/admin-dashboard/TopSellingProducts";
@@ -64,7 +64,7 @@ const DashboardPage = () => {
                   Revenue
                 </span>
                 <span className="h3 font-bold mb-0">
-                  {formatCurrencry(totalPrice)}
+                  {formatCurrency(totalPrice)}
                 </span>
               </Col>
               <div className="col-auto">
@@ -182,7 +182,7 @@ const DashboardPage = () => {
                   Average Order Value
                 </span>
                 <span className="h3 font-bold mb-0">
-                  {formatCurrencry(averageOrderValue)}
+                  {formatCurrency(averageOrderValue)}
                 </span>
               </Col>
               <div className="col-auto">
@@ -265,7 +265,7 @@ const DashboardPage = () => {
                             variant="body2"
                             color="textPrimary"
                           >
-                            Total: {formatCurrencry(order.totalPrice)}
+                            Total: {formatCurrency(order.totalPrice)}
                           </Typography>
                           <br />
                           {order.discountAmount && (
@@ -276,7 +276,7 @@ const DashboardPage = () => {
                                 color="textPrimary"
                               >
                                 Discount Amount:{" "}
-                                {formatCurrencry(order.discountAmount)}
+                                {formatCurrency(order.discountAmount)}
                               </Typography>
                               <br />
                             </>

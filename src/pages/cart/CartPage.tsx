@@ -14,7 +14,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import { useAppSelector, useAppDispatch } from "../../redux";
-import { formatCurrencry } from "../../utils/helper";
+import { formatCurrency } from "../../utils/helper";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import LazyImage from "../../components/UI/LazyImage";
@@ -163,7 +163,7 @@ const CartPage: React.FC = () => {
                           sx={{ textAlign: "center" }}
                         >
                           <Typography variant="subtitle1">
-                            {formatCurrencry(item.price * item.qty)}
+                            {formatCurrency(item.price * item.qty)}
                           </Typography>
                         </Grid>
                       </Grid>
@@ -183,25 +183,25 @@ const CartPage: React.FC = () => {
                       <Typography>
                         SubTotal (
                         {cartItems.reduce((acc, item) => acc + item.qty, 0)}{" "}
-                        items): {formatCurrencry(itemsPrice)}
+                        items): {formatCurrency(itemsPrice)}
                       </Typography>
                     </ListItem>
                     <Divider sx={{ my: 1 }} />
                     <ListItem disableGutters>
                       <Typography>
-                        Tax Price: {formatCurrencry(taxPrice)}
+                        Tax Price: {formatCurrency(taxPrice)}
                       </Typography>
                     </ListItem>
                     <Divider sx={{ my: 1 }} />
                     <ListItem disableGutters>
                       <Typography>
-                        Shipping Price: {formatCurrencry(shippingPrice)}
+                        Shipping Price: {formatCurrency(shippingPrice)}
                       </Typography>
                     </ListItem>
                     <Divider sx={{ my: 1 }} />
                     <ListItem disableGutters>
                       <Typography variant="subtitle1" fontWeight="bold">
-                        Final Price: {formatCurrencry(finalPrice)}
+                        Final Price: {formatCurrency(finalPrice)}
                       </Typography>
                     </ListItem>
                   </List>

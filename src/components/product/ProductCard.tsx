@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAppSelector, useAppDispatch } from "../../redux";
-import { formatCurrencry } from "../../utils/helper";
+import { formatCurrency } from "../../utils/helper";
 import { addToCart, removeFromCart } from "../../redux/cart/cart-slice";
 import { Product } from "../../types/product";
 import { useAverageRating } from "../../hooks/useAverageRating";
@@ -110,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.name}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {formatCurrencry(product.price)}
+            {(product.price)}
           </Typography>
         </CardContent>
       </CardActionArea>

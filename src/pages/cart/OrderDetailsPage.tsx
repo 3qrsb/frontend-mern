@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrderById } from "../../redux/orders/order-details";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import Loader from "../../components/UI/loader";
-import { formatCurrencry } from "../../utils/helper";
+import { formatCurrency } from "../../utils/helper";
 import LazyImage from "../../components/UI/LazyImage";
 import Grid from "@mui/material/Grid2";
 import {
@@ -151,7 +151,7 @@ const OrderDetailsPage = () => {
                         />
 
                         <Typography variant="body1" fontWeight="bold">
-                          {formatCurrencry(item.qty * item.price)}
+                          {formatCurrency(item.qty * item.price)}
                         </Typography>
                       </ListItem>
                     ))}
@@ -183,7 +183,7 @@ const OrderDetailsPage = () => {
                         Subtotal ({cartItemCount} items)
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {formatCurrencry(cartSubTotal)}
+                        {formatCurrency(cartSubTotal)}
                       </Typography>
                     </Box>
 
@@ -197,7 +197,7 @@ const OrderDetailsPage = () => {
                         Tax Price
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {formatCurrencry(0)}
+                        {formatCurrency(0)}
                       </Typography>
                     </Box>
 
@@ -211,7 +211,7 @@ const OrderDetailsPage = () => {
                         Shipping Price
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {formatCurrencry(shippingCost > 0 ? shippingCost : 0)}
+                        {formatCurrency(shippingCost > 0 ? shippingCost : 0)}
                       </Typography>
                     </Box>
 
@@ -226,7 +226,7 @@ const OrderDetailsPage = () => {
                           Discount
                         </Typography>
                         <Typography variant="body2" color="error.main">
-                          -{formatCurrencry(order.discountAmount)}
+                          -{formatCurrency(order.discountAmount)}
                         </Typography>
                       </Box>
                     )}
@@ -248,7 +248,7 @@ const OrderDetailsPage = () => {
                       Final Price
                     </Typography>
                     <Typography variant="h5" fontWeight="bold" color="primary">
-                      {formatCurrencry(order?.totalPrice)}
+                      {formatCurrency(order?.totalPrice)}
                     </Typography>
                   </Box>
                 </CardContent>

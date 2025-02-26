@@ -13,7 +13,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import { useAppSelector, useAppDispatch } from "../../redux";
-import { formatCurrencry } from "../../utils/helper";
+import { formatCurrency } from "../../utils/helper";
 import { loadStripe } from "@stripe/stripe-js";
 import authAxios from "../../utils/auth-axios";
 import toast from "react-hot-toast";
@@ -143,25 +143,25 @@ const PlaceOrderPage = () => {
                     <Typography>
                       SubTotal (
                       {cartItems.reduce((acc, item) => acc + item.qty, 0)}{" "}
-                      items): {formatCurrencry(itemsPrice)}
+                      items): {formatCurrency(itemsPrice)}
                     </Typography>
                   </ListItem>
                   <Divider sx={{ my: 1 }} />
                   <ListItem disableGutters>
                     <Typography>
-                      Tax Price: {formatCurrencry(taxPrice)}
+                      Tax Price: {formatCurrency(taxPrice)}
                     </Typography>
                   </ListItem>
                   <Divider sx={{ my: 1 }} />
                   <ListItem disableGutters>
                     <Typography>
-                      Shipping Price: {formatCurrencry(shippingPrice)}
+                      Shipping Price: {formatCurrency(shippingPrice)}
                     </Typography>
                   </ListItem>
                   <Divider sx={{ my: 1 }} />
                   <ListItem disableGutters>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      Final Price: {formatCurrencry(totalPrice)}
+                      Final Price: {formatCurrency(totalPrice)}
                     </Typography>
                   </ListItem>
                 </List>

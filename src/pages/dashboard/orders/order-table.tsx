@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getOrdersList } from "../../../redux/orders/slice-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
-import { formatCurrencry, getDate } from "../../../utils/helper";
+import { formatCurrency, getDate } from "../../../utils/helper";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import Loader from "../../../components/UI/loader";
 import toast from "react-hot-toast";
@@ -96,7 +96,7 @@ function OrdersTable() {
                       {order.user && order.user.email}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
-                      {formatCurrencry(order.totalPrice)}
+                      {formatCurrency(order.totalPrice)}
                     </TableCell>
                     <TableCell sx={{ color: "gray" }}>
                       {order.shippingAddress.address}

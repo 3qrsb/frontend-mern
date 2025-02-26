@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getFilterProducts } from "../../../redux/products/search-list";
 import authAxios from "../../../utils/auth-axios";
 import { setError } from "../../../utils/error";
-import { formatCurrencry, getDate } from "../../../utils/helper";
+import { formatCurrency, getDate } from "../../../utils/helper";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Loader from "../../../components/UI/loader";
@@ -132,7 +132,7 @@ const ProductTable: React.FC = () => {
                     {product.category}
                   </TableCell>
                   <TableCell sx={{ color: "#424242" }}>
-                    {formatCurrencry(product.price)}
+                    {formatCurrency(product.price)}
                   </TableCell>
                   <TableCell sx={{ color: "#424242" }}>
                     {getDate(new Date(product.createdAt))}

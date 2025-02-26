@@ -13,7 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import { GrView } from "react-icons/gr";
-import { formatCurrencry, getDate } from "../../utils/helper";
+import { formatCurrency, getDate } from "../../utils/helper";
 import { Ordertypes } from "../../types/order";
 
 interface UserOrdersTableProps {
@@ -59,7 +59,7 @@ const UserOrdersTable: React.FC<UserOrdersTableProps> = ({
                 {order._id}
               </TableCell>
               <TableCell sx={{ color: "gray", fontSize: "inherit" }}>
-                {formatCurrencry(order.totalPrice)}
+                {formatCurrency(order.totalPrice)}
               </TableCell>
               <TableCell sx={{ color: "gray", fontSize: "inherit" }}>
                 {order.shippingAddress.street}
