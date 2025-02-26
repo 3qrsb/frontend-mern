@@ -23,6 +23,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import UserOrdersTable from "../../components/profile/UserOrdersTable";
 import AddressManager from "../../components/profile/AddressManager";
+import CurrencySelector from "../../components/profile/CurrencySelector";
 
 type FormValues = {
   email: string;
@@ -128,6 +129,9 @@ const ProfilePage = () => {
                 <Typography variant="h6" gutterBottom>
                   Profile Details
                 </Typography>
+                <Box mb={2}>
+                  <CurrencySelector />
+                </Box>
                 <Box
                   component="form"
                   onSubmit={handleSubmit(onSubmit)}
