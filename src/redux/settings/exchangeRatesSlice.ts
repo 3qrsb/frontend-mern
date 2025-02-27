@@ -6,6 +6,7 @@ interface ExchangeRatesState {
   base: string;
   loading: boolean;
   error: string | null;
+  lastFetched: number | null;
 }
 
 const initialState: ExchangeRatesState = {
@@ -13,6 +14,7 @@ const initialState: ExchangeRatesState = {
   base: "USD",
   loading: false,
   error: null,
+  lastFetched: null,
 };
 
 export const fetchExchangeRates = createAsyncThunk(
@@ -28,6 +30,17 @@ export const fetchExchangeRates = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(error.response.data);
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const state = getState() as { exchangeRates: ExchangeRatesState };
+      const { lastFetched } = state.exchangeRates;
+      const oneDay = 24 * 60 * 60 * 1000;
+      if (lastFetched && Date.now() - lastFetched < oneDay) {
+        return false;
+      }
+      return true;
+    },
   }
 );
 
@@ -45,6 +58,7 @@ const exchangeRatesSlice = createSlice({
         state.loading = false;
         state.rates = action.payload.rates;
         state.base = action.payload.base;
+        state.lastFetched = Date.now();
       })
       .addCase(fetchExchangeRates.rejected, (state, action) => {
         state.loading = false;
