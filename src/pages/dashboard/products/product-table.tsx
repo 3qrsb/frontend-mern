@@ -27,6 +27,7 @@ import Paginate from "../../../components/UI/paginate";
 import ProductCreateModal from "../../../components/product/ProductCreateModal";
 import ProductUpdateModal from "../../../components/product/ProductUpdateModal";
 import FloatingActionButton from "../../../components/UI/FloatingActionButton";
+import ConfirmationDialog from "../../../components/UI/ConfirmationDialog";
 
 const ProductTable: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -38,6 +39,8 @@ const ProductTable: React.FC = () => {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [productToDelete, setProductToDelete] = useState<any>(null);
   const { currency, rates, baseCurrency } = useCurrencyData();
   const params = useParams();
   const pageNumber = params.pageNumber || 1;
@@ -45,20 +48,26 @@ const ProductTable: React.FC = () => {
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
-  const onDelete = (id: string | number, productName: string) => {
-    if (window.confirm(`Are you sure you want to delete ${productName}?`)) {
+  const handleDeleteClick = (product: any) => {
+    setProductToDelete(product);
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogConfirm = () => {
+    if (productToDelete) {
       authAxios
-        .delete(`/products/${id}`)
+        .delete(`/products/${productToDelete._id}`)
         .then(() => {
           toast.success("Product has been deleted");
           setRefresh((prev) => !prev);
         })
         .catch((e) => toast.error(setError(e)));
     }
+    setIsDialogOpen(false);
   };
 
-  const handleDelete = (product: any) => {
-    onDelete(product._id, product.name);
+  const handleDialogCancel = () => {
+    setIsDialogOpen(false);
   };
 
   const handleEditClick = (product: any) => {
@@ -169,7 +178,7 @@ const ProductTable: React.FC = () => {
                       <EditIcon fontSize="inherit" />
                     </IconButton>
                     <IconButton
-                      onClick={() => handleDelete(product)}
+                      onClick={() => handleDeleteClick(product)}
                       size="small"
                       sx={{
                         backgroundColor:
@@ -217,6 +226,13 @@ const ProductTable: React.FC = () => {
           onClose={handleUpdateClose}
         />
       )}
+      <ConfirmationDialog
+        open={isDialogOpen}
+        title="Confirm Delete"
+        content={`Are you sure you want to delete ${productToDelete?.name}?`}
+        onConfirm={handleDialogConfirm}
+        onCancel={handleDialogCancel}
+      />
     </>
   );
 };
