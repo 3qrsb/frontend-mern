@@ -1,17 +1,24 @@
 export interface Product {
-  inStock: boolean;
-  _id: number | string;
+  _id: string;
   name: string;
   price: number;
   images: string[];
-  image?: string;
   category: string;
   brand: string;
   description: string;
   qty: number;
   availableQty: number;
   createdAt: Date;
+  updatedAt: Date;
   reviews: { rating: number }[];
   totalSales: number;
-  user: string;
+  inStock: boolean;
+  user:
+    | string
+    | {
+        _id: string;
+        name: string;
+        isAdmin: boolean;
+        isSeller: boolean;
+      };
 }

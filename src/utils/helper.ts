@@ -1,4 +1,7 @@
 export const getDate = (date: Date): string => {
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
