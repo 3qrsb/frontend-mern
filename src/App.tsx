@@ -6,7 +6,7 @@ import ProductDetails from "./pages/ProductDetailsPage";
 import Login from "./pages/users/login";
 import { Toaster } from "react-hot-toast";
 import DashboardPage from "./pages/dashboard/DashboardPage";
-import ProductTable from "./pages/dashboard/products/product-table";
+import ProductTable from "./pages/dashboard/products/ProductTablePage";
 import UserTable from "./pages/dashboard/users/users-table";
 import Register from "./pages/users/register";
 import Profile from "./pages/users/profile";
