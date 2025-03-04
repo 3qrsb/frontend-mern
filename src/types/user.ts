@@ -15,5 +15,6 @@ export interface User {
   isAdmin: boolean;
   isSeller: boolean;
   createdAt: Date;
+  updatedAt: Date;
   addresses?: AddressTypes[];
 }
