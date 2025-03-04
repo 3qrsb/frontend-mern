@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Box, Card } from "@mui/material";
+import { Box } from "@mui/material";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../../redux";
-import { getUsersList } from "../../../redux/users/user-list";
-import authAxios from "../../../utils/auth-axios";
-import { setError } from "../../../utils/error";
+import {
+  getUsersList,
+  deleteUser,
+  promoteAdmin,
+  promoteSeller,
+  demoteSeller,
+} from "../../../redux/users/user-list";
 import Loader from "../../../components/UI/loader";
 import DataTable, { Column } from "../../../components/UI/DataTable";
 import ConfirmationDialog from "../../../components/UI/ConfirmationDialog";
@@ -24,7 +28,6 @@ const UserTablePage: React.FC = () => {
   const { users, loading, page, pages } = useAppSelector(
     (state) => state.userList
   );
-  const [refresh, setRefresh] = useState<boolean>(false);
   const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedAction, setSelectedAction] = useState<
@@ -40,41 +43,23 @@ const UserTablePage: React.FC = () => {
     setConfirmationOpen(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedUser && selectedAction) {
-      if (selectedAction === "delete") {
-        authAxios
-          .delete(`/users/${selectedUser._id}`)
-          .then(() => {
-            toast.success(`${selectedUser.name} has been deleted`);
-            setRefresh((prev) => !prev);
-          })
-          .catch((e) => toast.error(setError(e)));
-      } else if (selectedAction === "promoteAdmin") {
-        authAxios
-          .post(`/users/promote/admin/${selectedUser._id}`)
-          .then(() => {
-            toast.success(`${selectedUser.name} has been promoted to admin`);
-            setRefresh((prev) => !prev);
-          })
-          .catch((e) => toast.error(setError(e)));
-      } else if (selectedAction === "promoteSeller") {
-        authAxios
-          .post(`/users/promote/seller/${selectedUser._id}`)
-          .then(() => {
-            toast.success(`${selectedUser.name} has been promoted to seller`);
-            setRefresh((prev) => !prev);
-          })
-          .catch((e) => toast.error(setError(e)));
-      } else if (selectedAction === "demoteSeller") {
-        authAxios
-          .post(`/users/demote/seller/${selectedUser._id}`)
-          .then(() => {
-            toast.success(`${selectedUser.name} has been demoted from seller`);
-            setRefresh((prev) => !prev);
-          })
-          .catch((e) => toast.error(setError(e)));
-      }
+      try {
+        if (selectedAction === "delete") {
+          await dispatch(deleteUser(selectedUser._id)).unwrap();
+          toast.success(`${selectedUser.name} has been deleted`);
+        } else if (selectedAction === "promoteAdmin") {
+          await dispatch(promoteAdmin(selectedUser._id)).unwrap();
+          toast.success(`${selectedUser.name} has been promoted to admin`);
+        } else if (selectedAction === "promoteSeller") {
+          await dispatch(promoteSeller(selectedUser._id)).unwrap();
+          toast.success(`${selectedUser.name} has been promoted to seller`);
+        } else if (selectedAction === "demoteSeller") {
+          await dispatch(demoteSeller(selectedUser._id)).unwrap();
+          toast.success(`${selectedUser.name} has been demoted from seller`);
+        }
+      } catch (error) {}
     }
     setConfirmationOpen(false);
     setSelectedUser(null);
@@ -89,7 +74,7 @@ const UserTablePage: React.FC = () => {
 
   useEffect(() => {
     dispatch(getUsersList({ page, query: "" }));
-  }, [dispatch, refresh, page]);
+  }, [dispatch, page]);
 
   return (
     <>

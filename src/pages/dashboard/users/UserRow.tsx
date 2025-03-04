@@ -41,6 +41,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onPromote, onDelete }) => {
           <Tooltip
             title={
               <>
+                <div>ID: {user._id}</div>
                 <div>Date Created: {getDate(new Date(user.createdAt))}</div>
                 {user.updatedAt && (
                   <div>Last Updated: {getDate(new Date(user.updatedAt))}</div>
