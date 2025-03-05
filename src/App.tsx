@@ -10,7 +10,7 @@ import ProductTable from "./pages/dashboard/products/ProductTablePage";
 import UserTable from "./pages/dashboard/users/UsersTablePage";
 import Register from "./pages/users/register";
 import Profile from "./pages/users/profile";
-import OrdersTable from "./pages/dashboard/orders/order-table";
+import OrdersTable from "./pages/dashboard/orders/OrdersTablePage";
 import OrderDetails from "./pages/cart/OrderDetailsPage";
 import Products from "./pages/ProductsPage";
 import AuthProvider from "./utils/auth-provider";

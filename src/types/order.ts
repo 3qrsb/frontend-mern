@@ -1,4 +1,5 @@
 import { Product } from "./product";
+import { User } from "./user";
 
 export interface ShippingAddress {
   street: string;
@@ -11,7 +12,7 @@ export interface ShippingAddress {
 
 export interface Ordertypes {
   _id: string;
-  user: string;
+  user: string | User;
   shippingAddress: ShippingAddress;
   cartItems: Product[];
   discountAmount: number;
