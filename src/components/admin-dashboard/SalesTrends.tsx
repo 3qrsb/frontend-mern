@@ -1,283 +1,280 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Line } from "react-chartjs-2";
 import { useAppSelector } from "../../redux";
-import { format, parseISO, startOfWeek, startOfMonth } from "date-fns";
+import Grid from "@mui/material/Grid2";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  ChartOptions,
-} from "chart.js";
-import {
+  Box,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  SelectChangeEvent,
-  Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
   Menu,
   MenuItem as DropdownMenuItem,
-  Typography,
+  SelectChangeEvent,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
-import { ColorLens, GetApp } from "@mui/icons-material";
-import { SketchPicker } from "react-color";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
-
-const aggregateSales = (orders: any[], timeframe: string) => {
-  const salesData: { [key: string]: number } = {};
-
-  orders.forEach((order) => {
-    let key = "";
-
-    switch (timeframe) {
-      case "weekly":
-        key = format(startOfWeek(parseISO(order.createdAt)), "yyyy-MM-dd");
-        break;
-      case "daily":
-        key = format(parseISO(order.createdAt), "yyyy-MM-dd");
-        break;
-      case "monthly":
-      default:
-        key = format(startOfMonth(parseISO(order.createdAt)), "yyyy-MM");
-        break;
-    }
-
-    if (!salesData[key]) {
-      salesData[key] = 0;
-    }
-    salesData[key] += order.totalPrice;
-  });
-
-  return salesData;
-};
+import { GetApp } from "@mui/icons-material";
+import useExportData from "../../hooks/useExportData";
+import CustomLegend from "./CustomLegend";
+import useChartOptions from "../../hooks/useChartOptions";
+import {
+  aggregateSales,
+  aggregateOrders,
+  Timeframe,
+} from "../../utils/salesUtils";
+import { Ordertypes } from "../../types/order";
 
 const SalesTrends: React.FC = () => {
-  const { orders = [] } = useAppSelector((state: any) => state.orders);
-  const [timeframe, setTimeframe] = useState("monthly");
-  const [colorCurrentPeriod, setColorCurrentPeriod] = useState(
-    "rgba(75, 192, 192, 1)"
-  );
-  const [colorCumulative, setColorCumulative] = useState(
-    "rgba(75, 75, 192, 1)"
-  );
-  const [openColorDialog, setOpenColorDialog] = useState(false);
+  const { orders = [] } = useAppSelector((state: any) => state.orders) as {
+    orders: Ordertypes[];
+  };
+  const [timeframe, setTimeframe] = useState<Timeframe>("daily");
+  const [colorCurrentPeriod, setColorCurrentPeriod] = useState("#4bc0c0");
+  const [colorCumulative, setColorCumulative] = useState("#4b4bc0");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const openExportMenu = Boolean(anchorEl);
+  const [datasetVisibility, setDatasetVisibility] = useState([
+    true,
+    true,
+    true,
+    true,
+  ]);
 
-  const handleColorDialogOpen = () => setOpenColorDialog(true);
-  const handleColorDialogClose = () => setOpenColorDialog(false);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const handleExportClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const currentPeriodSales = useMemo(
+    () => aggregateSales(orders, timeframe),
+    [orders, timeframe]
+  );
+  const aggregatedOrders = useMemo(
+    () => aggregateOrders(orders, timeframe),
+    [orders, timeframe]
+  );
+  const sortedLabels = useMemo(
+    () => Object.keys(currentPeriodSales).sort(),
+    [currentPeriodSales]
+  );
 
-  const handleExportClose = () => {
-    setAnchorEl(null);
-  };
+  const cumulativeSales = useMemo(() => {
+    return sortedLabels.reduce((acc: number[], label) => {
+      const lastValue = acc.length > 0 ? acc[acc.length - 1] : 0;
+      acc.push(lastValue + currentPeriodSales[label]);
+      return acc;
+    }, []);
+  }, [sortedLabels, currentPeriodSales]);
 
-  const currentPeriodSales = aggregateSales(orders, timeframe);
-
-  const sortedLabels = Object.keys(currentPeriodSales).sort();
-
-  const cumulativeSales = sortedLabels.reduce((acc, label) => {
-    const lastValue = acc.length > 0 ? acc[acc.length - 1] : 0;
-    acc.push(lastValue + currentPeriodSales[label]);
-    return acc;
-  }, [] as number[]);
-
-  const data = {
-    labels: sortedLabels,
-    datasets: [
-      {
-        label: "Current Period Sales",
-        data: sortedLabels.map((label) => currentPeriodSales[label]),
-        borderColor: colorCurrentPeriod,
-        backgroundColor: colorCurrentPeriod.replace(/[^,]+(?=\))/, "0.2"), // Adjusting opacity
-        fill: true,
-      },
-      {
-        label: "Cumulative Sales",
-        data: cumulativeSales,
-        borderColor: colorCumulative,
-        backgroundColor: colorCumulative.replace(/[^,]+(?=\))/, "0.2"), // Adjusting opacity
-        fill: true,
-      },
-    ],
-  };
-
-  const options: ChartOptions<"line"> = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Sales Trends",
-      },
-    },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: timeframe.charAt(0).toUpperCase() + timeframe.slice(1),
-        },
-      },
-      y: {
-        title: {
-          display: true,
-          text: "Sales",
-        },
-      },
-    },
-  };
-
-  const handleTimeframeChange = (event: SelectChangeEvent) => {
-    setTimeframe(event.target.value);
-  };
-
-  const exportCSV = () => {
-    const csvRows = [];
-    const headers = ["Date", "Current Period Sales", "Cumulative Sales"];
-    csvRows.push(headers.join(","));
-
-    sortedLabels.forEach((label, index) => {
-      const row = [
-        label,
-        currentPeriodSales[label].toString(),
-        cumulativeSales[index].toString(),
-      ];
-      csvRows.push(row.join(","));
+  const aovData = useMemo(() => {
+    return sortedLabels.map((label) => {
+      const entry = aggregatedOrders[label];
+      return entry && entry.count ? entry.total / entry.count : 0;
     });
+  }, [sortedLabels, aggregatedOrders]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "sales_data.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Sales Trends", 20, 10);
-    const tableData = sortedLabels.map((label, index) => [
-      label,
-      currentPeriodSales[label].toFixed(2),
-      cumulativeSales[index].toFixed(2),
-    ]);
-    (doc as any).autoTable({
-      head: [["Date", "Current Period Sales", "Cumulative Sales"]],
-      body: tableData,
+  const salesGrowthData = useMemo(() => {
+    return sortedLabels.map((label, i) => {
+      if (i === 0) return 0;
+      const prev = currentPeriodSales[sortedLabels[i - 1]] || 0;
+      const curr = currentPeriodSales[label];
+      return prev === 0 ? 0 : ((curr - prev) / prev) * 100;
     });
-    doc.save("sales_data.pdf");
-  };
+  }, [sortedLabels, currentPeriodSales]);
+
+  const data = useMemo(
+    () => ({
+      labels: sortedLabels,
+      datasets: [
+        {
+          label: "Current Period Sales",
+          data: sortedLabels.map((label) => currentPeriodSales[label]),
+          borderColor: colorCurrentPeriod,
+          backgroundColor: `${colorCurrentPeriod}20`,
+          fill: true,
+          hidden: !datasetVisibility[0],
+          yAxisID: "y",
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+        {
+          label: "Cumulative Sales",
+          data: cumulativeSales,
+          borderColor: colorCumulative,
+          backgroundColor: `${colorCumulative}20`,
+          fill: true,
+          hidden: !datasetVisibility[1],
+          yAxisID: "y",
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+        {
+          label: "Average Order Value",
+          data: aovData,
+          borderColor: "#FFCE56",
+          backgroundColor: "#FFCE5620",
+          fill: false,
+          hidden: !datasetVisibility[2],
+          yAxisID: "y",
+          borderDash: [5, 5],
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+        {
+          label: "Sales Growth (%)",
+          data: salesGrowthData,
+          borderColor: "#FF6384",
+          backgroundColor: "#FF638420",
+          fill: false,
+          hidden: !datasetVisibility[3],
+          yAxisID: "y1",
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+      ],
+    }),
+    [
+      sortedLabels,
+      currentPeriodSales,
+      cumulativeSales,
+      aovData,
+      salesGrowthData,
+      colorCurrentPeriod,
+      colorCumulative,
+      datasetVisibility,
+    ]
+  );
+
+  const options = useChartOptions(timeframe);
+
+  const handleTimeframeChange = useCallback(
+    (event: SelectChangeEvent<"daily" | "weekly" | "monthly">) => {
+      setTimeframe(event.target.value as "daily" | "weekly" | "monthly");
+    },
+    []
+  );
+
+  const handleExportClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorEl(event.currentTarget);
+    },
+    []
+  );
+  const handleExportClose = useCallback(() => setAnchorEl(null), []);
+
+  const { exportCSV, exportPDF } = useExportData({
+    sortedLabels,
+    currentPeriodSales,
+    cumulativeSales,
+  });
+
+  const handleToggleVisibility = useCallback((datasetIndex: number) => {
+    setDatasetVisibility((prev) => {
+      const updated = [...prev];
+      updated[datasetIndex] = !updated[datasetIndex];
+      return updated;
+    });
+  }, []);
+
+  const handleChangeColor = useCallback(
+    (datasetIndex: number, color: string) => {
+      if (datasetIndex === 0) {
+        setColorCurrentPeriod(color);
+      } else if (datasetIndex === 1) {
+        setColorCumulative(color);
+      }
+    },
+    []
+  );
 
   return (
-    <>
-      <Box display="flex" alignItems="center" mb={2}>
-        <FormControl margin="normal" sx={{ m: 1, minWidth: 150 }}>
-          <InputLabel id="timeframe-select-label">Timeframe</InputLabel>
-          <Select
-            labelId="timeframe-select-label"
-            value={timeframe}
-            onChange={handleTimeframeChange}
-            label="Timeframe"
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Grid
+        container
+        spacing={{ xs: 2, md: 3 }}
+        columns={{ xs: 4, sm: 8, md: 12 }}
+        sx={{ mb: 2 }}
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Grid size={{ xs: 4, sm: 4, md: 2 }}>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel id="timeframe-select-label">Timeframe</InputLabel>
+            <Select
+              labelId="timeframe-select-label"
+              value={timeframe}
+              onChange={handleTimeframeChange}
+              label="Timeframe"
+            >
+              <MenuItem value="daily">Daily</MenuItem>
+              <MenuItem value="weekly">Weekly</MenuItem>
+              <MenuItem value="monthly">Monthly</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid size={{ xs: 4, sm: 4, md: 2 }}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleExportClick}
+            startIcon={<GetApp />}
+            fullWidth
           >
-            <MenuItem value="daily">Daily</MenuItem>
-            <MenuItem value="weekly">Weekly</MenuItem>
-            <MenuItem value="monthly">Monthly</MenuItem>
-          </Select>
-        </FormControl>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleColorDialogOpen}
-          style={{ margin: "10px" }}
-          startIcon={<ColorLens />}
-        >
-          Choose Colors
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleExportClick}
-          style={{ margin: "10px" }}
-          startIcon={<GetApp />}
-        >
-          Export Data
-        </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={openExportMenu}
-          onClose={handleExportClose}
-        >
-          <DropdownMenuItem onClick={exportCSV}>Export CSV</DropdownMenuItem>
-          <DropdownMenuItem onClick={exportPDF}>Export PDF</DropdownMenuItem>
-        </Menu>
-      </Box>
-      <Line data={data} options={options} />
-      <Dialog open={openColorDialog} onClose={handleColorDialogClose}>
-        <DialogTitle>Choose Colors</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Typography variant="h6">Current Period Sales</Typography>
-              <SketchPicker
-                color={colorCurrentPeriod}
-                onChangeComplete={(color) =>
-                  setColorCurrentPeriod(
-                    `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`
-                  )
-                }
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Typography variant="h6">Cumulative Sales</Typography>
-              <SketchPicker
-                color={colorCumulative}
-                onChangeComplete={(color) =>
-                  setColorCumulative(
-                    `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`
-                  )
-                }
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleColorDialogClose} color="primary">
-            Close
+            Export Data
           </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleExportClose}
+          >
+            <DropdownMenuItem
+              onClick={() => {
+                exportCSV();
+                handleExportClose();
+              }}
+            >
+              Export CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                exportPDF();
+                handleExportClose();
+              }}
+            >
+              Export PDF
+            </DropdownMenuItem>
+          </Menu>
+        </Grid>
+      </Grid>
+      <CustomLegend
+        datasets={[
+          { label: "Current Period Sales", color: colorCurrentPeriod },
+          { label: "Cumulative Sales", color: colorCumulative },
+          { label: "Average Order Value", color: "#FFCE56" },
+          { label: "Sales Growth (%)", color: "#FF6384" },
+        ]}
+        visibility={datasetVisibility}
+        onToggleVisibility={handleToggleVisibility}
+        onChangeColor={handleChangeColor}
+      />
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          height: { xs: 300, md: 500 },
+          overflowX: isSmallScreen ? "auto" : "visible",
+        }}
+      >
+        <Line data={data} options={options} />
+      </Box>
+    </Box>
   );
 };
 
