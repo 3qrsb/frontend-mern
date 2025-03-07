@@ -23,10 +23,10 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
   return (
     <Box
       display="flex"
-      flexDirection="row"
+      flexDirection={{ xs: "column", md: "row" }}
       justifyContent="center"
       alignItems="center"
-      gap={4}
+      gap={{ xs: 2, md: 4 }}
       sx={{ mb: 2 }}
     >
       {datasets.map((item, index) => (
