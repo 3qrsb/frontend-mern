@@ -7,9 +7,6 @@ export default defineConfig({
   optimizeDeps: {
     include: ["@mui/material", "@emotion/react", "@emotion/styled"],
   },
-  define: {
-    "process.env": process.env,
-  },
   server: {
     port: 3000,
   },
