@@ -36,19 +36,22 @@ const CustomLegend: React.FC<CustomLegendProps> = ({
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          sx={{ cursor: "pointer", textAlign: "center" }}
-          onClick={() => onToggleVisibility(index)}
+          sx={{ textAlign: "center" }}
         >
-          <ColorPickerPopover
-            color={item.color}
-            onChange={(color) => onChangeColor(index, color)}
-          />
+          <Box onClick={(e) => e.stopPropagation()}>
+            <ColorPickerPopover
+              color={item.color}
+              onChange={(color) => onChangeColor(index, color)}
+            />
+          </Box>
           <Typography
             variant="body2"
             sx={{
               textDecoration: visibility[index] ? "none" : "line-through",
               userSelect: "none",
+              cursor: "pointer",
             }}
+            onClick={() => onToggleVisibility(index)}
           >
             {item.label}
           </Typography>
