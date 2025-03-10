@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Line } from "react-chartjs-2";
-import { useAppSelector } from "../../redux";
+import { useAppSelector } from "../../../redux";
 import Grid from "@mui/material/Grid2";
 import {
   Box,
@@ -12,27 +11,40 @@ import {
   Menu,
   MenuItem as DropdownMenuItem,
   SelectChangeEvent,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 import { GetApp } from "@mui/icons-material";
-import useExportData from "../../hooks/useExportData";
+import useExportData from "../../../hooks/useExportData";
 import CustomLegend from "./CustomLegend";
-import useChartOptions from "../../hooks/useChartOptions";
+import useChartOptions from "../../../hooks/useChartOptions";
 import {
   aggregateSales,
   aggregateOrders,
   Timeframe,
-} from "../../utils/salesUtils";
-import { Ordertypes } from "../../types/order";
+} from "../../../utils/salesUtils";
+import { Ordertypes } from "../../../types/order";
+import useStoredColor from "../../../hooks/useStoredColor";
+import SalesTrendsChart from "./SalesTrendsChart";
 
 const SalesTrends: React.FC = () => {
   const { orders = [] } = useAppSelector((state: any) => state.orders) as {
     orders: Ordertypes[];
   };
   const [timeframe, setTimeframe] = useState<Timeframe>("daily");
-  const [colorCurrentPeriod, setColorCurrentPeriod] = useState("#4bc0c0");
-  const [colorCumulative, setColorCumulative] = useState("#4b4bc0");
+
+  const [colorCurrentPeriod, setColorCurrentPeriod] = useStoredColor(
+    "colorCurrentPeriod",
+    "#4bc0c0"
+  );
+  const [colorCumulative, setColorCumulative] = useStoredColor(
+    "colorCumulative",
+    "#4b4bc0"
+  );
+  const [colorAOV, setColorAOV] = useStoredColor("colorAOV", "#FFCE56");
+  const [colorSalesGrowth, setColorSalesGrowth] = useStoredColor(
+    "colorSalesGrowth",
+    "#FF6384"
+  );
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [datasetVisibility, setDatasetVisibility] = useState([
     true,
@@ -40,9 +52,6 @@ const SalesTrends: React.FC = () => {
     true,
     true,
   ]);
-
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const currentPeriodSales = useMemo(
     () => aggregateSales(orders, timeframe),
@@ -114,8 +123,8 @@ const SalesTrends: React.FC = () => {
         {
           label: "Average Order Value",
           data: aovData,
-          borderColor: "#FFCE56",
-          backgroundColor: "#FFCE5620",
+          borderColor: colorAOV,
+          backgroundColor: `${colorAOV}20`,
           fill: false,
           hidden: !datasetVisibility[2],
           yAxisID: "y",
@@ -128,8 +137,8 @@ const SalesTrends: React.FC = () => {
         {
           label: "Sales Growth (%)",
           data: salesGrowthData,
-          borderColor: "#FF6384",
-          backgroundColor: "#FF638420",
+          borderColor: colorSalesGrowth,
+          backgroundColor: `${colorSalesGrowth}20`,
           fill: false,
           hidden: !datasetVisibility[3],
           yAxisID: "y1",
@@ -148,6 +157,8 @@ const SalesTrends: React.FC = () => {
       salesGrowthData,
       colorCurrentPeriod,
       colorCumulative,
+      colorAOV,
+      colorSalesGrowth,
       datasetVisibility,
     ]
   );
@@ -185,13 +196,29 @@ const SalesTrends: React.FC = () => {
 
   const handleChangeColor = useCallback(
     (datasetIndex: number, color: string) => {
-      if (datasetIndex === 0) {
-        setColorCurrentPeriod(color);
-      } else if (datasetIndex === 1) {
-        setColorCumulative(color);
+      switch (datasetIndex) {
+        case 0:
+          setColorCurrentPeriod(color);
+          break;
+        case 1:
+          setColorCumulative(color);
+          break;
+        case 2:
+          setColorAOV(color);
+          break;
+        case 3:
+          setColorSalesGrowth(color);
+          break;
+        default:
+          break;
       }
     },
-    []
+    [
+      setColorCurrentPeriod,
+      setColorCumulative,
+      setColorAOV,
+      setColorSalesGrowth,
+    ]
   );
 
   return (
@@ -257,23 +284,14 @@ const SalesTrends: React.FC = () => {
         datasets={[
           { label: "Current Period Sales", color: colorCurrentPeriod },
           { label: "Cumulative Sales", color: colorCumulative },
-          { label: "Average Order Value", color: "#FFCE56" },
-          { label: "Sales Growth (%)", color: "#FF6384" },
+          { label: "Average Order Value", color: colorAOV },
+          { label: "Sales Growth (%)", color: colorSalesGrowth },
         ]}
         visibility={datasetVisibility}
         onToggleVisibility={handleToggleVisibility}
         onChangeColor={handleChangeColor}
       />
-      <Box
-        sx={{
-          position: "relative",
-          width: "100%",
-          height: { xs: 300, md: 500 },
-          overflowX: isSmallScreen ? "auto" : "visible",
-        }}
-      >
-        <Line data={data} options={options} />
-      </Box>
+      <SalesTrendsChart data={data} options={options} />
     </Box>
   );
 };

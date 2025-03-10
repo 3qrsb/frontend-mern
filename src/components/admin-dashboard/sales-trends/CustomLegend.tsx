@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import ColorPickerPopover from "./ColorPickerPopover";
+import ColorPickerPopover from "../ColorPickerPopover";
 
 interface LegendItem {
   label: string;
