@@ -31,6 +31,7 @@ import Contact from "./pages/ContactPage";
 import About from "./pages/AboutPage";
 import { fetchExchangeRates } from "./redux/settings/exchangeRatesSlice";
 import { useAppDispatch } from "./redux";
+import "./config/chartConfig";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/admin-dashboard/DashboardLayout")
