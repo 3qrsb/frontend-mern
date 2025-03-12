@@ -1,327 +1,146 @@
-import { useEffect } from "react";
-import { Row, Col, Card } from "react-bootstrap";
+import React, { useEffect } from "react";
+import { Box, Card, CardContent, Typography, Divider } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { useAppDispatch, useAppSelector } from "../../redux";
 import { getOrdersList } from "../../redux/orders/slice-list";
 import { getNewCustomersThisMonth } from "../../redux/users/user-list";
-import { getDate } from "../../utils/helper";
-import React from "react";
 import SalesTrends from "../../components/admin-dashboard/sales-trends/SalesTrends";
-import TopSellingProducts from "../../components/admin-dashboard/TopSellingProducts";
-import {
-  TrendingUp as TrendingUpIcon,
-  Receipt as ReceiptIcon,
-  ShowChart as ShowChartIcon,
-} from "@mui/icons-material";
-import {
-  Box,
-  Divider,
-  Icon,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from "@mui/material";
+import TopSellingProducts from "../../components/admin-dashboard/top-selling/TopSellingProducts";
+import DashboardMetricCard from "../../components/admin-dashboard/DashboardMetricCard";
+import RecentOrdersCard from "../../components/admin-dashboard/RecentOrdersCard";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import PeopleIcon from "@mui/icons-material/People";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import Receipt from "@mui/icons-material/Receipt";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import TimelineIcon from "@mui/icons-material/Timeline";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { useCurrencyData } from "../../hooks/useCurrencyData";
+import Loader from "../../components/UI/loader";
 
 const DashboardPage = () => {
-  const { total } = useAppSelector((state) => state.productFilter);
+  const dispatch = useAppDispatch();
   const { orders = [] } = useAppSelector((state) => state.orders);
   const { users = [], newCustomers = 0 } = useAppSelector(
     (state) => state.userList
   );
-  const dispatch = useAppDispatch();
+  const { total } = useAppSelector((state) => state.productFilter);
   const { currency, rates, baseCurrency } = useCurrencyData();
-
-  const getTotalCost = () => {
-    let total = 0;
-    if (!orders) return 500.3;
-    orders.map((item: any) => {
-      if (!item) return;
-      total += item.totalPrice;
-    });
-    return total;
-  };
-
-  const getAverageOrderValue = () => {
-    if (!orders || orders.length === 0) return 0;
-    return getTotalCost() / orders.length;
-  };
-
-  const totalPrice = getTotalCost();
-  const averageOrderValue = getAverageOrderValue();
+  const totalCost = orders.reduce((acc, order) => acc + order.totalPrice, 0);
+  const averageOrderValue = orders.length ? totalCost / orders.length : 0;
 
   useEffect(() => {
     dispatch(getOrdersList());
     dispatch(getNewCustomersThisMonth());
   }, [dispatch]);
 
+  if (!orders) return <Loader />;
+
   return (
-    <Row className="g-3 my-6 mt-3">
-      <Col md={4}>
-        <Card className=" shadow border-0">
-          <Card.Body>
-            <Row>
-              <Col>
-                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
-                  Revenue
-                </span>
-                <span className="h3 font-bold mb-0">
-                  {formatCurrency(totalPrice, currency, rates, baseCurrency)}
-                </span>
-              </Col>
-              <div className="col-auto">
-                <div className="icon icon-shape bg-tertiary text-white text-lg rounded-circle">
-                  <i className="bi bi-credit-card" />
-                </div>
-              </div>
-            </Row>
-            <div className="mt-2 mb-0 text-sm">
-              <span className="badge badge-pill bg-soft-success text-success me-2">
-                <i className="bi bi-arrow-up me-1" />
-                13%
-              </span>
-              <span className="text-nowrap text-xs text-muted">
-                Since last month
-              </span>
-            </div>
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={4}>
-        <Card className=" shadow border-0">
-          <Card.Body>
-            <Row>
-              <Col>
-                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
-                  Clients
-                </span>
-                <span className="h3 font-bold mb-0">
-                  {users?.length && users?.length}
-                </span>
-              </Col>
-              <div className="col-auto">
-                <div className="icon icon-shape bg-primary text-white text-lg rounded-circle">
-                  <i className="bi bi-people" />
-                </div>
-              </div>
-            </Row>
-            <div className="mt-2 mb-0 text-sm">
-              <span className="badge badge-pill bg-soft-success text-success me-2">
-                <i className="bi bi-arrow-up me-1" />
-                30%
-              </span>
-              <span className="text-nowrap text-xs text-muted">
-                Since last month
-              </span>
-            </div>
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={4}>
-        <Card className=" shadow border-0">
-          <Card.Body>
-            <Row>
-              <Col>
-                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
-                  Products
-                </span>
-                <span className="h3 font-bold mb-0">{total}</span>
-              </Col>
-              <div className="col-auto">
-                <div className="icon icon-shape bg-info text-white text-lg rounded-circle">
-                  <i className="bi bi-clock-history" />
-                </div>
-              </div>
-            </Row>
-            <div className="mt-2 mb-0 text-sm">
-              <span className="badge badge-pill bg-soft-danger text-danger me-2">
-                <i className="bi bi-arrow-down me-1" />
-                -5%
-              </span>
-              <span className="text-nowrap text-xs text-muted">
-                Since last month
-              </span>
-            </div>
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={4}>
-        <Card className=" shadow border-0">
-          <Card.Body>
-            <Row>
-              <Col>
-                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
-                  Orders
-                </span>
-                <span className="h3 font-bold mb-0">
-                  {orders?.length && orders?.length}
-                </span>
-              </Col>
-              <div className="col-auto">
-                <div className="icon icon-shape bg-success text-white text-lg rounded-circle">
-                  <i className="bi bi-cart" />
-                </div>
-              </div>
-            </Row>
-            <div className="mt-2 mb-0 text-sm">
-              <span className="badge badge-pill bg-soft-success text-success me-2">
-                <i className="bi bi-arrow-up me-1" />
-                20%
-              </span>
-              <span className="text-nowrap text-xs text-muted">
-                Since last month
-              </span>
-            </div>
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={4}>
-        <Card className=" shadow border-0">
-          <Card.Body>
-            <Row>
-              <Col>
-                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
-                  Average Order Value
-                </span>
-                <span className="h3 font-bold mb-0">
-                  {formatCurrency(averageOrderValue)}
-                </span>
-              </Col>
-              <div className="col-auto">
-                <div className="icon icon-shape bg-warning text-white text-lg rounded-circle">
-                  <i className="bi bi-graph-up" />
-                </div>
-              </div>
-            </Row>
-            <div className="mt-2 mb-0 text-sm">
-              <span className="badge badge-pill bg-soft-success text-success me-2">
-                <i className="bi bi-arrow-up me-1" />
-                10%
-              </span>
-              <span className="text-nowrap text-xs text-muted">
-                Since last month
-              </span>
-            </div>
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={4}>
-        <Card className="shadow border-0">
-          <Card.Body>
-            <Row>
-              <Col>
-                <span className="h6 font-semibold text-muted text-sm d-block mb-2">
-                  New Customers This Month
-                </span>
-                <span className="h3 font-bold mb-0">{newCustomers}</span>
-              </Col>
-              <div className="col-auto">
-                <div className="icon icon-shape bg-info text-white text-lg rounded-circle">
-                  <i className="bi bi-person-plus" />
-                </div>
-              </div>
-            </Row>
-            <div className="mt-2 mb-0 text-sm">
-              <span className="badge badge-pill bg-soft-success text-success me-2">
-                <i className="bi bi-arrow-up me-1" />
-                10%
-              </span>
-              <span className="text-nowrap text-xs text-muted">
-                Since last month
-              </span>
-            </div>
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={12} className="mt-7">
-        <Card className="shadow border-0">
-          <Card.Body>
-            <Box display="flex" alignItems="center" mb={2}>
-              <ReceiptIcon style={{ color: "#1976d2", marginRight: "10px" }} />
-              <Typography variant="h5" color="primary">
-                Recent Orders
-              </Typography>
-            </Box>
-            <List>
-              {orders.slice(0, 5).map((order: any) => (
-                <React.Fragment key={order._id}>
-                  <ListItem alignItems="flex-start">
-                    <ListItemText
-                      primary={
-                        <Typography variant="body1" color="textPrimary">
-                          Order ID: {order._id}
-                        </Typography>
-                      }
-                      secondary={
-                        <>
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            color="textPrimary"
-                          >
-                            Email: {order.user.email}
-                          </Typography>
-                          <br />
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            color="textPrimary"
-                          >
-                            Total: {formatCurrency(order.totalPrice, currency, rates, baseCurrency)}
-                          </Typography>
-                          <br />
-                          {order.discountAmount && (
-                            <>
-                              <Typography
-                                component="span"
-                                variant="body2"
-                                color="textPrimary"
-                              >
-                                Discount Amount:{" "}
-                                {formatCurrency(order.discountAmount)}
-                              </Typography>
-                              <br />
-                            </>
-                          )}
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            color="textSecondary"
-                          >
-                            Date: {getDate(new Date(order.createdAt))}
-                          </Typography>
-                          <br />
-                        </>
-                      }
-                    />
-                  </ListItem>
-                  <Divider />
-                </React.Fragment>
-              ))}
-            </List>
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={12} className="mt-7">
-        <Card className="shadow border-0">
-          <Card.Body>
-            <Box display="flex" alignItems="center" mb={2}>
-              <ShowChartIcon
-                style={{ color: "#1976d2", marginRight: "10px" }}
-              />
-              <Typography variant="h5" color="primary">
-                Sales Trends
-              </Typography>
-            </Box>
-            <SalesTrends />
-          </Card.Body>
-        </Card>
-      </Col>
-      <Col md={12} className="mt-4">
-        <TopSellingProducts />
-      </Col>
-    </Row>
+    <Box p={3}>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <DashboardMetricCard
+            title="Revenue"
+            value={formatCurrency(totalCost, currency, rates, baseCurrency)}
+            icon={
+              <MonetizationOnIcon sx={{ fontSize: 40, color: "#1976d2" }} />
+            }
+            percentageChange={13}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <DashboardMetricCard
+            title="Clients"
+            value={users.length}
+            icon={<PeopleIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
+            percentageChange={30}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <DashboardMetricCard
+            title="Products"
+            value={total}
+            icon={<StorefrontIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
+            percentageChange={-5}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <DashboardMetricCard
+            title="Orders"
+            value={orders.length}
+            icon={<ShoppingCartIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
+            percentageChange={20}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <DashboardMetricCard
+            title="Average Order Value"
+            value={formatCurrency(
+              averageOrderValue,
+              currency,
+              rates,
+              baseCurrency
+            )}
+            icon={<BarChartIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
+            percentageChange={10}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <DashboardMetricCard
+            title="New Customers This Month"
+            value={newCustomers}
+            icon={<PersonAddIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
+            percentageChange={10}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={2}>
+                <Receipt sx={{ color: "#1976d2", mr: 1 }} />
+                <Typography variant="h5" color="primary">
+                  Recent Orders
+                </Typography>
+              </Box>
+              <Divider />
+              <RecentOrdersCard orders={orders} />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={2}>
+                <TimelineIcon sx={{ color: "#1976d2", mr: 1 }} />
+                <Typography variant="h5" color="primary">
+                  Sales Trends
+                </Typography>
+              </Box>
+              <Divider />
+              <SalesTrends />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={2}>
+                <LocalOfferIcon sx={{ color: "#1976d2", mr: 1 }} />
+                <Typography variant="h5" color="primary">
+                  Top Selling Products
+                </Typography>
+              </Box>
+              <Divider />
+              <TopSellingProducts />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
