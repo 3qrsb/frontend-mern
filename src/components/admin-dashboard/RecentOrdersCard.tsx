@@ -10,10 +10,10 @@ import {
 import { getDate } from "../../utils/helper";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { useCurrencyData } from "../../hooks/useCurrencyData";
-import { Ordertypes } from "../../types/order";
+import { Order } from "../../types/order";
 
 interface RecentOrdersCardProps {
-  orders: Ordertypes[];
+  orders: Order[];
 }
 
 const RecentOrdersCard: React.FC<RecentOrdersCardProps> = ({ orders }) => {

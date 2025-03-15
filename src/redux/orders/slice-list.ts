@@ -2,10 +2,10 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
-import { Ordertypes } from "../../types/order";
+import { Order } from "../../types/order";
 
 export interface OrderSliceState {
-  orders: Ordertypes[];
+  orders: Order[];
   loading: boolean;
   error: string | undefined;
   totalPrice: number;

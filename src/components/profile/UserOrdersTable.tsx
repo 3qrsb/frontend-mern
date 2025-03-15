@@ -14,12 +14,12 @@ import { Link } from "react-router-dom";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import { GrView } from "react-icons/gr";
 import { getDate } from "../../utils/helper";
-import { Ordertypes } from "../../types/order";
+import { Order } from "../../types/order";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { useCurrencyData } from "../../hooks/useCurrencyData";
 
 interface UserOrdersTableProps {
-  orders: Ordertypes[];
+  orders: Order[];
   onDelete: (orderId: string) => void;
 }
 

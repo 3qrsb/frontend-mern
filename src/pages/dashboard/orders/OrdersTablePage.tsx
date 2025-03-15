@@ -7,7 +7,7 @@ import ConfirmationDialog from "../../../components/UI/ConfirmationDialog";
 import { useAppDispatch, useAppSelector } from "../../../redux";
 import { getOrdersList, deleteOrder } from "../../../redux/orders/slice-list";
 import toast from "react-hot-toast";
-import { Ordertypes } from "../../../types/order";
+import { Order } from "../../../types/order";
 import Paginate from "../../../components/UI/paginate";
 
 const columns: Column[] = [
@@ -24,9 +24,9 @@ const OrdersTablePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { orders, loading } = useAppSelector((state) => state.orders);
   const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false);
-  const [selectedOrder, setSelectedOrder] = useState<Ordertypes | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  const handleDeleteClick = (order: Ordertypes) => {
+  const handleDeleteClick = (order: Order) => {
     setSelectedOrder(order);
     setConfirmationOpen(true);
   };
@@ -57,7 +57,7 @@ const OrdersTablePage: React.FC = () => {
         <Loader />
       ) : (
         <DataTable columns={columns}>
-          {orders.map((order: Ordertypes) => (
+          {orders.map((order: Order) => (
             <OrderRow
               key={order._id}
               order={order}

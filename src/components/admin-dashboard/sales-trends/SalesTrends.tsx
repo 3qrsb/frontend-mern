@@ -21,13 +21,13 @@ import {
   aggregateOrders,
   Timeframe,
 } from "../../../utils/salesUtils";
-import { Ordertypes } from "../../../types/order";
+import { Order } from "../../../types/order";
 import useStoredColor from "../../../hooks/useStoredColor";
 import SalesTrendsChart from "./SalesTrendsChart";
 
 const SalesTrends: React.FC = () => {
   const { orders = [] } = useAppSelector((state: any) => state.orders) as {
-    orders: Ordertypes[];
+    orders: Order[];
   };
   const [timeframe, setTimeframe] = useState<Timeframe>("daily");
 

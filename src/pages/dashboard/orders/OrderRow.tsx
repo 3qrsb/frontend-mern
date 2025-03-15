@@ -8,12 +8,12 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { getDate } from "../../../utils/helper";
 import { formatShippingAddress } from "../../../utils/helper";
 import { formatCurrency } from "../../../utils/currencyUtils";
-import { Ordertypes } from "../../../types/order";
+import { Order } from "../../../types/order";
 import { useCurrencyData } from "../../../hooks/useCurrencyData";
 
 interface OrderRowProps {
-  order: Ordertypes;
-  onDelete: (order: Ordertypes) => void;
+  order: Order;
+  onDelete: (order: Order) => void;
 }
 
 const OrderRow: React.FC<OrderRowProps> = ({ order, onDelete }) => {

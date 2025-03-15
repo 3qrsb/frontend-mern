@@ -10,7 +10,7 @@ export interface ShippingAddress {
   postalCode: string;
 }
 
-export interface Ordertypes {
+export interface Order {
   _id: string;
   user: string | User;
   shippingAddress: ShippingAddress;

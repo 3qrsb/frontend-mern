@@ -2,10 +2,10 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
-import { Ordertypes } from "../../types/order";
+import { Order } from "../../types/order";
 
 export interface OrderSliceState {
-  order: Ordertypes | null;
+  order: Order | null;
   loading: boolean;
   error: null | object;
 }

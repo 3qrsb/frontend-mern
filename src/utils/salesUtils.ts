@@ -1,5 +1,5 @@
 import { format, startOfWeek, startOfMonth } from "date-fns";
-import { Ordertypes } from "../types/order";
+import { Order } from "../types/order";
 
 export type Timeframe = "daily" | "weekly" | "monthly";
 
@@ -12,10 +12,10 @@ export interface AggregatedData {
 }
 
 export const aggregateSales = (
-  orders: Ordertypes[],
+  orders: Order[],
   timeframe: Timeframe
 ): SalesData =>
-  orders.reduce((acc: SalesData, order: Ordertypes) => {
+  orders.reduce((acc: SalesData, order: Order) => {
     const date = order.createdAt;
     let key = "";
     if (timeframe === "daily") {
@@ -30,10 +30,10 @@ export const aggregateSales = (
   }, {});
 
 export const aggregateOrders = (
-  orders: Ordertypes[],
+  orders: Order[],
   timeframe: Timeframe
 ): AggregatedData =>
-  orders.reduce((acc: AggregatedData, order: Ordertypes) => {
+  orders.reduce((acc: AggregatedData, order: Order) => {
     const date = order.createdAt;
     let key = "";
     if (timeframe === "daily") {
