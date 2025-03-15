@@ -92,7 +92,7 @@ const UserTablePage: React.FC = () => {
           ))}
         </DataTable>
       )}
-      <Box sx={{ my: 3, mx: { xs: 2, md: 4 } }}>
+      <Box>
         <Paginate
           pages={pages}
           page={page}

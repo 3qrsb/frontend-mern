@@ -11,19 +11,19 @@ import RecentOrdersCard from "../../components/admin-dashboard/RecentOrdersCard"
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import PeopleIcon from "@mui/icons-material/People";
 import StorefrontIcon from "@mui/icons-material/Storefront";
-import Receipt from "@mui/icons-material/Receipt";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import Receipt from "@mui/icons-material/Receipt";
 import { formatCurrency } from "../../utils/currencyUtils";
 import { useCurrencyData } from "../../hooks/useCurrencyData";
 import Loader from "../../components/UI/loader";
 
 const DashboardPage = () => {
   const dispatch = useAppDispatch();
-  const { orders = [] } = useAppSelector((state) => state.orders);
+  const { orders = [], loading } = useAppSelector((state) => state.orders);
   const { users = [], newCustomers = 0 } = useAppSelector(
     (state) => state.userList
   );
@@ -37,68 +37,68 @@ const DashboardPage = () => {
     dispatch(getNewCustomersThisMonth());
   }, [dispatch]);
 
-  if (!orders) return <Loader />;
+  if (loading) return <Loader />;
+
+  const dashboardMetrics = [
+    {
+      title: "Revenue",
+      value: formatCurrency(totalCost, currency, rates, baseCurrency),
+      icon: <MonetizationOnIcon sx={{ fontSize: 40, color: "#1976d2" }} />,
+      percentageChange: 13,
+      size: { xs: 12, md: 4 },
+    },
+    {
+      title: "Clients",
+      value: users.length,
+      icon: <PeopleIcon sx={{ fontSize: 40, color: "#1976d2" }} />,
+      percentageChange: 30,
+      size: { xs: 12, md: 4 },
+    },
+    {
+      title: "Products",
+      value: total,
+      icon: <StorefrontIcon sx={{ fontSize: 40, color: "#1976d2" }} />,
+      percentageChange: -5,
+      size: { xs: 12, md: 4 },
+    },
+    {
+      title: "Orders",
+      value: orders.length,
+      icon: <ShoppingCartIcon sx={{ fontSize: 40, color: "#1976d2" }} />,
+      percentageChange: 20,
+      size: { xs: 12, md: 4 },
+    },
+    {
+      title: "Average Order Value",
+      value: formatCurrency(averageOrderValue, currency, rates, baseCurrency),
+      icon: <BarChartIcon sx={{ fontSize: 40, color: "#1976d2" }} />,
+      percentageChange: 10,
+      size: { xs: 12, md: 4 },
+    },
+    {
+      title: "New Customers This Month",
+      value: newCustomers,
+      icon: <PersonAddIcon sx={{ fontSize: 40, color: "#1976d2" }} />,
+      percentageChange: 10,
+      size: { xs: 12, md: 4 },
+    },
+  ];
 
   return (
-    <Box p={3}>
+    <Box sx={{ my: 4 }}>
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <DashboardMetricCard
-            title="Revenue"
-            value={formatCurrency(totalCost, currency, rates, baseCurrency)}
-            icon={
-              <MonetizationOnIcon sx={{ fontSize: 40, color: "#1976d2" }} />
-            }
-            percentageChange={13}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <DashboardMetricCard
-            title="Clients"
-            value={users.length}
-            icon={<PeopleIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
-            percentageChange={30}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <DashboardMetricCard
-            title="Products"
-            value={total}
-            icon={<StorefrontIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
-            percentageChange={-5}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <DashboardMetricCard
-            title="Orders"
-            value={orders.length}
-            icon={<ShoppingCartIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
-            percentageChange={20}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <DashboardMetricCard
-            title="Average Order Value"
-            value={formatCurrency(
-              averageOrderValue,
-              currency,
-              rates,
-              baseCurrency
-            )}
-            icon={<BarChartIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
-            percentageChange={10}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <DashboardMetricCard
-            title="New Customers This Month"
-            value={newCustomers}
-            icon={<PersonAddIcon sx={{ fontSize: 40, color: "#1976d2" }} />}
-            percentageChange={10}
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <Card sx={{ boxShadow: 3 }}>
+        {dashboardMetrics.map((metric, index) => (
+          <Grid size={metric.size} key={index}>
+            <DashboardMetricCard
+              title={metric.title}
+              value={metric.value}
+              icon={metric.icon}
+              percentageChange={metric.percentageChange}
+            />
+          </Grid>
+        ))}
+        <Grid size={12}>
+          <Card sx={{ boxShadow: 3, width: "100%" }}>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <Receipt sx={{ color: "#1976d2", mr: 1 }} />
@@ -111,8 +111,8 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ boxShadow: 3 }}>
+        <Grid size={12}>
+          <Card sx={{ boxShadow: 3, width: "100%" }}>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <TimelineIcon sx={{ color: "#1976d2", mr: 1 }} />
@@ -125,8 +125,8 @@ const DashboardPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ boxShadow: 3 }}>
+        <Grid size={12}>
+          <Card sx={{ boxShadow: 3, width: "100%" }}>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <LocalOfferIcon sx={{ color: "#1976d2", mr: 1 }} />
