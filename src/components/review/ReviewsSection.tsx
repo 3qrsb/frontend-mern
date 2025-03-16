@@ -1,8 +1,8 @@
 import React from "react";
 import { Card, CardContent, Typography, List, Divider } from "@mui/material";
-import Message from "../UI/message";
 import ReviewItem from "./ReviewItem";
 import ReviewForm from "./ReviewForm";
+import Message from "../UI/message";
 
 interface ReviewsSectionProps {
   product: any;
