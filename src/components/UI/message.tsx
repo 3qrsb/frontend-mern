@@ -1,16 +1,16 @@
-import React from 'react';
-import { ReactNode } from 'react';
-import { Alert } from 'react-bootstrap';
+import React, { ReactNode } from "react";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
-type Props = {
+type MessageProps = {
   children: ReactNode;
-  variant?: string;
+  variant?: "error" | "warning" | "info" | "success";
 };
 
-const Message = ({ children, variant = 'danger' }: Props) => {
+const Message: React.FC<MessageProps> = ({ children, variant = "error" }) => {
   return (
-    <Alert variant={variant}>
-      <Alert.Heading>{children}</Alert.Heading>
+    <Alert severity={variant}>
+      <AlertTitle>{children}</AlertTitle>
     </Alert>
   );
 };
