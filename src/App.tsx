@@ -20,8 +20,6 @@ import Loader from "./components/UI/loader";
 import ErrorFallback from "./components/UI/error-fallback";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import PlaceOrder from "./pages/cart/PlaceOrderPage";
-import Cancel from "./pages/helpers/cancel";
-import Success from "./pages/helpers/success";
 import Wishlist from "./pages/users/wishlist";
 import { WishlistProvider } from "./context/WishlistContext";
 import EmailVerificationPage from "./pages/helpers/EmailVerificationPage";
@@ -32,6 +30,8 @@ import About from "./pages/AboutPage";
 import { fetchExchangeRates } from "./redux/settings/exchangeRatesSlice";
 import { useAppDispatch } from "./redux";
 import "./config/chartConfig";
+import Success from "./pages/payment/Success";
+import Cancel from "./pages/payment/Cancel";
 
 const DashboardLayout = lazy(
   () => import("./components/layouts/admin-dashboard/DashboardLayout")
