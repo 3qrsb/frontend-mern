@@ -11,220 +11,191 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import toast from "react-hot-toast";
-import { AddressTypes } from "../../types/user";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
+import { AddressTypes } from "../../types/user";
 
-interface AddressSelectorModalProps {
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  addressSchema,
+  AddressFormValues,
+} from "../../validation/addressValidation";
+
+interface Props {
   open: boolean;
   onClose: () => void;
   userId: string;
   onAddressSelected: (address: AddressTypes) => void;
 }
 
-const AddressSelectorModal: React.FC<AddressSelectorModalProps> = ({
+const AddressSelectorModal: React.FC<Props> = ({
   open,
   onClose,
   userId,
   onAddressSelected,
 }) => {
   const [addresses, setAddresses] = useState<AddressTypes[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [newAddress, setNewAddress] = useState<AddressTypes>({
-    street: "",
-    apartment: "",
-    city: "",
-    state: "",
-    country: "",
-    postalCode: "",
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty, isValid, isSubmitting },
+  } = useForm<AddressFormValues>({
+    resolver: yupResolver(addressSchema),
+    mode: "onChange",
+    defaultValues: {
+      street: "",
+      apartment: "",
+      city: "",
+      state: "",
+      country: "",
+      postalCode: "",
+    },
   });
 
   const fetchAddresses = async () => {
     setLoading(true);
     try {
-      const { data } = await authAxios.get(`/users/${userId}/addresses`);
+      const { data } = await authAxios.get<AddressTypes[]>(
+        `/users/${userId}/addresses`
+      );
       setAddresses(data);
-    } catch (error: any) {
-      toast.error(setError(error));
+    } catch (err: any) {
+      toast.error(setError(err));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    if (open) {
-      fetchAddresses();
-    }
+    if (open) fetchAddresses();
   }, [open, userId]);
 
-  const handleSelectAddress = (address: AddressTypes) => {
-    onAddressSelected(address);
+  const onSelect = (addr: AddressTypes) => {
+    onAddressSelected(addr);
     onClose();
   };
 
-  const handleAddAddress = async () => {
+  const onAdd = async (vals: AddressFormValues) => {
     try {
-      const { data } = await authAxios.post(
+      const { data } = await authAxios.post<AddressTypes[]>(
         `/users/${userId}/addresses`,
-        newAddress
+        vals
       );
-      toast.success("Address added successfully!");
+      toast.success("Address added!");
       setAddresses(data);
+      reset();
       setIsAdding(false);
-      setNewAddress({
-        street: "",
-        apartment: "",
-        city: "",
-        state: "",
-        country: "",
-        postalCode: "",
-      });
-    } catch (error: any) {
-      toast.error(setError(error));
+    } catch (err: any) {
+      toast.error(setError(err));
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontWeight: "bold" }}>
-        Select Shipping Address
-      </DialogTitle>
+      <DialogTitle>Select Shipping Address</DialogTitle>
       <DialogContent dividers>
         {loading ? (
-          <Typography>Loading addresses...</Typography>
-        ) : (
-          <Box>
-            {addresses.length > 0 ? (
-              addresses.map((addr, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    mb: 2,
-                    p: 2,
-                    border: "1px solid",
-                    borderColor: "grey.300",
-                    borderRadius: 1,
-                    cursor: "pointer",
-                    transition: "background-color 0.3s",
-                    "&:hover": { backgroundColor: "grey.100" },
-                  }}
-                  onClick={() => handleSelectAddress(addr)}
-                >
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {addr.street}
-                    {addr.apartment ? `, ${addr.apartment}` : ""}
-                  </Typography>
-                  <Typography variant="body2">
-                    {addr.city}
-                    {addr.state ? `, ${addr.state}` : ""}
-                  </Typography>
-                  <Typography variant="body2">
-                    {addr.country}, {addr.postalCode}
-                  </Typography>
-                </Box>
-              ))
-            ) : (
-              <Typography>
-                No addresses found. Please add a new address.
+          <Typography>Loading…</Typography>
+        ) : addresses.length > 0 ? (
+          addresses.map((addr) => (
+            <Box
+              key={addr._id}
+              onClick={() => onSelect(addr)}
+              sx={{
+                mb: 2,
+                p: 2,
+                border: "1px solid",
+                borderColor: "grey.300",
+                borderRadius: 1,
+                cursor: "pointer",
+                "&:hover": { backgroundColor: "grey.100" },
+              }}
+            >
+              <Typography fontWeight="bold">
+                {addr.street}
+                {addr.apartment && `, ${addr.apartment}`}
               </Typography>
-            )}
-          </Box>
+              <Typography>
+                {addr.city}
+                {addr.state && `, ${addr.state}`}
+              </Typography>
+              <Typography>
+                {addr.country}, {addr.postalCode}
+              </Typography>
+            </Box>
+          ))
+        ) : (
+          <Typography>No addresses found.</Typography>
         )}
 
         {isAdding && (
-          <Box sx={{ mt: 3 }}>
-            <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-              Add New Address
-            </Typography>
+          <Box component="form" onSubmit={handleSubmit(onAdd)} sx={{ mt: 3 }}>
+            <Typography gutterBottom>Add New Address</Typography>
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  label="Street"
-                  fullWidth
-                  required
-                  value={newAddress.street}
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, street: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  label="Apartment (optional)"
-                  fullWidth
-                  value={newAddress.apartment}
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, apartment: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="City"
-                  fullWidth
-                  required
-                  value={newAddress.city}
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, city: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="State (optional)"
-                  fullWidth
-                  value={newAddress.state}
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, state: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="Country"
-                  fullWidth
-                  required
-                  value={newAddress.country}
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, country: e.target.value })
-                  }
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  label="Postal Code"
-                  fullWidth
-                  required
-                  value={newAddress.postalCode}
-                  onChange={(e) =>
-                    setNewAddress({ ...newAddress, postalCode: e.target.value })
-                  }
-                />
-              </Grid>
+              {[
+                { name: "street", label: "Street", xs: 12 },
+                { name: "apartment", label: "Apartment", xs: 12 },
+                { name: "city", label: "City", xs: 6 },
+                { name: "state", label: "State (optional)", xs: 6 },
+                { name: "country", label: "Country", xs: 6 },
+                { name: "postalCode", label: "Postal Code", xs: 6 },
+              ].map(({ name, label, xs }) => (
+                <Grid key={name} size={{ xs }}>
+                  <Controller
+                    name={name as keyof AddressFormValues}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label={label}
+                        fullWidth
+                        required={[
+                          "street",
+                          "city",
+                          "country",
+                          "postalCode",
+                        ].includes(name)}
+                        error={!!errors[name as keyof AddressFormValues]}
+                        helperText={
+                          errors[name as keyof AddressFormValues]?.message
+                        }
+                      />
+                    )}
+                  />
+                </Grid>
+              ))}
             </Grid>
-            <Box
-              sx={{
-                mt: 2,
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 2,
-              }}
-            >
-              <Button variant="outlined" onClick={() => setIsAdding(false)}>
+
+            <Box sx={{ mt: 2, textAlign: "right" }}>
+              <Button
+                onClick={() => {
+                  reset();
+                  setIsAdding(false);
+                }}
+                sx={{ mr: 1 }}
+              >
                 Cancel
               </Button>
-              <Button variant="contained" onClick={handleAddAddress}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={!isDirty || !isValid || isSubmitting}
+              >
                 Save
               </Button>
             </Box>
           </Box>
         )}
       </DialogContent>
+
       <DialogActions sx={{ justifyContent: "space-between" }}>
         {!isAdding && (
-          <Button onClick={() => setIsAdding(true)} color="primary">
-            Add New Address
-          </Button>
+          <Button onClick={() => setIsAdding(true)}>Add New Address</Button>
         )}
         <Button onClick={onClose}>Close</Button>
       </DialogActions>

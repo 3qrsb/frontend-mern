@@ -9,10 +9,17 @@ import {
   CardActions,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import authAxios from "../../utils/auth-axios";
 import toast from "react-hot-toast";
+import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
 import { AddressTypes } from "../../types/user";
+
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  addressSchema,
+  AddressFormValues,
+} from "../../validation/addressValidation";
 
 interface AddressManagerProps {
   userId: string;
@@ -20,23 +27,37 @@ interface AddressManagerProps {
 
 const AddressManager: React.FC<AddressManagerProps> = ({ userId }) => {
   const [addresses, setAddresses] = useState<AddressTypes[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [street, setStreet] = useState("");
-  const [apartment, setApartment] = useState("");
-  const [city, setCity] = useState("");
-  const [stateField, setStateField] = useState("");
-  const [country, setCountry] = useState("");
-  const [postalCode, setPostalCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const [editAddressId, setEditAddressId] = useState<string | null>(null);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty, isValid, isSubmitting },
+  } = useForm<AddressFormValues>({
+    resolver: yupResolver(addressSchema),
+    mode: "onChange",
+    defaultValues: {
+      street: "",
+      apartment: "",
+      city: "",
+      state: "",
+      country: "",
+      postalCode: "",
+    },
+  });
 
   const fetchAddresses = async () => {
     setLoading(true);
     try {
-      const { data } = await authAxios.get(`/users/${userId}/addresses`);
+      const { data } = await authAxios.get<AddressTypes[]>(
+        `/users/${userId}/addresses`
+      );
       setAddresses(data);
-      setLoading(false);
-    } catch (error: any) {
-      toast.error(setError(error));
+    } catch (err: any) {
+      toast.error(setError(err));
+    } finally {
       setLoading(false);
     }
   };
@@ -45,75 +66,56 @@ const AddressManager: React.FC<AddressManagerProps> = ({ userId }) => {
     fetchAddresses();
   }, [userId]);
 
-  const handleAddOrUpdateAddress = async () => {
+  const onSubmit = async (vals: AddressFormValues) => {
     try {
-      const addressPayload = {
-        street,
-        apartment,
-        city,
-        state: stateField,
-        country,
-        postalCode,
-      };
-      let response;
+      let updated: AddressTypes[];
       if (editAddressId) {
-        response = await authAxios.put(
+        const { data } = await authAxios.put<AddressTypes[]>(
           `/users/${userId}/addresses/${editAddressId}`,
-          addressPayload
+          vals
         );
-        toast.success("Address updated successfully!");
+        updated = data;
+        toast.success("Address updated!");
       } else {
-        response = await authAxios.post(
+        const { data } = await authAxios.post<AddressTypes[]>(
           `/users/${userId}/addresses`,
-          addressPayload
+          vals
         );
-        toast.success("Address added successfully!");
+        updated = data;
+        toast.success("Address added!");
       }
-      setAddresses(response.data);
-      setStreet("");
-      setApartment("");
-      setCity("");
-      setStateField("");
-      setCountry("");
-      setPostalCode("");
+
+      setAddresses(updated);
+      reset();
       setEditAddressId(null);
-    } catch (error: any) {
-      toast.error(setError(error));
+    } catch (err: any) {
+      toast.error(setError(err));
     }
   };
 
-  const handleDeleteAddress = async (addressId: string) => {
-    if (window.confirm("Do you want to delete this address?")) {
-      try {
-        const { data } = await authAxios.delete(
-          `/users/${userId}/addresses/${addressId}`
-        );
-        toast.success("Address deleted!");
-        setAddresses(data);
-      } catch (error: any) {
-        toast.error(setError(error));
-      }
+  const handleEdit = (addr: AddressTypes) => {
+    setEditAddressId(addr._id!);
+    reset({
+      street: addr.street,
+      apartment: addr.apartment || "",
+      city: addr.city,
+      state: addr.state || "",
+      country: addr.country,
+      postalCode: addr.postalCode,
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this address?")) return;
+    try {
+      const { data } = await authAxios.delete<AddressTypes[]>(
+        `/users/${userId}/addresses/${id}`
+      );
+      toast.success("Deleted!");
+      setAddresses(data);
+    } catch (err: any) {
+      toast.error(setError(err));
     }
-  };
-
-  const handleEditAddress = (addr: AddressTypes) => {
-    setEditAddressId(addr._id || null);
-    setStreet(addr.street);
-    setApartment(addr.apartment || "");
-    setCity(addr.city);
-    setStateField(addr.state || "");
-    setCountry(addr.country);
-    setPostalCode(addr.postalCode);
-  };
-
-  const handleCancelEdit = () => {
-    setEditAddressId(null);
-    setStreet("");
-    setApartment("");
-    setCity("");
-    setStateField("");
-    setCountry("");
-    setPostalCode("");
   };
 
   return (
@@ -122,43 +124,36 @@ const AddressManager: React.FC<AddressManagerProps> = ({ userId }) => {
         Your Addresses
       </Typography>
 
-      {/* Existing Addresses */}
       {loading ? (
-        <Typography variant="body1">Loading addresses...</Typography>
+        <Typography>Loading…</Typography>
       ) : addresses.length === 0 ? (
-        <Typography variant="body1">
-          You have no saved addresses yet.
-        </Typography>
+        <Typography>No saved addresses.</Typography>
       ) : (
         <Grid container spacing={2} mb={2}>
           {addresses.map((addr) => (
             <Grid key={addr._id} size={{ xs: 12, sm: 6, md: 4 }}>
               <Card elevation={3}>
                 <CardContent>
-                  <Typography variant="subtitle1" fontWeight="bold">
+                  <Typography fontWeight="bold">
                     {addr.street}
                     {addr.apartment && `, ${addr.apartment}`}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography color="text.secondary">
                     {addr.city}
                     {addr.state && `, ${addr.state}`}
                   </Typography>
-                  <Typography variant="body2">
+                  <Typography>
                     {addr.country}, {addr.postalCode}
                   </Typography>
                 </CardContent>
                 <CardActions>
-                  <Button
-                    size="small"
-                    color="primary"
-                    onClick={() => handleEditAddress(addr)}
-                  >
+                  <Button size="small" onClick={() => handleEdit(addr)}>
                     Edit
                   </Button>
                   <Button
                     size="small"
                     color="error"
-                    onClick={() => handleDeleteAddress(addr._id!)}
+                    onClick={() => handleDelete(addr._id!)}
                   >
                     Delete
                   </Button>
@@ -169,68 +164,57 @@ const AddressManager: React.FC<AddressManagerProps> = ({ userId }) => {
         </Grid>
       )}
 
-      {/* Address Form */}
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          {editAddressId ? "Edit Address" : "Add a New Address"}
-        </Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gap: 2,
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-            maxWidth: 600,
-          }}
-        >
-          <TextField
-            label="Street"
-            value={street}
-            onChange={(e) => setStreet(e.target.value)}
-            fullWidth
-            required
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        sx={{
+          mt: 3,
+          maxWidth: 600,
+          display: "grid",
+          gap: 2,
+          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+        }}
+      >
+        {[
+          { name: "street", label: "Street", required: true },
+          { name: "apartment", label: "Apartment (optional)" },
+          { name: "city", label: "City", required: true },
+          { name: "state", label: "State (optional)" },
+          { name: "country", label: "Country", required: true },
+          { name: "postalCode", label: "Postal Code", required: true },
+        ].map(({ name, label, required }) => (
+          <Controller
+            key={name}
+            name={name as keyof AddressFormValues}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label={label}
+                fullWidth
+                required={!!required}
+                error={!!errors[name as keyof AddressFormValues]}
+                helperText={errors[name as keyof AddressFormValues]?.message}
+              />
+            )}
           />
-          <TextField
-            label="Apartment (optional)"
-            value={apartment}
-            onChange={(e) => setApartment(e.target.value)}
-            fullWidth
-          />
-          <TextField
-            label="City"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            fullWidth
-            required
-          />
-          <TextField
-            label="State (optional)"
-            value={stateField}
-            onChange={(e) => setStateField(e.target.value)}
-            fullWidth
-          />
-          <TextField
-            label="Country"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            fullWidth
-            required
-          />
-          <TextField
-            label="Postal Code"
-            value={postalCode}
-            onChange={(e) => setPostalCode(e.target.value)}
-            fullWidth
-            required
-          />
-        </Box>
-        <Box sx={{ mt: 2 }}>
-          <Button variant="contained" onClick={handleAddOrUpdateAddress}>
+        ))}
+
+        <Box sx={{ gridColumn: "1/-1", mt: 1 }}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!isDirty || !isValid || isSubmitting}
+          >
             {editAddressId ? "Update Address" : "Add Address"}
           </Button>
           {editAddressId && (
             <Button
               variant="outlined"
-              onClick={handleCancelEdit}
+              onClick={() => {
+                reset();
+                setEditAddressId(null);
+              }}
               sx={{ ml: 2 }}
             >
               Cancel
