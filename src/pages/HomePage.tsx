@@ -3,7 +3,7 @@ import { Button, Box, Typography, InputBase, Paper } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
-import BrandsMarquee from "../components/BrandsMarquee";
+import BrandsMarquee from "../components/sections/BrandsMarqueeSection";
 import FAQSection from "../components/sections/FAQSection";
 import DefaultLayout from "../components/layouts/default/DefaultLayout";
 
