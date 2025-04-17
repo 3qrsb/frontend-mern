@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Avatar,
@@ -13,16 +13,14 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deepOrange } from "@mui/material/colors";
-import { getDate } from "../../utils/helper";
+import { formatDistanceToNow } from "date-fns";
+import { ReviewTypes } from "../../types/review";
 
 interface ReviewItemProps {
-  review: any;
+  review: ReviewTypes;
   currentUserId: string;
-  onEdit: (review: any) => void;
+  onEdit: (review: ReviewTypes) => void;
   onDelete: (reviewId: string) => void;
-  onMenuClick: (event: React.MouseEvent<HTMLElement>, review: any) => void;
-  anchorEl: HTMLElement | null;
-  onMenuClose: () => void;
 }
 
 const ReviewItem: React.FC<ReviewItemProps> = ({
@@ -30,18 +28,22 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
   currentUserId,
   onEdit,
   onDelete,
-  onMenuClick,
-  anchorEl,
-  onMenuClose,
 }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+
   return (
-    <Box sx={{ p: 2, mb: 2, boxShadow: 1, borderRadius: 2 }}>
+    <Box
+      sx={{
+        p: 2,
+        mb: 2,
+      }}
+    >
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          position: "relative",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -52,12 +54,18 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
             {review.name}
           </Typography>
         </Box>
+
         {currentUserId === review.user && (
-          <IconButton onClick={(event) => onMenuClick(event, review)}>
-            <MoreVertIcon />
+          <IconButton
+            size="small"
+            aria-label="more actions"
+            onClick={(e) => setAnchorEl(e.currentTarget)}
+          >
+            <MoreVertIcon fontSize="small" />
           </IconButton>
         )}
       </Box>
+
       <Box
         sx={{
           display: "flex",
@@ -66,33 +74,63 @@ const ReviewItem: React.FC<ReviewItemProps> = ({
           mt: 1,
         }}
       >
-        <Rating value={review.rating} readOnly precision={0.5} sx={{ mr: 2 }} />
+        <Rating
+          value={review.rating}
+          readOnly
+          precision={0.5}
+          aria-label={`Rating: ${review.rating}`}
+          sx={{ mr: 2 }}
+        />
         <Typography variant="body2" color="text.secondary">
-          {getDate(new Date(review.createdAt))}
+          {formatDistanceToNow(new Date(review.createdAt), {
+            addSuffix: true,
+          })}
         </Typography>
       </Box>
-      <Typography variant="body2" sx={{ mt: 1 }}>
+
+      <Typography
+        variant="body2"
+        sx={{
+          mt: 1,
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          overflowWrap: "anywhere",
+        }}
+      >
         {review.comment}
       </Typography>
-      <Divider sx={{ mt: 2 }} />
+
       {currentUserId === review.user && (
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={onMenuClose}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem onClick={() => onEdit(review)}>
-            <EditIcon sx={{ mr: 1 }} /> Edit
-          </MenuItem>
-          <MenuItem onClick={() => onDelete(review._id)}>
-            <DeleteIcon sx={{ mr: 1 }} /> Delete
-          </MenuItem>
-        </Menu>
+        <>
+          <Divider sx={{ my: 2 }} />
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem
+              onClick={() => {
+                setAnchorEl(null);
+                onEdit(review);
+              }}
+            >
+              <EditIcon fontSize="small" sx={{ mr: 1 }} /> Edit
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setAnchorEl(null);
+                onDelete(review._id);
+              }}
+            >
+              <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> Delete
+            </MenuItem>
+          </Menu>
+        </>
       )}
     </Box>
   );
 };
 
-export default ReviewItem;
+export default React.memo(ReviewItem);

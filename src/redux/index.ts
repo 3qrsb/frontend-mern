@@ -15,6 +15,7 @@ import userDetailsSlice from "./users/user-details";
 import userListSlice from "./users/user-list";
 import currencySlice from "./settings/currencySlice";
 import exchangeRatesSlice from "./settings/exchangeRatesSlice";
+import reviewsSlice from "./reviews/review-slice";
 
 const reducers = combineReducers({
   productList: productListSlice.reducer,
@@ -29,6 +30,7 @@ const reducers = combineReducers({
   orderDetail: orderDetailSlice.reducer,
   currency: currencySlice.reducer,
   exchangeRates: exchangeRatesSlice.reducer,
+  reviews: reviewsSlice.reducer,
 });
 
 const persistConfig = {

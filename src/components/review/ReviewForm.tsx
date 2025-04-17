@@ -1,48 +1,95 @@
 import React from "react";
-import { Box, Rating, TextField, Button } from "@mui/material";
+import { Box, Rating, TextField, Button, Typography } from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
 
-interface ReviewFormProps {
+export type ReviewFormInputs = {
   rating: number | null;
   comment: string;
-  onRatingChange: (newValue: number | null) => void;
-  onCommentChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+};
+
+interface ReviewFormProps {
+  initialRating?: number | null;
+  initialComment?: string;
+  maxChars?: number;
+  onSubmit: (data: ReviewFormInputs) => void;
   submitLabel?: string;
 }
 
 const ReviewForm: React.FC<ReviewFormProps> = ({
-  rating,
-  comment,
-  onRatingChange,
-  onCommentChange,
+  initialRating = null,
+  initialComment = "",
+  maxChars = 500,
   onSubmit,
   submitLabel = "Submit",
 }) => {
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { isSubmitting, isValid },
+  } = useForm<ReviewFormInputs>({
+    mode: "onChange",
+    defaultValues: { rating: initialRating, comment: initialComment },
+  });
+
+  const commentValue = watch("comment") || "";
+  const charsRemaining = maxChars - commentValue.length;
+
   return (
-    <Box component="form" onSubmit={onSubmit} sx={{ mt: 2 }}>
-      <Rating
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      sx={{ mt: 2 }}
+    >
+      <Controller
         name="rating"
-        value={rating}
-        onChange={(event, newValue) => {
-          onRatingChange(newValue);
+        control={control}
+        rules={{ required: true }}
+        render={({ field }) => (
+          <Rating
+            {...field}
+            precision={0.5}
+            aria-label="Review rating"
+            sx={{ mb: 1 }}
+          />
+        )}
+      />
+
+      <Controller
+        name="comment"
+        control={control}
+        rules={{
+          required: "Comment is required",
+          maxLength: { value: maxChars, message: "Too many characters" },
         }}
+        render={({ field, fieldState }) => (
+          <TextField
+            {...field}
+            fullWidth
+            required
+            multiline
+            rows={3}
+            margin="normal"
+            label="Comment"
+            inputProps={{ maxLength: maxChars }}
+            error={!!fieldState.error}
+            helperText={
+              fieldState.error
+                ? fieldState.error.message
+                : `${charsRemaining} character${
+                    charsRemaining === 1 ? "" : "s"
+                  } remaining`
+            }
+          />
+        )}
       />
-      <TextField
-        required
-        fullWidth
-        variant="outlined"
-        margin="normal"
-        label="Comment"
-        multiline
-        rows={3}
-        value={comment}
-        onChange={onCommentChange}
-      />
+
       <Button
         type="submit"
         variant="contained"
-        color="primary"
         fullWidth
+        disabled={!isValid || isSubmitting}
         sx={{ mt: 2 }}
       >
         {submitLabel}
@@ -51,4 +98,4 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   );
 };
 
-export default ReviewForm;
+export default React.memo(ReviewForm);
