@@ -49,14 +49,13 @@ const Login = () => {
     async (data: FormValues) => {
       try {
         await dispatch(userLogin(data)).unwrap();
-      } catch (err) {
-      }
+      } catch {}
     },
     [dispatch]
   );
 
   useEffect(() => {
-    if (userInfo) {
+    if (userInfo?.accessToken) {
       navigate("/");
     }
   }, [userInfo, navigate]);
@@ -65,12 +64,7 @@ const Login = () => {
     <DefaultLayout>
       <Container
         maxWidth="sm"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          minHeight: "100vh",
-          p: 2,
-        }}
+        sx={{ display: "flex", alignItems: "center", minHeight: "100vh", p: 2 }}
       >
         <Fade in timeout={1000}>
           <Paper elevation={4} sx={{ p: 4, width: "100%", borderRadius: 2 }}>
@@ -107,11 +101,7 @@ const Login = () => {
                 />
               </Stack>
               <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mt: 1,
-                }}
+                sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}
               >
                 <Link href="/forgot-password" variant="body2">
                   Forgot Password?

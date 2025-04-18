@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import Loader from "../../components/UI/loader";
 import { useAppDispatch, useAppSelector } from "../../redux";
-import { getUserBydId } from "../../redux/users/user-details";
+import { getUserById } from "../../redux/users/user-details";
 import { getUserOrder } from "../../redux/orders/user-orders";
 import authAxios from "../../utils/auth-axios";
 import { setError } from "../../utils/error";
@@ -90,7 +90,7 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    dispatch(getUserBydId(id));
+    dispatch(getUserById(id));
     dispatch(getUserOrder());
   }, [dispatch, id, refresh]);
 

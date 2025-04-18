@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import DefaultLayout from "../../components/layouts/default/DefaultLayout";
 import { useAppDispatch } from "../../redux";
+import { setCredentials } from "../../redux/users/login-slice";
 import FormTextField from "../../components/FormTextField";
 
 type FormValues = {
@@ -60,15 +61,11 @@ const Register = () => {
   const onSubmit = useCallback(
     async (data: FormValues) => {
       try {
-        const res = await publicAxios.post("/users/register", data);
-        if (res.data.success) {
-          toast.success(
-            "Registration successful! Please check your email to confirm your account."
-          );
-          navigate("/login");
-        } else {
-          toast.error("Registration failed. Please try again.");
-        }
+        await publicAxios.post("/auth/register", data);
+        toast.success(
+          "Registration successful! Please check your email to confirm your account."
+        );
+        navigate("/login");
       } catch (err: any) {
         toast.error(
           err.response?.data?.message ||
@@ -82,18 +79,14 @@ const Register = () => {
   const onSuccess = useCallback(
     async (credentialResponse: any) => {
       try {
-        const res = await publicAxios.post(
-          "/users/google-login",
-          credentialResponse
-        );
-        if (res.data.message === "Email already in use.") {
-          toast.error("Email is already in use. Please use a different email.");
-        } else {
-          toast.success("Login successful!");
-          localStorage.setItem("userInfo", JSON.stringify(res.data));
-          dispatch({ type: "users/login/fulfilled", payload: res.data });
-          navigate("/");
-        }
+        const res = await publicAxios.post("/auth/google-login", {
+          credential: credentialResponse.credential,
+        });
+        const userData = res.data;
+        dispatch(setCredentials(userData));
+        localStorage.setItem("userInfo", JSON.stringify(userData));
+        toast.success("Login successful!");
+        navigate("/");
       } catch (err: any) {
         toast.error(
           err.response?.data?.message ||

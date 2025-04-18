@@ -25,7 +25,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_API_STRIPE);
 
 const PlaceOrderPage = () => {
   const { shippingAddress, cartItems } = useAppSelector((state) => state.cart);
-  const { user } = useAppSelector((state) => state.userDetails);
+  const { userInfo } = useAppSelector((state) => state.login);
   const dispatch = useAppDispatch();
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const { currency, rates, baseCurrency } = useCurrencyData();
@@ -205,7 +205,7 @@ const PlaceOrderPage = () => {
       <AddressSelectorModal
         open={addressModalOpen}
         onClose={() => setAddressModalOpen(false)}
-        userId={user ? user._id : ""}
+        userId={userInfo?._id || ""}
         onAddressSelected={(address) => {
           dispatch(saveAddress(address));
           setAddressModalOpen(false);
