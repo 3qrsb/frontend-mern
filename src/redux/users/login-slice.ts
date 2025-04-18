@@ -1,26 +1,26 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import toast from 'react-hot-toast';
-import { setError } from '../../utils/error';
-import publicAxios from '../../utils/public-axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import toast from "react-hot-toast";
+import publicAxios from "../../utils/public-axios";
 
-type User = {
+interface User {
   email: string;
   password: string;
-};
+}
 
-type UserInfo = {
+interface UserInfo {
   _id: string;
-  email: string;
   name: string;
-  isAdmin: Boolean;
-  isSeller: Boolean;
-  createdAt: Date;
-};
+  email: string;
+  isAdmin: boolean;
+  isSeller: boolean;
+  accessToken: string;
+  refreshToken: string;
+}
 
 export interface UserSliceState {
-  userInfo?: UserInfo | null;
+  userInfo: UserInfo | null;
   loading: boolean;
-  error: null | object;
+  error: string | null;
 }
 
 const initialState: UserSliceState = {
@@ -29,45 +29,53 @@ const initialState: UserSliceState = {
   error: null,
 };
 
-export const userLogin = createAsyncThunk(
-  'users/login',
-  async (user: User, thunkAPI) => {
-    try {
-      const res = await publicAxios.post('/users/login', user);
-      if (res.data) {
-        toast.success(`Welcome 👏 ${res.data.name}`);
-        return res.data;
-      }
-    } catch (error: any) {
-      const message = setError(error);
-      toast.error(message);
-      return thunkAPI.rejectWithValue(message);
-    }
+export const userLogin = createAsyncThunk<
+  UserInfo,
+  User,
+  { rejectValue: string }
+>("users/login", async (credentials, thunkAPI) => {
+  try {
+    const res = await publicAxios.post("/auth/login", credentials);
+    toast.success(`Welcome 👏 ${res.data.name}`);
+    localStorage.setItem("userInfo", JSON.stringify(res.data));
+    return res.data as UserInfo;
+  } catch (err: any) {
+    const message =
+      err.response?.data?.message ||
+      "An error occurred. Please try again later.";
+    toast.error(message);
+    return thunkAPI.rejectWithValue(message);
   }
-);
+});
 
-export const loginSlice = createSlice({
-  name: 'auth-login',
+const loginSlice = createSlice({
+  name: "auth-login",
   initialState,
   reducers: {
-    userLogout: (state: UserSliceState) => {
+    userLogout(state) {
       state.userInfo = null;
+      localStorage.removeItem("userInfo");
+    },
+    setCredentials(state, action: { payload: UserInfo }) {
+      state.userInfo = action.payload;
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(userLogin.pending, (state) => {
-      state.loading = true;
-    });
-    builder.addCase(userLogin.fulfilled, (state, action) => {
-      state.loading = false;
-      state.userInfo = action.payload;
-    });
-    builder.addCase(userLogin.rejected, (state) => {
-      state.loading = false;
-    });
+    builder
+      .addCase(userLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(userLogin.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.userInfo = payload;
+      })
+      .addCase(userLogin.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload ?? "Login failed";
+      });
   },
 });
 
-export const { userLogout } = loginSlice.actions;
-
+export const { userLogout, setCredentials } = loginSlice.actions;
 export default loginSlice;
