@@ -117,6 +117,7 @@ const PlaceOrderPage = () => {
                   </Typography>
                 )}
                 <Button
+                  data-testid="select-address-button"
                   variant="outlined"
                   onClick={() => setAddressModalOpen(true)}
                   sx={{ mt: 1 }}
@@ -185,6 +186,7 @@ const PlaceOrderPage = () => {
 
         <Box sx={{ mt: 4, textAlign: "center" }}>
           <Button
+            data-testid="place-order-button"
             variant="contained"
             onClick={handlePlaceOrder}
             disabled={cartItems.length === 0}

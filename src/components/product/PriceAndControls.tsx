@@ -54,6 +54,7 @@ const PriceAndControls: React.FC<PriceAndControlsProps> = ({
       <Divider />
       <ListItem>
         <Button
+          data-testid="add-to-cart-button"
           variant="contained"
           color="primary"
           onClick={onAdd}

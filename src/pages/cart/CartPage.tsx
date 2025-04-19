@@ -114,7 +114,12 @@ const CartPage: React.FC = () => {
                       key={item._id}
                       sx={{ mb: 2, p: 2, boxShadow: 3, mx: 2 }}
                     >
-                      <Grid container spacing={2} alignItems="center">
+                      <Grid
+                        data-testid="cart-item"
+                        container
+                        spacing={2}
+                        alignItems="center"
+                      >
                         <Grid
                           size={{ xs: 2, md: 1 }}
                           sx={{ textAlign: "center" }}
@@ -228,6 +233,7 @@ const CartPage: React.FC = () => {
               <Box sx={{ mt: 3, textAlign: "center" }}>
                 <Button
                   variant="contained"
+                  data-testid="goto-place-order-button"
                   onClick={() => navigate("/place-order")}
                   disabled={cartItems.length === 0}
                   size="large"

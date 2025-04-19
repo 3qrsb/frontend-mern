@@ -63,6 +63,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <Card
+      data-testid="product-card"
       sx={{
         width: { xs: "100%", sm: "100%" },
         position: "relative",

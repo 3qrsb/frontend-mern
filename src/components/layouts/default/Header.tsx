@@ -127,7 +127,12 @@ const Header: React.FC = () => {
           </Box>
 
           <Box display="flex" alignItems="center" gap={1}>
-            <IconButton component={Link} to="/cart" color="inherit">
+            <IconButton
+              data-testid="cart-badge"
+              component={Link}
+              to="/cart"
+              color="inherit"
+            >
               <Badge badgeContent={totalCartQuantity} color="error">
                 <ShoppingCartIcon />
               </Badge>

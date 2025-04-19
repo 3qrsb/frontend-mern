@@ -104,6 +104,7 @@ const AddressSelectorModal: React.FC<Props> = ({
         ) : addresses.length > 0 ? (
           addresses.map((addr) => (
             <Box
+              data-testid="address-card"
               key={addr._id}
               onClick={() => onSelect(addr)}
               sx={{
