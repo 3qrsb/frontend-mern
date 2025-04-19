@@ -163,7 +163,11 @@ const Header: React.FC = () => {
               </>
             ) : (
               <>
-                <IconButton onClick={handleMenuOpen} color="inherit">
+                <IconButton
+                  onClick={handleMenuOpen}
+                  color="inherit"
+                  data-testid="account-menu-button"
+                >
                   <AccountCircleIcon />
                 </IconButton>
                 <Menu
@@ -196,6 +200,7 @@ const Header: React.FC = () => {
                     Profile
                   </MenuItem>
                   <MenuItem
+                    data-testid="logout-button"
                     onClick={() => {
                       handleMenuClose();
                       onLogout();
