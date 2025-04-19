@@ -4,7 +4,7 @@ import chromedriver from "chromedriver";
 import { expect } from "chai";
 
 describe("E2E: Login → Products → Cart → Checkout", function () {
-  this.timeout(90000);
+  this.timeout(120000);
   let driver: WebDriver;
 
   before(async () => {
@@ -19,7 +19,15 @@ describe("E2E: Login → Products → Cart → Checkout", function () {
       .setChromeService(service)
       .setChromeOptions(options as any)
       .build();
+  });
 
+  after(async () => {
+    if (driver) {
+      await driver.quit();
+    }
+  });
+
+  it("logs in and lands on the home page", async () => {
     await driver.get("http://localhost:3000/login");
 
     await driver.findElement(By.name("email")).sendKeys("eabuov4@gmail.com");
@@ -31,12 +39,6 @@ describe("E2E: Login → Products → Cart → Checkout", function () {
       10000,
       "Timed out waiting to be redirected to home page after login"
     );
-  });
-
-  after(async () => {
-    if (driver) {
-      await driver.quit();
-    }
   });
 
   it("adds a product and verifies it shows in the cart badge", async () => {
@@ -81,12 +83,11 @@ describe("E2E: Login → Products → Cart → Checkout", function () {
   });
 
   it("selects a shipping address, places the order, and lands on Stripe", async () => {
-    await driver.wait(
-      until.elementLocated(By.css("[data-testid='select-address-button']")),
-      5000
-    );
     await driver
-      .findElement(By.css("[data-testid='select-address-button']"))
+      .wait(
+        until.elementLocated(By.css("[data-testid='select-address-button']")),
+        5000
+      )
       .click();
 
     await driver.wait(

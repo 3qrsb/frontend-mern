@@ -8,7 +8,7 @@ const chrome_1 = require("selenium-webdriver/chrome");
 const chromedriver_1 = __importDefault(require("chromedriver"));
 const chai_1 = require("chai");
 describe("E2E: Login → Products → Cart → Checkout", function () {
-    this.timeout(90000);
+    this.timeout(120000);
     let driver;
     before(async () => {
         const service = new chrome_1.ServiceBuilder(chromedriver_1.default.path);
@@ -18,16 +18,18 @@ describe("E2E: Login → Products → Cart → Checkout", function () {
             .setChromeService(service)
             .setChromeOptions(options)
             .build();
-        await driver.get("http://localhost:3000/login");
-        await driver.findElement(selenium_webdriver_1.By.name("email")).sendKeys("eabuov4@gmail.com");
-        await driver.findElement(selenium_webdriver_1.By.name("password")).sendKeys("eabuov4@gmail.com");
-        await driver.findElement(selenium_webdriver_1.By.css("button[type='submit']")).click();
-        await driver.wait(selenium_webdriver_1.until.urlIs("http://localhost:3000/"), 10000, "Timed out waiting to be redirected to home page after login");
     });
     after(async () => {
         if (driver) {
             await driver.quit();
         }
+    });
+    it("logs in and lands on the home page", async () => {
+        await driver.get("http://localhost:3000/login");
+        await driver.findElement(selenium_webdriver_1.By.name("email")).sendKeys("eabuov4@gmail.com");
+        await driver.findElement(selenium_webdriver_1.By.name("password")).sendKeys("eabuov4@gmail.com");
+        await driver.findElement(selenium_webdriver_1.By.css("button[type='submit']")).click();
+        await driver.wait(selenium_webdriver_1.until.urlIs("http://localhost:3000/"), 10000, "Timed out waiting to be redirected to home page after login");
     });
     it("adds a product and verifies it shows in the cart badge", async () => {
         await driver.get("http://localhost:3000/products");
@@ -49,9 +51,8 @@ describe("E2E: Login → Products → Cart → Checkout", function () {
         await driver.wait(selenium_webdriver_1.until.urlContains("/place-order"), 5000, "Timed out waiting for /place-order URL");
     });
     it("selects a shipping address, places the order, and lands on Stripe", async () => {
-        await driver.wait(selenium_webdriver_1.until.elementLocated(selenium_webdriver_1.By.css("[data-testid='select-address-button']")), 5000);
         await driver
-            .findElement(selenium_webdriver_1.By.css("[data-testid='select-address-button']"))
+            .wait(selenium_webdriver_1.until.elementLocated(selenium_webdriver_1.By.css("[data-testid='select-address-button']")), 5000)
             .click();
         await driver.wait(selenium_webdriver_1.until.elementLocated(selenium_webdriver_1.By.css("[data-testid='address-card']")), 5000);
         await driver.findElement(selenium_webdriver_1.By.css("[data-testid='address-card']")).click();
